@@ -55,24 +55,14 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
     setSelectedRunestone(null);
   };
 
-  // Function to refresh visited status (now simply applies the current visited state)
-  const refreshVisitedStatus = useCallback(() => {
-    const updatedRunestones = visitedRunestonesStore.applyVisitedStatus(runestonesRef.current);
-    runestonesRef.current = updatedRunestones;
-    setRunestones(updatedRunestones);
-  }, []);
-
   const fetchAllRunestones = useCallback(async () => {
     setLoading(true);
     try {
       // Fetch all runestones from IDB cache (which will fall back to Supabase if needed)
       const allRunestones = await runestonesCache.getAllRunestones();
 
-      // Apply visited status using the store
-      const runestonesWithVisitedStatus = visitedRunestonesStore.applyVisitedStatus(allRunestones);
-
-      runestonesRef.current = runestonesWithVisitedStatus;
-      setRunestones(runestonesWithVisitedStatus);
+      runestonesRef.current = allRunestones;
+      setRunestones(allRunestones);
     } catch (error) {
       console.error('Error fetching runestones:', error);
     } finally {
@@ -118,7 +108,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
             transliteration: stone.transliteration,
             overlapping_count: stonesAtLocation.length,
             original_coordinates: [stone.longitude, stone.latitude],
-            visited: stone.visited || false,
+            visited: visitedRunestonesStore.isRunestoneVisited(stone.id),
           },
           geometry: {
             type: 'Point',
@@ -192,8 +182,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
     }
 
     // Create clustering approach - always apply current visited status
-    const runestonesWithCurrentVisitedStatus = visitedRunestonesStore.applyVisitedStatus(runestonesRef.current);
-    const geoJsonData = createGeoJSONData(runestonesWithCurrentVisitedStatus);
+    const geoJsonData = createGeoJSONData(runestonesRef.current);
 
     try {
       // Check if source already exists and try to update it first
@@ -421,9 +410,9 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
   // React to changes in visited runestones store
   useEffect(() => {
     if (runestonesRef.current.length > 0) {
-      refreshVisitedStatus();
+      updateClusters();
     }
-  }, [visitedRunestonesStore.visitedRunestoneIds, refreshVisitedStatus]);
+  }, [visitedRunestonesStore.visitedRunestoneIds, updateClusters]);
 
   // Fetch runestones when component mounts
   useEffect(() => {
@@ -475,7 +464,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
         runestone={selectedRunestone}
         isOpen={isModalOpen}
         onClose={closeModal}
-        onVisitedStatusChange={refreshVisitedStatus}
+        onVisitedStatusChange={updateClusters}
       />
     </div>
   );

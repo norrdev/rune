@@ -175,53 +175,43 @@ class RunestonesCache {
     }
 
     const searchTerm = query.toLowerCase().trim();
-
     const db = await this.db;
 
-    // Use cursor to iterate through records efficiently
+    // Get all runestones and filter in memory - faster than cursor for dataset of this size (<10k)
+    // because it avoids thousands of IPC round-trips
+    const allStones = await db.getAll('runestones');
     const results: Runestone[] = [];
-    const tx = db.transaction('runestones', 'readonly');
-    const store = tx.objectStore('runestones');
-    let cursor = await store.openCursor();
 
-    let checkedCount = 0;
-    while (cursor && results.length < limit) {
-      const runestone = cursor.value;
-      checkedCount++;
-
-      // Check if any searchable field contains the search term
+    for (const runestone of allStones) {
       if (this.matchesSearchTerm(runestone, searchTerm)) {
         results.push(runestone);
+        if (results.length >= limit) break;
       }
-
-      // Continue to next record
-      cursor = await cursor.continue();
     }
 
     return results;
   }
 
   private matchesSearchTerm(runestone: Runestone, searchTerm: string): boolean {
-    const searchableFields = [
-      runestone.signature_text,
-      runestone.found_location,
-      runestone.parish,
-      runestone.district,
-      runestone.municipality,
-      runestone.current_location,
-      runestone.material,
-      runestone.material_type,
-      runestone.rune_type,
-      runestone.dating,
-      runestone.style,
-      runestone.carver,
-      runestone.english_translation,
-      runestone.swedish_translation,
-      runestone.norse_text,
-      runestone.transliteration,
-    ];
+    // Check fields directly without creating an array to avoid allocation
+    if (runestone.signature_text && runestone.signature_text.toLowerCase().includes(searchTerm)) return true;
+    if (runestone.found_location && runestone.found_location.toLowerCase().includes(searchTerm)) return true;
+    if (runestone.parish && runestone.parish.toLowerCase().includes(searchTerm)) return true;
+    if (runestone.district && runestone.district.toLowerCase().includes(searchTerm)) return true;
+    if (runestone.municipality && runestone.municipality.toLowerCase().includes(searchTerm)) return true;
+    if (runestone.current_location && runestone.current_location.toLowerCase().includes(searchTerm)) return true;
+    if (runestone.material && runestone.material.toLowerCase().includes(searchTerm)) return true;
+    if (runestone.material_type && runestone.material_type.toLowerCase().includes(searchTerm)) return true;
+    if (runestone.rune_type && runestone.rune_type.toLowerCase().includes(searchTerm)) return true;
+    if (runestone.dating && runestone.dating.toLowerCase().includes(searchTerm)) return true;
+    if (runestone.style && runestone.style.toLowerCase().includes(searchTerm)) return true;
+    if (runestone.carver && runestone.carver.toLowerCase().includes(searchTerm)) return true;
+    if (runestone.english_translation && runestone.english_translation.toLowerCase().includes(searchTerm)) return true;
+    if (runestone.swedish_translation && runestone.swedish_translation.toLowerCase().includes(searchTerm)) return true;
+    if (runestone.norse_text && runestone.norse_text.toLowerCase().includes(searchTerm)) return true;
+    if (runestone.transliteration && runestone.transliteration.toLowerCase().includes(searchTerm)) return true;
 
-    return searchableFields.some((field) => field && field.toLowerCase().includes(searchTerm));
+    return false;
   }
 }
 
