@@ -1,9 +1,10 @@
 import { Runestone } from '../types';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { View, Text, Pressable, ScrollView, Modal, ActivityIndicator } from 'react-native';
 import { observer } from 'mobx-react-lite';
 import { authStore } from '../stores/authStore';
 import { visitedRunestonesStore } from '../stores/visitedRunestonesStore';
+import { Link } from 'expo-router';
 
 interface RunestoneModalProps {
   runestone: Runestone | null;
@@ -13,222 +14,169 @@ interface RunestoneModalProps {
 }
 
 export const RunestoneModal = observer(({ runestone, isOpen, onClose, onVisitedStatusChange }: RunestoneModalProps) => {
-  const [isMarkingVisited, setIsMarkingVisited] = useState(false);
   const [visitedError, setVisitedError] = useState<string | null>(null);
 
   const isVisited = runestone ? visitedRunestonesStore.isRunestoneVisited(runestone.id) : false;
+  const loading = visitedRunestonesStore.loading;
 
-  // If modal is not open or no runestone, don't render anything
-  if (!isOpen || !runestone) {
+  if (!runestone) {
     return null;
   }
 
   const handleMarkAsVisited = async () => {
     if (!runestone) return;
-
-    setIsMarkingVisited(true);
     setVisitedError(null);
 
     try {
       if (isVisited) {
-        // Unmark as visited
         await visitedRunestonesStore.unmarkAsVisited(runestone.id);
-        console.log('Runestone unmarked as visited!');
       } else {
-        // Mark as visited
         await visitedRunestonesStore.markAsVisited(runestone.id);
-        console.log('Runestone marked as visited!');
       }
-
-      // Notify parent component to refresh map data (if callback provided)
       if (onVisitedStatusChange) {
         onVisitedStatusChange();
       }
     } catch (error) {
       console.error('Error updating visited status:', error);
       setVisitedError('Failed to update visited status. Please try again.');
-    } finally {
-      setIsMarkingVisited(false);
     }
   };
 
   return (
-    <>
-      {/* Backdrop - dark overlay behind the modal */}
-      <div className="fixed inset-0 bg-black/50 z-1000" onClick={onClose} />
-
-      {/* Modal container */}
-      <div className="fixed inset-0 z-1001 flex items-center justify-center p-4">
-        {/* Modal content */}
-        <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+    <Modal
+      animationType="fade"
+      transparent={true}
+      visible={isOpen}
+      onRequestClose={onClose}
+    >
+      <View className="flex-1 justify-center items-center bg-black/50 p-4">
+        <View className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90%] overflow-hidden">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-200">
-            <div className="flex items-center gap-3">
-              <h2 className="text-xl font-bold text-gray-800">{runestone.signature_text}</h2>
-              <Link
-                to={`/runestones/${runestone.slug}`}
-                className="text-primary hover:text-primary/90 text-sm font-medium"
-                onClick={onClose}
-              >
-                View Full Page
+          <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
+            <View className="flex-1 flex-row items-center gap-3">
+              <Text className="text-xl font-bold text-gray-800 flex-shrink">{runestone.signature_text}</Text>
+              <Link href={`/runestones/${runestone.slug}`} asChild>
+                  <Pressable onPress={onClose}>
+                    <Text className="text-primary text-sm font-medium">View Full Page</Text>
+                  </Pressable>
               </Link>
-            </div>
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl font-bold">
-              ×
-            </button>
-          </div>
+            </View>
+            <Pressable onPress={onClose} className="p-2">
+              <Text className="text-gray-400 text-2xl font-bold">×</Text>
+            </Pressable>
+          </View>
 
           {/* Content */}
-          <div className="p-4 overflow-y-auto max-h-[calc(90vh-140px)]">
-            <div className="space-y-4">
+          <ScrollView className="p-4" contentContainerStyle={{ paddingBottom: 20 }}>
+            <View className="gap-4">
               {/* Location */}
-              <div>
-                <h3 className="font-semibold text-gray-700 mb-2">Location</h3>
-                <div className="bg-gray-50 p-3 rounded">
-                  <p className="text-gray-800">{runestone.found_location}</p>
-                  <p className="text-sm text-gray-600">{runestone.parish}</p>
-                  {runestone.district && <p className="text-sm text-gray-600">{runestone.district}</p>}
-                  {runestone.municipality && <p className="text-sm text-gray-600">{runestone.municipality}</p>}
+              <View>
+                <Text className="font-semibold text-gray-700 mb-2">Location</Text>
+                <View className="bg-gray-50 p-3 rounded">
+                  <Text className="text-gray-800">{runestone.found_location}</Text>
+                  <Text className="text-sm text-gray-600">{runestone.parish}</Text>
+                  {runestone.district && <Text className="text-sm text-gray-600">{runestone.district}</Text>}
+                  {runestone.municipality && <Text className="text-sm text-gray-600">{runestone.municipality}</Text>}
                   {runestone.current_location && (
-                    <p className="text-sm text-gray-600">Current: {runestone.current_location}</p>
+                    <Text className="text-sm text-gray-600">Current: {runestone.current_location}</Text>
                   )}
                   {runestone.latitude && runestone.longitude && (
-                    <p className="text-sm text-gray-600">
+                    <Text className="text-sm text-gray-600">
                       {runestone.latitude}, {runestone.longitude}
-                    </p>
+                    </Text>
                   )}
-                </div>
-              </div>
+                </View>
+              </View>
 
               {/* Basic Details */}
-              <div>
-                <h3 className="font-semibold text-gray-700 mb-2">Details</h3>
-                <div className="bg-gray-50 p-3 rounded space-y-1">
-                  <p className="text-sm">
-                    <span className="font-medium">Material:</span> {runestone.material || 'Unknown'}
-                  </p>
-                  <p className="text-sm">
-                    <span className="font-medium">Dating:</span> {runestone.dating || 'Unknown'}
-                  </p>
-                  <p className="text-sm">
-                    <span className="font-medium">Type:</span> {runestone.rune_type || 'Unknown'}
-                  </p>
-                  <p className="text-sm">
-                    <span className="font-medium">Style:</span> {runestone.material_type || 'Unknown'}
-                  </p>
-                  {runestone.carver && (
-                    <p className="text-sm">
-                      <span className="font-medium">Carver:</span> {runestone.carver}
-                    </p>
-                  )}
-                  {runestone.style && (
-                    <p className="text-sm">
-                      <span className="font-medium">Style:</span> {runestone.style}
-                    </p>
-                  )}
-                </div>
-              </div>
+              <View>
+                <Text className="font-semibold text-gray-700 mb-2">Details</Text>
+                <View className="bg-gray-50 p-3 rounded gap-1">
+                  <Text className="text-sm"><Text className="font-medium">Material:</Text> {runestone.material || 'Unknown'}</Text>
+                  <Text className="text-sm"><Text className="font-medium">Dating:</Text> {runestone.dating || 'Unknown'}</Text>
+                  <Text className="text-sm"><Text className="font-medium">Type:</Text> {runestone.rune_type || 'Unknown'}</Text>
+                  <Text className="text-sm"><Text className="font-medium">Style:</Text> {runestone.material_type || 'Unknown'}</Text>
+                  {runestone.carver && <Text className="text-sm"><Text className="font-medium">Carver:</Text> {runestone.carver}</Text>}
+                  {runestone.style && <Text className="text-sm"><Text className="font-medium">Style:</Text> {runestone.style}</Text>}
+                </View>
+              </View>
 
               {/* Status */}
-              <div>
-                <h3 className="font-semibold text-gray-700 mb-2">Status</h3>
-                <div className="bg-gray-50 p-3 rounded space-y-1">
-                  <p className="text-sm">
-                    <span className="font-medium">Lost:</span> {runestone.lost ? 'Yes' : 'No'}
-                  </p>
-                  <p className="text-sm">
-                    <span className="font-medium">Ornamental:</span> {runestone.ornamental ? 'Yes' : 'No'}
-                  </p>
-                  <p className="text-sm">
-                    <span className="font-medium">Recent:</span> {runestone.recent ? 'Yes' : 'No'}
-                  </p>
-                </div>
-              </div>
+              <View>
+                <Text className="font-semibold text-gray-700 mb-2">Status</Text>
+                <View className="bg-gray-50 p-3 rounded gap-1">
+                  <Text className="text-sm"><Text className="font-medium">Lost:</Text> {runestone.lost ? 'Yes' : 'No'}</Text>
+                  <Text className="text-sm"><Text className="font-medium">Ornamental:</Text> {runestone.ornamental ? 'Yes' : 'No'}</Text>
+                  <Text className="text-sm"><Text className="font-medium">Recent:</Text> {runestone.recent ? 'Yes' : 'No'}</Text>
+                </View>
+              </View>
 
-              {/* English Translation */}
+              {/* Translations */}
               {runestone.english_translation && (
-                <div>
-                  <h3 className="font-semibold text-gray-700 mb-2">English Translation</h3>
-                  <div className="bg-amber-50 p-3 rounded border-l-4 border-amber-400">
-                    <p className="text-gray-800 text-sm leading-relaxed">{runestone.english_translation}</p>
-                  </div>
-                </div>
+                <View>
+                  <Text className="font-semibold text-gray-700 mb-2">English Translation</Text>
+                  <View className="bg-amber-50 p-3 rounded border-l-4 border-amber-400">
+                    <Text className="text-gray-800 text-sm leading-relaxed">{runestone.english_translation}</Text>
+                  </View>
+                </View>
               )}
-
-              {/* Swedish Translation */}
-              {runestone.swedish_translation && (
-                <div>
-                  <h3 className="font-semibold text-gray-700 mb-2">Swedish Translation</h3>
-                  <div className="bg-amber-50 p-3 rounded border-l-4 border-amber-400">
-                    <p className="text-gray-800 text-sm leading-relaxed">{runestone.swedish_translation}</p>
-                  </div>
-                </div>
+               {runestone.swedish_translation && (
+                <View>
+                  <Text className="font-semibold text-gray-700 mb-2">Swedish Translation</Text>
+                  <View className="bg-amber-50 p-3 rounded border-l-4 border-amber-400">
+                     <Text className="text-gray-800 text-sm leading-relaxed">{runestone.swedish_translation}</Text>
+                  </View>
+                </View>
               )}
-
-              {/* Norse Text */}
-              {runestone.norse_text && (
-                <div>
-                  <h3 className="font-semibold text-gray-700 mb-2">Norse Text</h3>
-                  <div className="bg-amber-50 p-3 rounded border-l-4 border-amber-400">
-                    <p className="text-gray-800 text-sm leading-relaxed italic font-medium">{runestone.norse_text}</p>
-                  </div>
-                </div>
+               {runestone.norse_text && (
+                <View>
+                  <Text className="font-semibold text-gray-700 mb-2">Norse Text</Text>
+                  <View className="bg-amber-50 p-3 rounded border-l-4 border-amber-400">
+                     <Text className="text-gray-800 text-sm leading-relaxed italic font-medium">{runestone.norse_text}</Text>
+                  </View>
+                </View>
               )}
-
-              {/* Transliteration */}
-              {runestone.transliteration && (
-                <div>
-                  <h3 className="font-semibold text-gray-700 mb-2">Transliteration</h3>
-                  <div className="bg-amber-50 p-3 rounded border-l-4 border-amber-400">
-                    <p className="text-gray-800 text-sm leading-relaxed font-mono">{runestone.transliteration}</p>
-                  </div>
-                </div>
+               {runestone.transliteration && (
+                <View>
+                  <Text className="font-semibold text-gray-700 mb-2">Transliteration</Text>
+                  <View className="bg-amber-50 p-3 rounded border-l-4 border-amber-400">
+                     <Text className="text-gray-800 text-sm leading-relaxed font-mono">{runestone.transliteration}</Text>
+                  </View>
+                </View>
               )}
-            </div>
-          </div>
+            </View>
+          </ScrollView>
 
           {/* Error Message */}
           {authStore.user && visitedError && (
-            <div className="px-4 pb-2">
-              <p className="text-sm text-red-600 bg-red-50 p-2 rounded">{visitedError}</p>
-            </div>
+             <View className="px-4 pb-2">
+                 <Text className="text-sm text-red-600 bg-red-50 p-2 rounded">{visitedError}</Text>
+             </View>
           )}
 
           {/* Footer */}
-          <div className="flex justify-between items-center p-4 border-t border-gray-200">
-            {/* Mark as Visited Button - only show if user is logged in */}
+          <View className="flex-row justify-between items-center p-4 border-t border-gray-200">
             {authStore.user && (
-              <button
-                onClick={handleMarkAsVisited}
-                disabled={isMarkingVisited}
-                className={`px-4 py-2 text-white rounded disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 ${
-                  isVisited ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'
-                }`}
+              <Pressable
+                onPress={handleMarkAsVisited}
+                disabled={loading}
+                 className={`px-4 py-2 rounded flex-row items-center gap-2 ${
+                  isVisited ? 'bg-red-600' : 'bg-green-600'
+                } ${loading ? 'opacity-50' : ''}`}
               >
-                {isMarkingVisited ? (
-                  <>
-                    <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
-                    <span>{isVisited ? 'Unmarking...' : 'Marking...'}</span>
-                  </>
-                ) : visitedRunestonesStore.loading ? (
-                  <>
-                    <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
-                    <span>Checking...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>{isVisited ? 'Unmark as Visited' : 'Mark as Visited'}</span>
-                  </>
-                )}
-              </button>
+                  {loading && <ActivityIndicator size="small" color="white" />}
+                  <Text className="text-white font-medium">
+                      {loading ? 'Processing...' : isVisited ? 'Unmark as Visited' : 'Mark as Visited'}
+                  </Text>
+              </Pressable>
             )}
 
-            <button onClick={onClose} className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
-              Close
-            </button>
-          </div>
-        </div>
-      </div>
-    </>
+            <Pressable onPress={onClose} className="px-4 py-2 bg-gray-500 rounded">
+              <Text className="text-white font-medium">Close</Text>
+            </Pressable>
+          </View>
+        </View>
+      </View>
+    </Modal>
   );
 });

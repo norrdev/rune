@@ -2,7 +2,7 @@ import { makeObservable, observable, computed, action, runInAction, reaction } f
 import { supabaseRunestones } from '../services/supabaseRunestones';
 import { runestonesCache } from '../services/runestonesCache';
 import { authStore } from './authStore';
-import { Runestone } from '../types';
+import type { Runestone } from '../types';
 
 const TOTAL_RUNESTONES = 6815;
 
@@ -151,6 +151,10 @@ class VisitedRunestonesStore {
       });
       return false;
     }
+  }
+
+  isVisited(runestoneId: number): boolean {
+    return this.visitedRunestoneIds.has(runestoneId);
   }
 
   get isRunestoneVisited() {

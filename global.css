@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Force bg-primary to work if needed, though Tailwind config should handle it */
+.bg-primary {
+  background-color: #866c53 !important;
+}
+
+.text-primary {
+  color: #866c53 !important;
+}
+
+.border-primary {
+  border-color: #866c53 !important;
+}

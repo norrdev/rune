@@ -1,4 +1,4 @@
-import { openDB, DBSchema, IDBPDatabase } from 'idb';
+import { openDB, DBSchema, IDBPDatabase } from 'idb/build/index.js';
 import { supabaseRunestones } from './supabaseRunestones';
 import { Runestone } from '../types';
 
