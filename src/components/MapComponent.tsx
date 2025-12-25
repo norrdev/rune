@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { GeolocateControl, Map, GeoJSONSource } from 'maplibre-gl';
+import { GeolocateControl, Map, type GeoJSONSource } from 'maplibre-gl';
 import { runestonesCache } from '@services/runestonesCache';
-import { Runestone, RunestoneFeature, RunestoneGeoJSON } from '../types';
+import type { Runestone, RunestoneFeature, RunestoneGeoJSON } from '../types';
 import { RunestoneModal } from './RunestoneModal';
 import { observer } from 'mobx-react-lite';
 
@@ -34,7 +34,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<Map | null>(null);
   const eventListenersAddedRef = useRef<boolean>(false);
-  const styleTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const styleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const runestonesRef = useRef<Runestone[]>([]);
   const [runestones, setRunestones] = useState<Runestone[]>([]);
   const [loading, setLoading] = useState(false);
@@ -143,7 +143,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
       styleTimeoutRef.current = setTimeout(() => {
         console.warn('Style loading timeout, attempting to add layers anyway');
         styleTimeoutRef.current = null; // Clear the reference
-        if (mapRef.current && mapRef.current.isStyleLoaded()) {
+        if (mapRef.current?.isStyleLoaded()) {
           updateClusters();
         } else {
           console.error('Style failed to load completely. Skipping layer addition to prevent infinite loop.');
@@ -353,7 +353,8 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
     } catch (error) {
       console.error('Error adding clustering layers:', error);
     }
-  }, [runestones, createGeoJSONData]);
+  }, [runestones, createGeoJSONData, // Open the modal with this runestone
+          openModal]);
 
   useEffect(() => {
     if (!mapContainer.current) return;
@@ -412,7 +413,8 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
     if (runestonesRef.current.length > 0) {
       updateClusters();
     }
-  }, [visitedRunestonesStore.visitedRunestoneIds, updateClusters]);
+  }, [refreshVisitedStatus]);
+
 
   // Fetch runestones when component mounts
   useEffect(() => {
@@ -425,7 +427,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
     if (onVisitedCountChange) {
       onVisitedCountChange(visitedRunestonesStore.visitedCount);
     }
-  }, [onVisitedCountChange, visitedRunestonesStore.visitedCount]);
+  }, [onVisitedCountChange]);
 
   // Navigate to selected runestone
   useEffect(() => {
@@ -443,7 +445,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
       openModal(searchStore.selectedRunestone);
       searchStore.setSelectedRunestone(null); // Clear selected runestone after navigation
     }
-  }, [searchStore.selectedRunestone]);
+  }, [openModal]);
 
   return (
     <div className="relative w-full h-full">
