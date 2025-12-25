@@ -8,24 +8,11 @@ export default defineConfig({
   plugins: [
     react({
       babel: {
-        plugins: [
-          [
-            'babel-plugin-react-compiler',
-            {
-              logger: {
-                logEvent(filename: string, event: { kind: string }) {
-                  if (event.kind === 'CompileSuccess') {
-                    console.log('Compiled:', filename);
-                  }
-                },
-              },
-            },
-          ],
-        ],
+        plugins: [],
       },
     }),
-    cloudflare(),
-  ],
+    process.env.VITE_ENABLE_CLOUDFLARE === 'true' ? cloudflare() : undefined,
+  ].filter(Boolean),
   build: {
     target: 'esnext',
     rollupOptions: {
