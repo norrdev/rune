@@ -1,4 +1,4 @@
-import { View, Text, ScrollView } from 'react-native';
+import { Text, ScrollView } from 'react-native'; 
 import { Stack } from 'expo-router';
 
 export default function About() {
