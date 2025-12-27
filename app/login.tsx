@@ -83,43 +83,41 @@ export default observer(function LoginPage() {
 
     if (isForgotPassword) {
         return (
-            <ScrollView className="flex-1 bg-gray-50">
+            <ScrollView className="flex-1 bg-white" contentContainerStyle={{ flexGrow: 1 }}>
                 <PageHeader title="Reset Password" />
-                <View className="flex-1 items-center justify-center px-4" style={{ paddingBottom: insets.bottom + 20 }}>
-                    <View className="w-full md:max-w-sm bg-white md:rounded-lg md:shadow-lg p-6 gap-4">
-                        <Text className="text-sm text-gray-600 mb-4">Enter your email to receive password reset instructions</Text>
+                <View className="flex-1 px-4 py-6 md:px-8 md:py-8 w-full md:max-w-lg mx-auto justify-center">
+                    <Text className="text-base text-gray-600 mb-6">Enter your email to receive password reset instructions</Text>
 
-                        <TextInput
-                            placeholder="Enter your email"
-                            value={email}
-                            onChangeText={setEmail}
-                            autoCapitalize="none"
-                            keyboardType="email-address"
-                            className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg"
-                        />
+                    <TextInput
+                        placeholder="Enter your email"
+                        value={email}
+                        onChangeText={setEmail}
+                        autoCapitalize="none"
+                        keyboardType="email-address"
+                        className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg mb-4"
+                    />
 
-                        {error && <Text className="text-sm text-red-500">{error}</Text>}
-                        {success && <Text className="text-sm text-green-500">{success}</Text>}
+                    {error && <Text className="text-sm text-red-500 mb-4">{error}</Text>}
+                    {success && <Text className="text-sm text-green-500 mb-4">{success}</Text>}
 
-                        <Pressable
-                            onPress={handleResetPassword}
-                            disabled={loading}
-                            className={`w-full px-4 py-3 bg-primary rounded-lg items-center ${loading ? 'opacity-50' : ''}`}
-                        >
-                            <Text className="text-sm font-medium text-white">{loading ? 'Sending...' : 'Reset Password'}</Text>
-                        </Pressable>
+                    <Pressable
+                        onPress={handleResetPassword}
+                        disabled={loading}
+                        className={`w-full px-4 py-3 bg-primary rounded-lg items-center mb-6 ${loading ? 'opacity-50' : ''}`}
+                    >
+                        <Text className="text-base font-medium text-white">{loading ? 'Sending...' : 'Reset Password'}</Text>
+                    </Pressable>
 
-                        <Pressable
-                            onPress={() => {
-                                setIsForgotPassword(false);
-                                setError(null);
-                                setSuccess(null);
-                            }}
-                            className="w-full items-center py-2"
-                        >
-                            <Text className="text-sm text-primary underline">Back to Sign In</Text>
-                        </Pressable>
-                    </View>
+                    <Pressable
+                        onPress={() => {
+                            setIsForgotPassword(false);
+                            setError(null);
+                            setSuccess(null);
+                        }}
+                        className="w-full items-center py-2"
+                    >
+                        <Text className="text-sm text-primary underline">Back to Sign In</Text>
+                    </Pressable>
                 </View>
             </ScrollView>
         );
@@ -127,108 +125,105 @@ export default observer(function LoginPage() {
 
     if (isMagicLink) {
         return (
-            <ScrollView className="flex-1 bg-gray-50">
+            <ScrollView className="flex-1 bg-white" contentContainerStyle={{ flexGrow: 1 }}>
                 <PageHeader title="Magic Link Sign In" />
-                <View className="flex-1 items-center justify-center px-4" style={{ paddingBottom: insets.bottom + 20 }}>
-                    <View className="w-full md:max-w-sm bg-white md:rounded-lg md:shadow-lg p-6 gap-4">
-                        <Text className="text-sm text-gray-600 mb-4">We'll send you a magic link to sign in without a password</Text>
+                <View className="flex-1 px-4 py-6 md:px-8 md:py-8 w-full md:max-w-lg mx-auto justify-center">
+                    <Text className="text-base text-gray-600 mb-6">We'll send you a magic link to sign in without a password</Text>
 
-                        <TextInput
-                            placeholder="Enter your email"
-                            value={email}
-                            onChangeText={setEmail}
-                            autoCapitalize="none"
-                            keyboardType="email-address"
-                            className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg"
-                        />
+                    <TextInput
+                        placeholder="Enter your email"
+                        value={email}
+                        onChangeText={setEmail}
+                        autoCapitalize="none"
+                        keyboardType="email-address"
+                        className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg mb-4"
+                    />
 
-                        {error && <Text className="text-sm text-red-500">{error}</Text>}
-                        {success && <Text className="text-sm text-green-500">{success}</Text>}
+                    {error && <Text className="text-sm text-red-500 mb-4">{error}</Text>}
+                    {success && <Text className="text-sm text-green-500 mb-4">{success}</Text>}
 
-                        <Pressable
-                            onPress={handleMagicLink}
-                            disabled={loading}
-                            className={`w-full px-4 py-3 bg-primary rounded-lg items-center ${loading ? 'opacity-50' : ''}`}
-                        >
-                            <Text className="text-sm font-medium text-white">{loading ? 'Sending...' : 'Send Magic Link'}</Text>
-                        </Pressable>
+                    <Pressable
+                        onPress={handleMagicLink}
+                        disabled={loading}
+                        className={`w-full px-4 py-3 bg-primary rounded-lg items-center mb-6 ${loading ? 'opacity-50' : ''}`}
+                    >
+                        <Text className="text-base font-medium text-white">{loading ? 'Sending...' : 'Send Magic Link'}</Text>
+                    </Pressable>
 
-                        <Pressable
-                            onPress={() => {
-                                setIsMagicLink(false);
-                                setError(null);
-                                setSuccess(null);
-                            }}
-                            className="w-full items-center py-2"
-                        >
-                            <Text className="text-sm text-primary underline">Back to Sign In</Text>
-                        </Pressable>
-                    </View>
+                    <Pressable
+                        onPress={() => {
+                            setIsMagicLink(false);
+                            setError(null);
+                            setSuccess(null);
+                        }}
+                        className="w-full items-center py-2"
+                    >
+                        <Text className="text-sm text-primary underline">Back to Sign In</Text>
+                    </Pressable>
                 </View>
             </ScrollView>
         );
     }
 
+
     return (
-        <ScrollView className="flex-1 bg-gray-50">
+        <ScrollView className="flex-1 bg-white" contentContainerStyle={{ flexGrow: 1 }}>
             <PageHeader title={isSignUp ? 'Create Account' : 'Sign In'} />
-            <View className="flex-1 items-center justify-center px-4" style={{ paddingBottom: insets.bottom + 20 }}>
-                <View className="w-full md:max-w-sm bg-white md:rounded-lg md:shadow-lg p-6 gap-4">
-                    <Text className="text-sm text-gray-600 mb-4">
-                        {isSignUp ? 'Sign up to track your runestone visits' : 'Welcome back to Runestone Safari'}
+            <View className="flex-1 px-4 py-6 md:px-8 md:py-8 w-full md:max-w-lg mx-auto justify-center">
+                <Text className="text-base text-gray-600 mb-6">
+                    {isSignUp ? 'Sign up to track your runestone visits' : 'Welcome back to Runestone Safari'}
+                </Text>
+
+                <TextInput
+                    placeholder="Email"
+                    value={email}
+                    onChangeText={setEmail}
+                    autoCapitalize="none"
+                    keyboardType="email-address"
+                    className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg mb-4"
+                />
+
+                <TextInput
+                    placeholder="Password"
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry
+                    className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg mb-4"
+                />
+
+                {error && <Text className="text-sm text-red-500 mb-4">{error}</Text>}
+                {success && <Text className="text-sm text-green-500 mb-4">{success}</Text>}
+
+                <Pressable
+                    onPress={handleAuth}
+                    disabled={loading}
+                    className={`w-full px-4 py-3 bg-primary rounded-lg items-center mb-6 ${loading ? 'opacity-50' : ''}`}
+                >
+                    <Text className="text-base font-medium text-white">
+                        {loading ? 'Loading...' : isSignUp ? 'Sign Up' : 'Sign In'}
                     </Text>
+                </Pressable>
 
-                    <TextInput
-                        placeholder="Email"
-                        value={email}
-                        onChangeText={setEmail}
-                        autoCapitalize="none"
-                        keyboardType="email-address"
-                        className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg"
-                    />
-
-                    <TextInput
-                        placeholder="Password"
-                        value={password}
-                        onChangeText={setPassword}
-                        secureTextEntry
-                        className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg"
-                    />
-
-                    {error && <Text className="text-sm text-red-500">{error}</Text>}
-                    {success && <Text className="text-sm text-green-500">{success}</Text>}
-
-                    <Pressable
-                        onPress={handleAuth}
-                        disabled={loading}
-                        className={`w-full px-4 py-3 bg-primary rounded-lg items-center ${loading ? 'opacity-50' : ''}`}
-                    >
-                        <Text className="text-sm font-medium text-white">
-                            {loading ? 'Loading...' : isSignUp ? 'Sign Up' : 'Sign In'}
+                <View className="gap-4">
+                    <Pressable onPress={handleToggleSignUp} className="w-full items-center">
+                        <Text className="text-sm text-primary underline">
+                            {isSignUp ? 'Already have an account? Sign In' : 'Need an account? Sign Up'}
                         </Text>
                     </Pressable>
 
-                    <View className="gap-3 mt-2">
-                        <Pressable onPress={handleToggleSignUp} className="w-full items-center">
-                            <Text className="text-sm text-primary underline">
-                                {isSignUp ? 'Already have an account? Sign In' : 'Need an account? Sign Up'}
-                            </Text>
-                        </Pressable>
+                    <Pressable
+                        onPress={() => setIsForgotPassword(true)}
+                        className="w-full items-center"
+                    >
+                        <Text className="text-sm text-primary underline">Forgot password?</Text>
+                    </Pressable>
 
-                        <Pressable
-                            onPress={() => setIsForgotPassword(true)}
-                            className="w-full items-center"
-                        >
-                            <Text className="text-sm text-primary underline">Forgot password?</Text>
-                        </Pressable>
-
-                        <Pressable
-                            onPress={() => setIsMagicLink(true)}
-                            className="w-full items-center"
-                        >
-                            <Text className="text-sm text-primary underline">Sign in with Magic Link</Text>
-                        </Pressable>
-                    </View>
+                    <Pressable
+                        onPress={() => setIsMagicLink(true)}
+                        className="w-full items-center"
+                    >
+                        <Text className="text-sm text-primary underline">Sign in with Magic Link</Text>
+                    </Pressable>
                 </View>
             </View>
         </ScrollView>
