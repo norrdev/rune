@@ -39,7 +39,7 @@ export const SearchWidget = observer(() => {
           {searchStore.isLoading ? (
             <ActivityIndicator size="small" color="#000" />
           ) : (
-            <Text className="text-primary">🔍</Text>
+            <Text className="text-primary">Search</Text>
           )}
         </Pressable>
       </View>
@@ -48,7 +48,7 @@ export const SearchWidget = observer(() => {
       {searchStore.hasSearched && (
         <View className="mt-4">
           {searchStore.isLoading ? (
-             <Text className="text-sm text-gray-500 text-center py-2">Searching...</Text>
+            <Text className="text-sm text-gray-500 text-center py-2">Searching...</Text>
           ) : searchStore.hasResults ? (
             <View className="gap-2">
               <Text className="text-sm text-gray-600">
@@ -77,7 +77,7 @@ export const SearchWidget = observer(() => {
               </ScrollView>
             </View>
           ) : (
-             <Text className="text-sm text-gray-500 text-center py-2">No runestones found</Text>
+            <Text className="text-sm text-gray-500 text-center py-2">No runestones found</Text>
           )}
         </View>
       )}
