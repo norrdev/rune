@@ -1,7 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import { View, Text, Pressable, useWindowDimensions, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AuthWidget } from './widgets/AuthWidget';
 import { SearchWidget } from './widgets/SearchWidget';
 import { authStore } from '../../stores/authStore';
 import { Link } from 'expo-router';
@@ -117,8 +116,44 @@ export const Sidebar = observer(({ visitedCount, visible = false, onClose }: Sid
             </View>
           </View>
 
-          {/* Auth Widget */}
-          <AuthWidget />
+          {/* Authentication Section */}
+          {authStore.user && authStore.isEmailConfirmed ? (
+            <View className="p-4 border-t border-gray-200">
+              <Text className="text-sm text-gray-600 mb-2">
+                Signed in as <Text className="font-medium">{authStore.user.email}</Text>
+              </Text>
+              <View className="gap-2">
+                <Link href="/profile" asChild>
+                  <Pressable className="w-full px-3 py-2 border border-primary rounded active:bg-primary/10 flex-row items-center justify-center">
+                    <Text className="text-sm text-primary">View Profile</Text>
+                  </Pressable>
+                </Link>
+                <Pressable
+                  onPress={async () => {
+                    try {
+                      await authStore.signOut();
+                    } catch (err) {
+                      console.error('Sign out error:', err);
+                    }
+                  }}
+                  className="w-full px-3 py-2 bg-primary rounded active:bg-primary/90 flex items-center"
+                >
+                  <Text className="text-sm text-white">Sign Out</Text>
+                </Pressable>
+              </View>
+            </View>
+          ) : (
+            <View className="p-4 border-t border-gray-200">
+              <Link href="/login" asChild>
+                <Pressable className="w-full px-4 py-3 bg-primary rounded-lg items-center active:bg-primary/90">
+                  <Text className="text-sm font-medium text-white">Sign In</Text>
+                </Pressable>
+              </Link>
+              <Text className="text-xs text-gray-500 text-center mt-2">
+                Sign in to track your runestone visits
+              </Text>
+            </View>
+          )}
         </ScrollView>
 
         {/* Footer */}
