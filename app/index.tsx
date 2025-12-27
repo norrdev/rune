@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { View, Pressable, Text, useWindowDimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MapComponent } from '../src/components/MapComponent';
 import { Sidebar } from '../src/components/Sidebar/Sidebar';
 
@@ -7,6 +8,7 @@ export default function Page() {
   const [visitedCount, setVisitedCount] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const isMobile = width < 768;
 
   return (
@@ -14,7 +16,11 @@ export default function Page() {
       {/* Mobile Menu Button */}
       {isMobile && !sidebarOpen && (
         <Pressable
-          className="absolute top-4 left-4 z-30 bg-white border border-gray-300 rounded p-2 shadow"
+          className="absolute z-30 bg-white border border-gray-300 rounded-full w-12 h-12 items-center justify-center shadow"
+          style={{
+            top: insets.top + 16,
+            left: insets.left + 16,
+          }}
           onPress={() => setSidebarOpen(true)}
         >
           <Text className="text-black font-bold text-lg">☰</Text>
