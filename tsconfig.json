@@ -3,19 +3,46 @@
   "compilerOptions": {
     "strict": true,
     "baseUrl": "./src",
-    "moduleSuffixes": [".web", ".native", ""],
+    "jsx": "react-native",
+    "moduleSuffixes": [
+      ".web",
+      ".native",
+      ""
+    ],
     "paths": {
-      "@components/*": ["components/*"],
-      "@pages/*": ["pages/*"],
-      "@assets/*": ["assets/*"],
-      "@utils/*": ["utils/*"],
-      "@hooks/*": ["hooks/*"],
-      "@types/*": ["types/*"],
-      "@styles/*": ["styles/*"],
-      "@config/*": ["config/*"],
-      "@contexts/*": ["contexts/*"],
-      "@services/*": ["services/*"],
-      "@stores/*": ["stores/*"]
+      "@components/*": [
+        "components/*"
+      ],
+      "@pages/*": [
+        "pages/*"
+      ],
+      "@assets/*": [
+        "assets/*"
+      ],
+      "@utils/*": [
+        "utils/*"
+      ],
+      "@hooks/*": [
+        "hooks/*"
+      ],
+      "@types/*": [
+        "types/*"
+      ],
+      "@styles/*": [
+        "styles/*"
+      ],
+      "@config/*": [
+        "config/*"
+      ],
+      "@contexts/*": [
+        "contexts/*"
+      ],
+      "@services/*": [
+        "services/*"
+      ],
+      "@stores/*": [
+        "stores/*"
+      ]
     }
   }
 }

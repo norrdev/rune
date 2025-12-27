@@ -1,19 +1,128 @@
-import { Text, ScrollView } from 'react-native'; 
-import { Stack } from 'expo-router';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { Stack, Link } from 'expo-router';
+import ReactMarkdown from 'react-markdown';
+
+const readmeContent = `# Runestone Safari
+
+_Version 1.1_
+
+[https://runestonesafari.com/](https://runestonesafari.com/)
+
+Runestone Safari is an interactive map application that allows you to explore Swedish runestones.
+
+## Features
+
+- Interactive clustering map with 6,815+ runestones
+- Offline caching of runestones
+- Search for runestones by name, location, or other attributes
+- Detailed information about each runestone
+- User authentication (not required)
+- User profile page
+- List of visited runestones
+- Ability to mark visited runestones (if you have account)
+
+## Technology Stack
+
+- Devbox and nix package manager for project setup
+- Typescript
+- React 19
+- React Compiler
+- React Router
+- MobX State management
+- MapLibre GL for interactive mapping and clustering
+- Supabase for real-time PostgreSQL database and Supabase Storage for photos
+- IDB for offline caching
+- Tailwind CSS for styling
+- Vite for fast development and building
+- Cursor AI with Anthropic Claude 4 as a code assistant
+- Cloudflare for hosting
+
+## Data Sources
+
+- [OpenFreeMap](https://openfreemap.org/) for map tiles
+- [Samnordisk Runtextdatabas](https://www.uu.se/institution/nordiska/forskning/projekt/samnordisk-runtextdatabas) for runestone data
+- Original SQLite database from [Rundata-net](https://www.rundata.info/)
+
+## Roadmap
+
+- Add photo to visited runestone (forced Creative Commons license)
+- Add collections of runestones, like a "Jarlabanke runestones", "Varganian runestones", "Estrid runestones"
+- Add some gamification
+- Add some social features
+- Mobile applications for Android and iOS
+
+## Acknowledgments
+
+- [Vadim Frolov](https://github.com/fralik) and Sofia Pereswetoff-Morath for [runes.sqlite3](https://github.com/fralik/rundata-net/blob/master/rundatanet/static/runes/runes.sqlite3)
+
+## License
+
+Copyright (C) 2025 Denis Filonov
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+`;
 
 export default function About() {
   return (
-    <>
+    <ScrollView className="flex-1 bg-gray-50">
       <Stack.Screen options={{ title: 'About' }} />
-      <ScrollView className="bg-white p-4">
-        <Text className="text-xl font-bold text-primary mb-4">About Runestone Safari</Text>
-        <Text className="text-base text-gray-700">
-          Explore over 6,800 Swedish runestones on an interactive map. Discover Viking Age history, translations, and locations of ancient Norse monuments across Sweden.
-        </Text>
-        <Text className="text-base text-gray-700 mt-4">
-          (Content migrated from README.md)
-        </Text>
-      </ScrollView>
-    </>
+
+      <View className="p-4 md:p-8 lg:p-12">
+        <View className="max-w-5xl mx-auto w-full bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+
+          <View className="p-8">
+            <ReactMarkdown
+              components={{
+                h1: ({ children }) => <Text className="text-3xl font-bold text-primary mb-6">{children}</Text>,
+                h2: ({ children }) => <Text className="text-xl font-semibold text-primary mt-8 mb-4">{children}</Text>,
+                p: ({ children }) => <Text className="text-base text-gray-700 mb-4 leading-6">{children}</Text>,
+                ul: ({ children }) => <View className="mb-4 ml-4">{children}</View>,
+                li: ({ children }) => (
+                  <View className="flex-row items-start mb-2">
+                    <Text className="text-primary mr-2">•</Text>
+                    <Text className="flex-1 text-gray-700">{children}</Text>
+                  </View>
+                ),
+                strong: ({ children }) => <Text className="font-bold">{children}</Text>,
+                em: ({ children }) => <Text className="italic">{children}</Text>,
+                a: ({ children, href }) => (
+                  <Text className="text-primary underline" onPress={() => {/* Link handling would go here */ }}>{children}</Text>
+                ),
+                code: ({ children }) => (
+                  <View className="bg-gray-100 rounded p-4 my-4">
+                    <Text className="text-sm font-mono text-gray-800">{children}</Text>
+                  </View>
+                ),
+              }}
+            >
+              {readmeContent}
+            </ReactMarkdown>
+          </View>
+
+          <View className="bg-gray-50 px-6 py-8 border-t border-gray-100 items-center">
+            <Text className="text-sm text-gray-500 text-center mb-6">
+              © 2025 Runestone Safari
+            </Text>
+            <Link href="/" asChild>
+              <TouchableOpacity className="bg-primary px-8 py-3 rounded-md shadow-sm">
+                <Text className="text-white font-semibold text-lg">← Back to Map</Text>
+              </TouchableOpacity>
+            </Link>
+          </View>
+
+        </View>
+      </View>
+    </ScrollView>
   );
 }

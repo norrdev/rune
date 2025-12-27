@@ -1,3 +1,4 @@
+import { View, Text, Pressable, ScrollView, ActivityIndicator } from 'react-native';
 import { Runestone } from '../types';
 import { useState } from 'react';
 import { observer } from 'mobx-react-lite';
@@ -17,15 +18,15 @@ export const RunestonePage = observer(({ runestone, onVisitedStatusChange }: Run
 
   const isVisited = runestone ? visitedRunestonesStore.isRunestoneVisited(runestone.id) : false;
 
-  // If no runestone, show loading or error
+  // If no runestone, show loading
   if (!runestone) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading runestone...</p>
-        </div>
-      </div>
+      <View className="flex-1 bg-gray-50 items-center justify-center">
+        <View className="items-center">
+          <ActivityIndicator size="large" color="#3b82f6" />
+          <Text className="text-gray-600 mt-4">Loading runestone...</Text>
+        </View>
+      </View>
     );
   }
 
@@ -59,168 +60,168 @@ export const RunestonePage = observer(({ runestone, onVisitedStatusChange }: Run
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <PageHeader title={runestone.signature_text} />
+    <ScrollView className="flex-1 bg-gray-50">
+      <PageHeader title={runestone.signature_text || `Runestone ${runestone.id}`} />
 
       {/* Content */}
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="space-y-6">
+      <View className="max-w-4xl mx-auto px-4 py-8 w-full">
+        <View className="gap-6">
           {/* Mini Map */}
           <MiniMap runestone={runestone} />
 
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <View className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             {/* Content */}
-            <div className="p-6">
-              <div className="space-y-6">
+            <View className="p-6">
+              <View className="gap-6">
                 {/* Location Details */}
-                <div>
-                  <h3 className="font-semibold text-primary-700 mb-3 text-lg">Location Details</h3>
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <p className="text-gray-800 font-medium">{runestone.found_location}</p>
-                    <p className="text-sm text-gray-600">{runestone.parish}</p>
-                    {runestone.district && <p className="text-sm text-gray-600">{runestone.district}</p>}
-                    {runestone.municipality && <p className="text-sm text-gray-600">{runestone.municipality}</p>}
+                <View>
+                  <Text className="font-semibold text-blue-700 mb-3 text-lg">Location Details</Text>
+                  <View className="bg-gray-50 p-4 rounded-lg">
+                    <Text className="text-gray-800 font-medium">{runestone.found_location}</Text>
+                    <Text className="text-sm text-gray-600">{runestone.parish}</Text>
+                    {runestone.district && <Text className="text-sm text-gray-600">{runestone.district}</Text>}
+                    {runestone.municipality && <Text className="text-sm text-gray-600">{runestone.municipality}</Text>}
                     {runestone.current_location && (
-                      <p className="text-sm text-gray-600">Current: {runestone.current_location}</p>
+                      <Text className="text-sm text-gray-600">Current: {runestone.current_location}</Text>
                     )}
                     {runestone.latitude && runestone.longitude && (
-                      <p className="text-sm text-gray-600">
+                      <Text className="text-sm text-gray-600">
                         {runestone.latitude}, {runestone.longitude}
-                      </p>
+                      </Text>
                     )}
-                  </div>
-                </div>
+                  </View>
+                </View>
 
                 {/* Visit Status */}
                 {authStore.user && (
-                  <div>
-                    <h3 className="font-semibold text-primary-700 mb-3 text-lg">Visit Status</h3>
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
+                  <View>
+                    <Text className="font-semibold text-blue-700 mb-3 text-lg">Visit Status</Text>
+                    <View className="bg-gray-50 p-4 rounded-lg">
+                      <View className="flex-row items-center justify-between">
+                        <View className="flex-row items-center gap-3">
                           {visitedRunestonesStore.loading ? (
-                            <div className="animate-spin h-5 w-5 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+                            <ActivityIndicator size="small" color="#3b82f6" />
                           ) : (
-                            <div
-                              className={`w-5 h-5 rounded-full border-2 ${
-                                isVisited ? 'bg-green-500 border-green-500' : 'bg-gray-300 border-gray-300'
-                              }`}
-                            ></div>
+                            <View
+                              className={`w-5 h-5 rounded-full border-2 ${isVisited ? 'bg-green-500 border-green-500' : 'bg-gray-300 border-gray-300'
+                                }`}
+                            />
                           )}
-                          <span className="text-sm font-medium text-gray-700">
+                          <Text className="text-sm font-medium text-gray-700">
                             {isVisited ? 'Visited' : 'Not visited'}
-                          </span>
-                        </div>
-                        <button
-                          onClick={handleMarkAsVisited}
+                          </Text>
+                        </View>
+                        <Pressable
+                          onPress={handleMarkAsVisited}
                           disabled={isMarkingVisited || visitedRunestonesStore.loading}
-                          className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                            isVisited
-                              ? 'bg-red-100 text-red-700 hover:bg-red-200'
-                              : 'bg-green-100 text-green-700 hover:bg-green-200'
-                          } disabled:opacity-50 disabled:cursor-not-allowed`}
+                          className={`px-4 py-2 rounded-md ${isVisited
+                            ? 'bg-red-100'
+                            : 'bg-green-100'
+                            } ${isMarkingVisited || visitedRunestonesStore.loading ? 'opacity-50' : ''}`}
                         >
                           {isMarkingVisited ? (
-                            <div className="flex items-center space-x-2">
-                              <div className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full"></div>
-                              <span>Updating...</span>
-                            </div>
+                            <View className="flex-row items-center gap-2">
+                              <ActivityIndicator size="small" color="currentColor" />
+                              <Text className={isVisited ? 'text-red-700' : 'text-green-700'}>Updating...</Text>
+                            </View>
                           ) : (
-                            <span>{isVisited ? 'Mark as not visited' : 'Mark as visited'}</span>
+                            <Text className={`text-sm font-medium ${isVisited ? 'text-red-700' : 'text-green-700'}`}>
+                              {isVisited ? 'Mark as not visited' : 'Mark as visited'}
+                            </Text>
                           )}
-                        </button>
-                      </div>
-                      {visitedError && <p className="text-red-600 text-sm mt-2">{visitedError}</p>}
-                    </div>
-                  </div>
+                        </Pressable>
+                      </View>
+                      {visitedError && <Text className="text-red-600 text-sm mt-2">{visitedError}</Text>}
+                    </View>
+                  </View>
                 )}
 
                 {/* Basic Details */}
-                <div>
-                  <h3 className="font-semibold text-primary-700 mb-3 text-lg">Details</h3>
-                  <div className="bg-gray-50 p-4 rounded-lg space-y-2">
-                    <p className="text-sm">
-                      <span className="font-medium">Material:</span> {runestone.material || 'Unknown'}
-                    </p>
-                    <p className="text-sm">
-                      <span className="font-medium">Dating:</span> {runestone.dating || 'Unknown'}
-                    </p>
-                    <p className="text-sm">
-                      <span className="font-medium">Type:</span> {runestone.rune_type || 'Unknown'}
-                    </p>
-                    <p className="text-sm">
-                      <span className="font-medium">Style:</span> {runestone.material_type || 'Unknown'}
-                    </p>
+                <View>
+                  <Text className="font-semibold text-blue-700 mb-3 text-lg">Details</Text>
+                  <View className="bg-gray-50 p-4 rounded-lg gap-2">
+                    <Text className="text-sm">
+                      <Text className="font-medium">Material:</Text> {runestone.material || 'Unknown'}
+                    </Text>
+                    <Text className="text-sm">
+                      <Text className="font-medium">Dating:</Text> {runestone.dating || 'Unknown'}
+                    </Text>
+                    <Text className="text-sm">
+                      <Text className="font-medium">Type:</Text> {runestone.rune_type || 'Unknown'}
+                    </Text>
+                    <Text className="text-sm">
+                      <Text className="font-medium">Style:</Text> {runestone.material_type || 'Unknown'}
+                    </Text>
                     {runestone.carver && (
-                      <p className="text-sm">
-                        <span className="font-medium">Carver:</span> {runestone.carver}
-                      </p>
+                      <Text className="text-sm">
+                        <Text className="font-medium">Carver:</Text> {runestone.carver}
+                      </Text>
                     )}
                     {runestone.style && (
-                      <p className="text-sm">
-                        <span className="font-medium">Style:</span> {runestone.style}
-                      </p>
+                      <Text className="text-sm">
+                        <Text className="font-medium">Style:</Text> {runestone.style}
+                      </Text>
                     )}
-                  </div>
-                </div>
+                  </View>
+                </View>
 
                 {/* Status */}
-                <div>
-                  <h3 className="font-semibold text-primary-700 mb-3 text-lg">Status</h3>
-                  <div className="bg-gray-50 p-4 rounded-lg space-y-2">
-                    <p className="text-sm">
-                      <span className="font-medium">Lost:</span> {runestone.lost ? 'Yes' : 'No'}
-                    </p>
-                    <p className="text-sm">
-                      <span className="font-medium">Ornamental:</span> {runestone.ornamental ? 'Yes' : 'No'}
-                    </p>
-                    <p className="text-sm">
-                      <span className="font-medium">Recent:</span> {runestone.recent ? 'Yes' : 'No'}
-                    </p>
-                  </div>
-                </div>
+                <View>
+                  <Text className="font-semibold text-blue-700 mb-3 text-lg">Status</Text>
+                  <View className="bg-gray-50 p-4 rounded-lg gap-2">
+                    <Text className="text-sm">
+                      <Text className="font-medium">Lost:</Text> {runestone.lost ? 'Yes' : 'No'}
+                    </Text>
+                    <Text className="text-sm">
+                      <Text className="font-medium">Ornamental:</Text> {runestone.ornamental ? 'Yes' : 'No'}
+                    </Text>
+                    <Text className="text-sm">
+                      <Text className="font-medium">Recent:</Text> {runestone.recent ? 'Yes' : 'No'}
+                    </Text>
+                  </View>
+                </View>
 
                 {/* Text Content */}
                 {runestone.norse_text && (
-                  <div>
-                    <h3 className="font-semibold text-primary-700 mb-3 text-lg">Norse Text</h3>
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <p className="text-gray-800 font-mono text-sm">{runestone.norse_text}</p>
-                    </div>
-                  </div>
+                  <View>
+                    <Text className="font-semibold text-blue-700 mb-3 text-lg">Norse Text</Text>
+                    <View className="bg-gray-50 p-4 rounded-lg">
+                      <Text className="text-gray-800 font-mono text-sm">{runestone.norse_text}</Text>
+                    </View>
+                  </View>
                 )}
 
                 {runestone.transliteration && (
-                  <div>
-                    <h3 className="font-semibold text-primary-700 mb-3 text-lg">Transliteration</h3>
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <p className="text-gray-800 font-mono text-sm">{runestone.transliteration}</p>
-                    </div>
-                  </div>
+                  <View>
+                    <Text className="font-semibold text-blue-700 mb-3 text-lg">Transliteration</Text>
+                    <View className="bg-gray-50 p-4 rounded-lg">
+                      <Text className="text-gray-800 font-mono text-sm">{runestone.transliteration}</Text>
+                    </View>
+                  </View>
                 )}
 
                 {runestone.swedish_translation && (
-                  <div>
-                    <h3 className="font-semibold text-primary-700 mb-3 text-lg">Swedish Translation</h3>
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <p className="text-gray-800">{runestone.swedish_translation}</p>
-                    </div>
-                  </div>
+                  <View>
+                    <Text className="font-semibold text-blue-700 mb-3 text-lg">Swedish Translation</Text>
+                    <View className="bg-gray-50 p-4 rounded-lg">
+                      <Text className="text-gray-800">{runestone.swedish_translation}</Text>
+                    </View>
+                  </View>
                 )}
 
                 {runestone.english_translation && (
-                  <div>
-                    <h3 className="font-semibold text-primary-700 mb-3 text-lg">English Translation</h3>
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <p className="text-gray-800">{runestone.english_translation}</p>
-                    </div>
-                  </div>
+                  <View>
+                    <Text className="font-semibold text-blue-700 mb-3 text-lg">English Translation</Text>
+                    <View className="bg-gray-50 p-4 rounded-lg">
+                      <Text className="text-gray-800">{runestone.english_translation}</Text>
+                    </View>
+                  </View>
                 )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+              </View>
+            </View>
+          </View>
+        </View>
+      </View>
+    </ScrollView>
   );
 });
