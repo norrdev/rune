@@ -87,7 +87,11 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
 
     // Group stones by coordinates to handle overlapping locations
     const coordinateGroups = uniqueStones.reduce((acc: Record<string, Runestone[]>, stone) => {
-      const coordKey = `${stone.longitude.toFixed(6)},${stone.latitude.toFixed(6)}`;
+      // Robustly handle missing or invalid coordinates
+      const lng = typeof stone.longitude === 'number' && !isNaN(stone.longitude) ? stone.longitude : 0;
+      const lat = typeof stone.latitude === 'number' && !isNaN(stone.latitude) ? stone.latitude : 0;
+
+      const coordKey = `${lng.toFixed(6)},${lat.toFixed(6)}`;
       acc[coordKey] = acc[coordKey] || [];
       acc[coordKey].push(stone);
       return acc;
@@ -97,10 +101,14 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
     const features: RunestoneFeature[] = [];
     Object.values(coordinateGroups).forEach((stonesAtLocation) => {
       stonesAtLocation.forEach((stone, index) => {
+        // Robustly handle missing or invalid coordinates
+        const baseLng = typeof stone.longitude === 'number' && !isNaN(stone.longitude) ? stone.longitude : 0;
+        const baseLat = typeof stone.latitude === 'number' && !isNaN(stone.latitude) ? stone.latitude : 0;
+
         // Add small offset for overlapping stones (except the first one)
         const offset = index * 0.00005; // Very small offset (~5.5 meters)
-        const offsetLng = stone.longitude + (index > 0 ? offset * Math.cos(index) : 0);
-        const offsetLat = stone.latitude + (index > 0 ? offset * Math.sin(index) : 0);
+        const offsetLng = baseLng + (index > 0 ? offset * Math.cos(index) : 0);
+        const offsetLat = baseLat + (index > 0 ? offset * Math.sin(index) : 0);
 
         features.push({
           type: 'Feature',
@@ -118,8 +126,8 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
             norse_text: stone.norse_text,
             transliteration: stone.transliteration,
             overlapping_count: stonesAtLocation.length,
-            original_coordinates: [stone.longitude, stone.latitude],
-            visited: stone.visited || false,
+            original_coordinates: [baseLng, baseLat],
+            visited: !!stone.visited,
           },
           geometry: {
             type: 'Point',
@@ -365,8 +373,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
     } catch (error) {
       console.error('Error adding clustering layers:', error);
     }
-  }, [runestones, createGeoJSONData, // Open the modal with this runestone
-          openModal]);
+  }, [runestones, createGeoJSONData, openModal, refreshVisitedStatus]);
 
   useEffect(() => {
     if (!mapContainer.current) return;

@@ -17,8 +17,7 @@ export const PageHeader = ({ title }: PageHeaderProps) => {
                   ← Back to Map
                 </Text>
               </Pressable>
-            </Link>
-            <Text className="text-2xl font-bold text-primary">{title}</Text>
+            </Link><Text className="text-2xl font-bold text-primary">{title}</Text>
           </View>
         </View>
       </View>

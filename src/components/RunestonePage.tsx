@@ -77,14 +77,9 @@ export const RunestonePage = observer(({ runestone, onVisitedStatusChange }: Run
                 <View>
                   <Text className="font-semibold text-blue-700 mb-3 text-lg">Location Details</Text>
                   <View className="bg-gray-50 p-4 rounded-lg">
-                    <Text className="text-gray-800 font-medium">{runestone.found_location}</Text>
-                    <Text className="text-sm text-gray-600">{runestone.parish}</Text>
-                    {runestone.district && <Text className="text-sm text-gray-600">{runestone.district}</Text>}
-                    {runestone.municipality && <Text className="text-sm text-gray-600">{runestone.municipality}</Text>}
-                    {runestone.current_location && (
+                    <Text className="text-gray-800 font-medium">{runestone.found_location}</Text><Text className="text-sm text-gray-600">{runestone.parish}</Text>{!!runestone.district && <Text className="text-sm text-gray-600">{runestone.district}</Text>}{!!runestone.municipality && <Text className="text-sm text-gray-600">{runestone.municipality}</Text>}{!!runestone.current_location && (
                       <Text className="text-sm text-gray-600">Current: {runestone.current_location}</Text>
-                    )}
-                    {runestone.latitude && runestone.longitude && (
+                    )}{runestone.latitude !== null && runestone.longitude !== null && (
                       <Text className="text-sm text-gray-600">
                         {runestone.latitude}, {runestone.longitude}
                       </Text>
@@ -106,8 +101,7 @@ export const RunestonePage = observer(({ runestone, onVisitedStatusChange }: Run
                               className={`w-5 h-5 rounded-full border-2 ${isVisited ? 'bg-green-500 border-green-500' : 'bg-gray-300 border-gray-300'
                                 }`}
                             />
-                          )}
-                          <Text className="text-sm font-medium text-gray-700">
+                          )}<Text className="text-sm font-medium text-gray-700">
                             {isVisited ? 'Visited' : 'Not visited'}
                           </Text>
                         </View>
@@ -131,7 +125,7 @@ export const RunestonePage = observer(({ runestone, onVisitedStatusChange }: Run
                           )}
                         </Pressable>
                       </View>
-                      {visitedError && <Text className="text-red-600 text-sm mt-2">{visitedError}</Text>}
+                      {!!visitedError && <Text className="text-red-600 text-sm mt-2">{visitedError}</Text>}
                     </View>
                   </View>
                 )}
@@ -142,22 +136,17 @@ export const RunestonePage = observer(({ runestone, onVisitedStatusChange }: Run
                   <View className="bg-gray-50 p-4 rounded-lg gap-2">
                     <Text className="text-sm">
                       <Text className="font-medium">Material:</Text> {runestone.material || 'Unknown'}
-                    </Text>
-                    <Text className="text-sm">
+                    </Text><Text className="text-sm">
                       <Text className="font-medium">Dating:</Text> {runestone.dating || 'Unknown'}
-                    </Text>
-                    <Text className="text-sm">
+                    </Text><Text className="text-sm">
                       <Text className="font-medium">Type:</Text> {runestone.rune_type || 'Unknown'}
-                    </Text>
-                    <Text className="text-sm">
+                    </Text><Text className="text-sm">
                       <Text className="font-medium">Style:</Text> {runestone.material_type || 'Unknown'}
-                    </Text>
-                    {runestone.carver && (
+                    </Text>{!!runestone.carver && (
                       <Text className="text-sm">
                         <Text className="font-medium">Carver:</Text> {runestone.carver}
                       </Text>
-                    )}
-                    {runestone.style && (
+                    )}{!!runestone.style && (
                       <Text className="text-sm">
                         <Text className="font-medium">Style:</Text> {runestone.style}
                       </Text>
@@ -171,18 +160,16 @@ export const RunestonePage = observer(({ runestone, onVisitedStatusChange }: Run
                   <View className="bg-gray-50 p-4 rounded-lg gap-2">
                     <Text className="text-sm">
                       <Text className="font-medium">Lost:</Text> {runestone.lost ? 'Yes' : 'No'}
-                    </Text>
-                    <Text className="text-sm">
+                    </Text><Text className="text-sm">
                       <Text className="font-medium">Ornamental:</Text> {runestone.ornamental ? 'Yes' : 'No'}
-                    </Text>
-                    <Text className="text-sm">
+                    </Text><Text className="text-sm">
                       <Text className="font-medium">Recent:</Text> {runestone.recent ? 'Yes' : 'No'}
                     </Text>
                   </View>
                 </View>
 
                 {/* Text Content */}
-                {runestone.norse_text && (
+                {!!runestone.norse_text && (
                   <View>
                     <Text className="font-semibold text-blue-700 mb-3 text-lg">Norse Text</Text>
                     <View className="bg-gray-50 p-4 rounded-lg">
@@ -191,7 +178,7 @@ export const RunestonePage = observer(({ runestone, onVisitedStatusChange }: Run
                   </View>
                 )}
 
-                {runestone.transliteration && (
+                {!!runestone.transliteration && (
                   <View>
                     <Text className="font-semibold text-blue-700 mb-3 text-lg">Transliteration</Text>
                     <View className="bg-gray-50 p-4 rounded-lg">
@@ -200,7 +187,7 @@ export const RunestonePage = observer(({ runestone, onVisitedStatusChange }: Run
                   </View>
                 )}
 
-                {runestone.swedish_translation && (
+                {!!runestone.swedish_translation && (
                   <View>
                     <Text className="font-semibold text-blue-700 mb-3 text-lg">Swedish Translation</Text>
                     <View className="bg-gray-50 p-4 rounded-lg">
@@ -209,7 +196,7 @@ export const RunestonePage = observer(({ runestone, onVisitedStatusChange }: Run
                   </View>
                 )}
 
-                {runestone.english_translation && (
+                {!!runestone.english_translation && (
                   <View>
                     <Text className="font-semibold text-blue-700 mb-3 text-lg">English Translation</Text>
                     <View className="bg-gray-50 p-4 rounded-lg">

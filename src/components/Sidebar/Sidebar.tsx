@@ -24,22 +24,22 @@ export const Sidebar = observer(({ visitedCount, visible = false, onClose }: Sid
 
   // On mobile, if not visible, render nothing (or handle transition separately, simple toggle for now)
   if (isMobile && !visible) {
-      return null;
+    return null;
   }
 
   // Adjust container classes based on mobile/desktop
   // For simplicity in this port, we'll use conditional rendering for the overlay and a fixed/absolute view for sidebar
-  
+
   return (
     <>
       {/* Mobile overlay */}
       {visible && isMobile && (
-        <Pressable 
-            className="absolute inset-0 bg-black/50 z-40" 
-            onPress={onClose} 
+        <Pressable
+          className="absolute inset-0 bg-black/50 z-40"
+          onPress={onClose}
         />
       )}
-      
+
       <View
         className={`bg-white border-r border-gray-200 flex-1 flex-col z-50
           ${isMobile ? 'absolute top-0 left-0 h-full w-64' : 'w-64 max-w-sm h-full'}
@@ -47,12 +47,12 @@ export const Sidebar = observer(({ visitedCount, visible = false, onClose }: Sid
       >
         {/* Close button for mobile */}
         {isMobile && (
-            <Pressable
+          <Pressable
             className="absolute top-4 right-4 z-60 bg-white border border-gray-300 rounded p-1 shadow"
             onPress={onClose}
-            >
+          >
             <Text className="text-gray-600 font-bold">✕</Text>
-            </Pressable>
+          </Pressable>
         )}
 
         {/* All content except footer */}
@@ -71,11 +71,11 @@ export const Sidebar = observer(({ visitedCount, visible = false, onClose }: Sid
             <View className="p-4 border-t border-gray-200">
               <View className="items-center">
                 <Link href="/profile" asChild>
-                    <Pressable>
-                        <Text className="text-sm text-gray-600">
-                            <Text className="font-medium text-primary">{visitedCount}</Text> visited runestones
-                        </Text>
-                    </Pressable>
+                  <Pressable>
+                    <Text className="text-sm text-gray-600">
+                      <Text className="font-medium text-primary">{visitedCount}</Text> visited runestones
+                    </Text>
+                  </Pressable>
                 </Link>
               </View>
             </View>
@@ -120,9 +120,6 @@ export const Sidebar = observer(({ visitedCount, visible = false, onClose }: Sid
             <Link href="/privacy"><Text className="text-xs text-gray-500 underline">Privacy Policy</Text></Link>
             <Text className="text-xs text-gray-500">•</Text>
             <Link href="/license"><Text className="text-xs text-gray-500 underline">License</Text></Link>
-            <Text className="text-xs text-gray-500">•</Text>
-            {/* External link needing Linking API, sticking to text for now or simple handler */}
-            <Text className="text-xs text-gray-500 underline">GitHub</Text>
           </View>
           <Text className="text-xs text-gray-500 text-center mt-1">© 2025 Denis Filonov</Text>
         </View>
