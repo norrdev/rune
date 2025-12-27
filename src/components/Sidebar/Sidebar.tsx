@@ -72,7 +72,7 @@ export const Sidebar = observer(({ visitedCount, visible = false, onClose }: Sid
           </View>
 
           {/* Search Widget */}
-          <SearchWidget />
+          <SearchWidget onClose={onClose} />
 
           {/* Visited Runestone Count */}
           {authStore.user && (

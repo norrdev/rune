@@ -1,9 +1,13 @@
 import { useState } from 'react';
-import { View, Text, TextInput, Pressable, ActivityIndicator, ScrollView } from 'react-native';
+import { View, Text, TextInput, Pressable, ActivityIndicator, ScrollView, Platform } from 'react-native';
 import { observer } from 'mobx-react-lite';
 import { searchStore } from '../../../stores/searchStore';
 
-export const SearchWidget = observer(() => {
+interface SearchWidgetProps {
+  onClose?: () => void;
+}
+
+export const SearchWidget = observer(({ onClose }: SearchWidgetProps) => {
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleSearch = () => {
@@ -60,6 +64,10 @@ export const SearchWidget = observer(() => {
                     key={runestone.id}
                     className="p-2 bg-gray-50 rounded mb-1 active:bg-gray-100"
                     onPress={() => {
+                      // On native, close the sidebar before showing the modal
+                      if (Platform.OS !== 'web' && onClose) {
+                        onClose();
+                      }
                       searchStore.setSelectedRunestone(runestone);
                     }}
                   >
