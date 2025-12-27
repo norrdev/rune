@@ -1,5 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import { View, Text, Pressable, useWindowDimensions, ScrollView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AuthWidget } from './widgets/AuthWidget';
 import { SearchWidget } from './widgets/SearchWidget';
 import { authStore } from '../../stores/authStore';
@@ -20,6 +21,7 @@ interface SidebarProps {
 
 export const Sidebar = observer(({ visitedCount, visible = false, onClose }: SidebarProps) => {
   const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const isMobile = width < 768;
 
   // On mobile, if not visible, render nothing (or handle transition separately, simple toggle for now)
@@ -42,23 +44,30 @@ export const Sidebar = observer(({ visitedCount, visible = false, onClose }: Sid
 
       <View
         className={`bg-white border-r border-gray-200 flex-1 flex-col z-50
-          ${isMobile ? 'absolute top-0 left-0 h-full w-64' : 'w-64 max-w-sm h-full'}
+          ${isMobile ? 'absolute top-0 left-0 h-full w-80' : 'w-64 max-w-sm h-full'}
         `}
       >
         {/* Close button for mobile */}
         {isMobile && (
           <Pressable
-            className="absolute top-4 right-4 z-60 bg-white border border-gray-300 rounded p-1 shadow"
+            className="absolute z-60 bg-white rounded-full w-10 h-10 items-center justify-center shadow"
+            style={{
+              top: insets.top + 16,
+              right: insets.right + 16,
+            }}
             onPress={onClose}
           >
-            <Text className="text-gray-600 font-bold">✕</Text>
+            <Text className="text-gray-600 font-bold text-lg">✕</Text>
           </Pressable>
         )}
 
         {/* All content except footer */}
         <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 20 }}>
           {/* Header */}
-          <View className="p-6 border-b border-gray-200">
+          <View
+            className="px-6 pb-6 border-b border-gray-200"
+            style={{ paddingTop: isMobile ? insets.top + 24 : 24 }}
+          >
             <Text className="text-xl font-bold text-primary">Runestone Safari</Text>
             <Text className="text-sm text-gray-600 mt-1">Explore Swedish runestones</Text>
           </View>

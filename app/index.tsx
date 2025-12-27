@@ -16,7 +16,7 @@ export default function Page() {
       {/* Mobile Menu Button */}
       {isMobile && !sidebarOpen && (
         <Pressable
-          className="absolute z-30 bg-white border border-gray-300 rounded-full w-12 h-12 items-center justify-center shadow"
+          className="absolute z-30 bg-white rounded-full w-12 h-12 items-center justify-center border border-gray-200"
           style={{
             top: insets.top + 16,
             left: insets.left + 16,
