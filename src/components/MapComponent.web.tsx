@@ -5,6 +5,7 @@ import { runestonesCache } from '@services/runestonesCache';
 import type { Runestone, RunestoneFeature, RunestoneGeoJSON } from '../types';
 import { RunestoneModal } from './RunestoneModal';
 import { observer } from 'mobx-react-lite';
+import { reaction } from 'mobx';
 
 import { searchStore } from '@stores/searchStore';
 import { visitedRunestonesStore } from '@stores/visitedRunestonesStore';
@@ -449,20 +450,29 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
 
   // Navigate to selected runestone
   useEffect(() => {
-    if (searchStore.selectedRunestone && mapRef.current) {
-      const map = mapRef.current;
+    const dispose = reaction(
+      () => searchStore.selectedRunestone,
+      (runestone) => {
+        if (runestone && mapRef.current) {
+          const map = mapRef.current;
 
-      // Fly to the runestone's location
-      map.flyTo({
-        center: [searchStore.selectedRunestone.longitude, searchStore.selectedRunestone.latitude],
-        zoom: 16, // Close zoom to show the runestone clearly
-        duration: 2000, // 2 second animation
-      });
+          // Fly to the runestone's location
+          map.flyTo({
+            center: [runestone.longitude, runestone.latitude],
+            zoom: 16, // Close zoom to show the runestone clearly
+            duration: 2000, // 2 second animation
+          });
 
-      // Open the modal for the selected runestone
-      openModal(searchStore.selectedRunestone);
-      searchStore.setSelectedRunestone(null); // Clear selected runestone after navigation
-    }
+          // Open the modal for the selected runestone
+          openModal(runestone);
+
+          // Clear selected runestone after navigation
+          searchStore.setSelectedRunestone(null);
+        }
+      }
+    );
+
+    return () => dispose();
   }, [openModal]);
 
   return (

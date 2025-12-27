@@ -6,7 +6,9 @@ import { runestonesCache } from '../services/runestonesCache'; // Resolves to .n
 import type { Runestone } from '../types';
 import { RunestoneModal } from './RunestoneModal';
 import { visitedRunestonesStore } from '../stores/visitedRunestonesStore';
+import { searchStore } from '../stores/searchStore';
 import { observer } from 'mobx-react-lite';
+import { reaction } from 'mobx';
 
 interface MapComponentProps {
   onVisitedCountChange?: (count: number) => void;
@@ -31,12 +33,12 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
     try {
       setLoading(true);
       const data = await runestonesCache.getAllRunestones();
-      
+
       // Filter for performance initially? 
       // For 6000 items, basic Markers might be slow without clustering.
       // But we'll try to render them and see.
       setRunestones(data);
-      
+
       // Update store with initial count
       if (onVisitedCountChange) {
         onVisitedCountChange(visitedRunestonesStore.visitedCount);
@@ -66,22 +68,49 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
   };
 
   const refreshVisitedStatus = () => {
-     // Trigger re-render if needed, but MobX observer should handle store updates
-     // We might need to refresh the local runestones list if we were filtering
-     if (onVisitedCountChange) {
-        onVisitedCountChange(visitedRunestonesStore.visitedCount);
-     }
+    // Trigger re-render if needed, but MobX observer should handle store updates
+    // We might need to refresh the local runestones list if we were filtering
+    if (onVisitedCountChange) {
+      onVisitedCountChange(visitedRunestonesStore.visitedCount);
+    }
   };
+
+  // Navigate to selected runestone from search
+  useEffect(() => {
+    const dispose = reaction(
+      () => searchStore.selectedRunestone,
+      (runestone) => {
+        if (runestone && mapRef.current) {
+          // Animate to the runestone's location
+          mapRef.current.animateToRegion({
+            latitude: runestone.latitude,
+            longitude: runestone.longitude,
+            latitudeDelta: 0.01, // Close zoom
+            longitudeDelta: 0.01,
+          }, 1000); // 1 second animation
+
+          // Open the modal for the selected runestone
+          setSelectedRunestone(runestone);
+          setIsModalOpen(true);
+
+          // Clear selected runestone after navigation
+          searchStore.setSelectedRunestone(null);
+        }
+      }
+    );
+
+    return () => dispose();
+  }, []);
 
   // Optimization: Only render markers within current region?
   // Or just render all if < 1000. 
   // With 6000, we definitely need clustering or limiting.
   // For now, let's limit to top 100 visible or something simple to prove it works.
-  
+
   const visibleRunestones = runestones.filter(stone => {
-     const latDiff = Math.abs(stone.latitude - region.latitude);
-     const lonDiff = Math.abs(stone.longitude - region.longitude);
-     return latDiff < region.latitudeDelta / 2 + 0.05 && lonDiff < region.longitudeDelta / 2 + 0.05;
+    const latDiff = Math.abs(stone.latitude - region.latitude);
+    const lonDiff = Math.abs(stone.longitude - region.longitude);
+    return latDiff < region.latitudeDelta / 2 + 0.05 && lonDiff < region.longitudeDelta / 2 + 0.05;
   }).slice(0, 50); // Hard limit for safety in Expo Go initially
 
   return (
@@ -96,30 +125,30 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
         showsMyLocationButton
       >
         {visibleRunestones.map((stone) => {
-             const isVisited = visitedRunestonesStore.isVisited(stone.id);
-             return (
-              <Marker
-                key={stone.id}
-                coordinate={{ latitude: stone.latitude, longitude: stone.longitude }}
-                onPress={() => handleMarkerPress(stone)}
-                pinColor={isVisited ? 'green' : 'red'}
-              >
-                <Callout onPress={handleCalloutPress}>
-                  <View style={styles.callout}>
-                    <Text style={styles.calloutTitle}>{stone.signature_text || 'Runestone'}</Text>
-                    <Text style={styles.calloutSubtitle}>{stone.found_location}</Text>
-                    <Text style={styles.calloutMore}>Tap to view details</Text>
-                  </View>
-                </Callout>
-              </Marker>
-            );
+          const isVisited = visitedRunestonesStore.isVisited(stone.id);
+          return (
+            <Marker
+              key={stone.id}
+              coordinate={{ latitude: stone.latitude, longitude: stone.longitude }}
+              onPress={() => handleMarkerPress(stone)}
+              pinColor={isVisited ? 'green' : 'red'}
+            >
+              <Callout onPress={handleCalloutPress}>
+                <View style={styles.callout}>
+                  <Text style={styles.calloutTitle}>{stone.signature_text || 'Runestone'}</Text>
+                  <Text style={styles.calloutSubtitle}>{stone.found_location}</Text>
+                  <Text style={styles.calloutMore}>Tap to view details</Text>
+                </View>
+              </Callout>
+            </Marker>
+          );
         })}
       </MapView>
-      
+
       {loading && (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#866c53" />
-          <Text style={{marginTop: 10}}>Loading markers...</Text>
+          <Text style={{ marginTop: 10 }}>Loading markers...</Text>
         </View>
       )}
 
@@ -166,8 +195,8 @@ const styles = StyleSheet.create({
     marginBottom: 5
   },
   calloutMore: {
-     fontSize: 10,
-     color: 'blue',
-     textAlign: 'center'
+    fontSize: 10,
+    color: 'blue',
+    textAlign: 'center'
   }
 });
