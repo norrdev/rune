@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 import { View, StyleSheet, ActivityIndicator, Alert, Text } from 'react-native';
-import MapView, { Marker, Callout, PROVIDER_DEFAULT, type Region } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_DEFAULT, type Region } from 'react-native-maps';
 import { runestonesCache } from '../services/runestonesCache'; // Resolves to .native.ts
 import type { Runestone } from '../types';
 import { RunestoneModal } from './RunestoneModal';
@@ -57,14 +57,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
 
   const handleMarkerPress = (runestone: Runestone) => {
     setSelectedRunestone(runestone);
-    // Don't open modal immediately, wait for callout press or just open it?
-    // Let's open modal on callout press to be standard
-  };
-
-  const handleCalloutPress = () => {
-    if (selectedRunestone) {
-      setIsModalOpen(true);
-    }
+    setIsModalOpen(true);
   };
 
   const refreshVisitedStatus = () => {
@@ -132,15 +125,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
               coordinate={{ latitude: stone.latitude, longitude: stone.longitude }}
               onPress={() => handleMarkerPress(stone)}
               pinColor={isVisited ? 'green' : 'red'}
-            >
-              <Callout onPress={handleCalloutPress}>
-                <View style={styles.callout}>
-                  <Text style={styles.calloutTitle}>{stone.signature_text || 'Runestone'}</Text>
-                  <Text style={styles.calloutSubtitle}>{stone.found_location}</Text>
-                  <Text style={styles.calloutMore}>Tap to view details</Text>
-                </View>
-              </Callout>
-            </Marker>
+            />
           );
         })}
       </MapView>
@@ -180,23 +165,5 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 10,
     alignItems: 'center'
-  },
-  callout: {
-    width: 200,
-    padding: 5
-  },
-  calloutTitle: {
-    fontWeight: 'bold',
-    marginBottom: 5
-  },
-  calloutSubtitle: {
-    fontSize: 12,
-    color: '#666',
-    marginBottom: 5
-  },
-  calloutMore: {
-    fontSize: 10,
-    color: 'blue',
-    textAlign: 'center'
   }
 });
