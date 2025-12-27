@@ -42,17 +42,17 @@ export const Sidebar = observer(({ visitedCount, visible = false, onClose }: Sid
       )}
 
       <View
-        className={`bg-white border-r border-gray-200 flex-1 flex-col z-50
+        className={`bg-white border-r border-gray-200 flex-col z-50 relative
           ${isMobile ? 'absolute top-0 left-0 h-full w-80' : 'w-64 max-w-sm h-full'}
         `}
       >
         {/* Close button for mobile */}
         {isMobile && (
           <Pressable
-            className="absolute z-60 bg-white rounded-full w-10 h-10 items-center justify-center shadow"
+            className="absolute z-50 bg-white rounded-full w-10 h-10 items-center justify-center shadow"
             style={{
               top: insets.top + 16,
-              right: insets.right + 16,
+              right: 16,
             }}
             onPress={onClose}
           >
