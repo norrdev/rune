@@ -10,12 +10,20 @@ export const PageHeader = ({ title }: PageHeaderProps) => {
   const insets = useSafeAreaInsets();
   const router = useRouter();
 
+  const handleBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.push('/');
+    }
+  };
+
   return (
-    <View className="bg-white shadow-sm border-b border-gray-200" style={{ paddingTop: insets.top }}>
+    <View className="bg-white shadow-sm border-t border-gray-200" style={{ paddingTop: insets.top }}>
       <View className="px-4 py-3">
         <View className="flex-row items-center gap-3">
           <Pressable
-            onPress={() => router.back()}
+            onPress={handleBack}
             className="p-3 -ml-3 active:opacity-50"
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
