@@ -1,15 +1,17 @@
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
-import { Stack, Link } from 'expo-router';
+import { Stack } from 'expo-router';
+import { PageHeader } from '../src/components/PageHeader';
 
 export default function Privacy() {
   return (
     <ScrollView className="flex-1 bg-gray-50">
       <Stack.Screen options={{ title: 'Privacy Policy' }} />
+      <PageHeader title="Privacy Policy" />
 
-      <View className="p-4 md:p-8 lg:p-12">
-        <View className="max-w-5xl mx-auto w-full bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+      <View className="md:p-8 lg:p-12">
+        <View className="md:max-w-5xl md:mx-auto w-full bg-white md:rounded-lg md:shadow-sm md:border md:border-gray-100 overflow-hidden">
 
-          <View className="p-8">
+          <View className="p-4 md:p-8">
             <Text className="text-3xl font-bold text-primary mb-6">Privacy Policy</Text>
 
             <View className="space-y-6">
@@ -105,17 +107,6 @@ export default function Privacy() {
 
               <Text className="text-sm text-gray-500 mt-8">Last updated: {new Date().toLocaleDateString()}</Text>
             </View>
-          </View>
-
-          <View className="bg-gray-50 px-6 py-8 border-t border-gray-100 items-center">
-            <Text className="text-sm text-gray-500 text-center mb-6">
-              © 2025 Runestone Safari
-            </Text>
-            <Link href="/" asChild>
-              <TouchableOpacity className="bg-primary px-8 py-3 rounded-md shadow-sm">
-                <Text className="text-white font-semibold text-lg">← Back to Map</Text>
-              </TouchableOpacity>
-            </Link>
           </View>
 
         </View>

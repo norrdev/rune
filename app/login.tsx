@@ -4,6 +4,7 @@ import { observer } from 'mobx-react-lite';
 import { authStore } from '../src/stores/authStore';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { PageHeader } from '../src/components/PageHeader';
 
 export default observer(function LoginPage() {
     const [isSignUp, setIsSignUp] = useState(false);
@@ -83,9 +84,9 @@ export default observer(function LoginPage() {
     if (isForgotPassword) {
         return (
             <ScrollView className="flex-1 bg-gray-50">
-                <View className="flex-1 items-center justify-center px-6" style={{ paddingTop: insets.top + 40, paddingBottom: insets.bottom + 40 }}>
-                    <View className="w-full max-w-sm bg-white rounded-lg shadow-lg p-6 gap-4">
-                        <Text className="text-2xl font-bold text-primary mb-2">Reset Password</Text>
+                <PageHeader title="Reset Password" />
+                <View className="flex-1 items-center justify-center px-4" style={{ paddingBottom: insets.bottom + 20 }}>
+                    <View className="w-full md:max-w-sm bg-white md:rounded-lg md:shadow-lg p-6 gap-4">
                         <Text className="text-sm text-gray-600 mb-4">Enter your email to receive password reset instructions</Text>
 
                         <TextInput
@@ -127,9 +128,9 @@ export default observer(function LoginPage() {
     if (isMagicLink) {
         return (
             <ScrollView className="flex-1 bg-gray-50">
-                <View className="flex-1 items-center justify-center px-6" style={{ paddingTop: insets.top + 40, paddingBottom: insets.bottom + 40 }}>
-                    <View className="w-full max-w-sm bg-white rounded-lg shadow-lg p-6 gap-4">
-                        <Text className="text-2xl font-bold text-primary mb-2">Magic Link Sign In</Text>
+                <PageHeader title="Magic Link Sign In" />
+                <View className="flex-1 items-center justify-center px-4" style={{ paddingBottom: insets.bottom + 20 }}>
+                    <View className="w-full md:max-w-sm bg-white md:rounded-lg md:shadow-lg p-6 gap-4">
                         <Text className="text-sm text-gray-600 mb-4">We'll send you a magic link to sign in without a password</Text>
 
                         <TextInput
@@ -170,9 +171,9 @@ export default observer(function LoginPage() {
 
     return (
         <ScrollView className="flex-1 bg-gray-50">
-            <View className="flex-1 items-center justify-center px-6" style={{ paddingTop: insets.top + 40, paddingBottom: insets.bottom + 40 }}>
-                <View className="w-full max-w-sm bg-white rounded-lg shadow-lg p-6 gap-4">
-                    <Text className="text-2xl font-bold text-primary mb-2">{isSignUp ? 'Create Account' : 'Sign In'}</Text>
+            <PageHeader title={isSignUp ? 'Create Account' : 'Sign In'} />
+            <View className="flex-1 items-center justify-center px-4" style={{ paddingBottom: insets.bottom + 20 }}>
+                <View className="w-full md:max-w-sm bg-white md:rounded-lg md:shadow-lg p-6 gap-4">
                     <Text className="text-sm text-gray-600 mb-4">
                         {isSignUp ? 'Sign up to track your runestone visits' : 'Welcome back to Runestone Safari'}
                     </Text>

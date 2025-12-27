@@ -5,6 +5,7 @@ import { observer } from 'mobx-react-lite';
 import { authStore } from '../src/stores/authStore';
 import { visitedRunestonesStore } from '../src/stores/visitedRunestonesStore';
 import { Runestone } from '../src/types';
+import { PageHeader } from '../src/components/PageHeader';
 
 export default observer(function Profile() {
   const router = useRouter();
@@ -156,11 +157,12 @@ export default observer(function Profile() {
   return (
     <ScrollView className="flex-1 bg-gray-50">
       <Stack.Screen options={{ title: 'Profile' }} />
+      <PageHeader title="Profile" />
 
-      <View className="p-4 md:p-8 lg:p-12">
-        <View className="max-w-5xl mx-auto w-full bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+      <View className="md:p-8 lg:p-12">
+        <View className="md:max-w-5xl md:mx-auto w-full bg-white md:rounded-lg md:shadow-sm md:border md:border-gray-100 overflow-hidden">
 
-          <View className="p-6">
+          <View className="p-4 md:p-6">
             {/* User Info Section */}
             <View className="bg-gray-50 rounded-lg p-8 mb-8">
               <View className="flex-row items-center space-x-6">
@@ -273,17 +275,6 @@ export default observer(function Profile() {
               )}
             </View>
 
-          </View>
-
-          <View className="bg-gray-50 px-6 py-6 border-t border-gray-100 items-center">
-            <Text className="text-sm text-gray-500 text-center mb-4">
-              © 2025 Runestone Safari
-            </Text>
-            <Link href="/" asChild>
-              <TouchableOpacity className="bg-primary px-6 py-2 rounded-md">
-                <Text className="text-white font-medium">← Back to Map</Text>
-              </TouchableOpacity>
-            </Link>
           </View>
 
         </View>

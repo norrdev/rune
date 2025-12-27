@@ -64,7 +64,7 @@ export const RunestonePage = observer(({ runestone, onVisitedStatusChange }: Run
       <PageHeader title={runestone.signature_text || `Runestone ${runestone.id}`} />
 
       {/* Content */}
-      <View className="max-w-4xl mx-auto px-4 py-8 w-full">
+      <View className="px-4 py-4 md:py-8 md:max-w-4xl md:mx-auto w-full">
         <View className="gap-6">
           {/* Mini Map */}
           <MiniMap runestone={runestone} />
