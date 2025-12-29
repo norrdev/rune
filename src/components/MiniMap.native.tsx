@@ -39,10 +39,28 @@ export const MiniMap = ({ runestone }: MiniMapProps) => {
                 >
                     <Marker
                         coordinate={{ latitude: runestone.latitude, longitude: runestone.longitude }}
-                        pinColor="red"
-                    />
+                    >
+                        <View style={styles.markerContainer}>
+                            <View style={styles.markerCircle} />
+                        </View>
+                    </Marker>
                 </MapView>
             </View>
         </View>
     );
 };
+
+const styles = StyleSheet.create({
+    markerContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    markerCircle: {
+        width: 16,
+        height: 16,
+        borderRadius: 8,
+        backgroundColor: '#ef4444',
+        borderWidth: 2,
+        borderColor: '#ffffff',
+    },
+});

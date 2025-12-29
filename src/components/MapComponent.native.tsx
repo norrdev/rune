@@ -124,8 +124,14 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
               key={stone.id}
               coordinate={{ latitude: stone.latitude, longitude: stone.longitude }}
               onPress={() => handleMarkerPress(stone)}
-              pinColor={isVisited ? 'green' : 'red'}
-            />
+            >
+              <View style={styles.markerContainer}>
+                <View style={[
+                  styles.markerCircle,
+                  { backgroundColor: isVisited ? '#22c55e' : '#ef4444' }
+                ]} />
+              </View>
+            </Marker>
           );
         })}
       </MapView>
@@ -165,5 +171,16 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 10,
     alignItems: 'center'
+  },
+  markerContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  markerCircle: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#ffffff',
   }
 });
