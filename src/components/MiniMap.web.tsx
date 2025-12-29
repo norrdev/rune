@@ -16,10 +16,12 @@ export const MiniMap = ({ runestone }: MiniMapProps) => {
         // In react-native-web, the ref of a View is the DOM element
         const container = mapContainer.current as unknown as HTMLElement;
 
-        // Explicitly check for null/undefined/NaN and non-numeric types
         const lat = runestone.latitude;
         const lng = runestone.longitude;
 
+        if (!container || typeof lat !== 'number' || typeof lng !== 'number') {
+            return;
+        }
 
         const map = new Map({
             container: container,
@@ -27,33 +29,55 @@ export const MiniMap = ({ runestone }: MiniMapProps) => {
             zoom: 14,
             style: 'https://tiles.openfreemap.org/styles/bright',
             interactive: false,
+            attributionControl: false,
         });
 
         mapRef.current = map;
 
         const addMarker = () => {
-            if (!mapRef.current) return;
+            if (!map || !map.getStyle()) return;
 
-            const markerEl = document.createElement('div');
-            markerEl.style.width = '24px';
-            markerEl.style.height = '24px';
-            markerEl.style.backgroundColor = '#ef4444';
-            markerEl.style.border = '2px solid white';
-            markerEl.style.borderRadius = '50%';
-            markerEl.style.boxShadow = '0 2px 4px rgba(0,0,0,0.3)';
-            markerEl.style.display = 'block';
+            // Check if source already exists to avoid errors on hot reload/re-renders
+            if (map.getSource('stone-marker')) return;
 
-            new Marker({ element: markerEl })
-                .setLngLat([lng, lat])
-                .addTo(mapRef.current);
+            map.addSource('stone-marker', {
+                'type': 'geojson',
+                'data': {
+                    'type': 'FeatureCollection',
+                    'features': [
+                        {
+                            'type': 'Feature',
+                            'geometry': {
+                                'type': 'Point',
+                                'coordinates': [lng, lat]
+                            },
+                            'properties': {}
+                        }
+                    ]
+                }
+            });
+
+            map.addLayer({
+                'id': 'stone-marker-circle',
+                'type': 'circle',
+                'source': 'stone-marker',
+                'paint': {
+                    'circle-radius': 8,
+                    'circle-color': '#ef4444',
+                    'circle-stroke-width': 2,
+                    'circle-stroke-color': '#ffffff'
+                }
+            });
         };
 
         if (map.loaded()) {
-            console.log('MiniMap: Map loaded', lat, lng);
+            map.resize();
             addMarker();
         } else {
-            console.log('MiniMap: Map not loaded', lat, lng);
-            map.once('load', addMarker);
+            map.once('load', () => {
+                map?.resize();
+                addMarker();
+            });
         }
 
         map.on('error', (e) => {
