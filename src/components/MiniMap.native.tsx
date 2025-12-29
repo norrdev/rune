@@ -25,7 +25,7 @@ export const MiniMap = ({ runestone }: MiniMapProps) => {
     return (
         <View className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             <View className="p-4 border-b border-gray-200">
-                <Text className="font-semibold text-blue-700 text-lg">Location</Text>
+                <Text className="font-semibold text-lg">Location</Text>
             </View>
             <View style={{ height: 192 }}>
                 <MapView

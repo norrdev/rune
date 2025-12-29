@@ -75,7 +75,7 @@ export const RunestonePage = observer(({ runestone, onVisitedStatusChange }: Run
               <View className="gap-6">
                 {/* Location Details */}
                 <View>
-                  <Text className="font-semibold text-blue-700 mb-3 text-lg">Location Details</Text>
+                  <Text className="font-semibold  mb-3 text-lg">Location Details</Text>
                   <View className="bg-gray-50 p-4 rounded-lg">
                     <Text className="text-gray-800 font-medium">{runestone.found_location}</Text><Text className="text-sm text-gray-600">{runestone.parish}</Text>{!!runestone.district && <Text className="text-sm text-gray-600">{runestone.district}</Text>}{!!runestone.municipality && <Text className="text-sm text-gray-600">{runestone.municipality}</Text>}{!!runestone.current_location && (
                       <Text className="text-sm text-gray-600">Current: {runestone.current_location}</Text>
@@ -90,7 +90,7 @@ export const RunestonePage = observer(({ runestone, onVisitedStatusChange }: Run
                 {/* Visit Status */}
                 {authStore.user && (
                   <View>
-                    <Text className="font-semibold text-blue-700 mb-3 text-lg">Visit Status</Text>
+                    <Text className="font-semibold mb-3 text-lg">Visit Status</Text>
                     <View className="bg-gray-50 p-4 rounded-lg">
                       <View className="flex-row items-center justify-between">
                         <View className="flex-row items-center gap-3">
@@ -132,7 +132,7 @@ export const RunestonePage = observer(({ runestone, onVisitedStatusChange }: Run
 
                 {/* Basic Details */}
                 <View>
-                  <Text className="font-semibold text-blue-700 mb-3 text-lg">Details</Text>
+                  <Text className="font-semibold mb-3 text-lg">Details</Text>
                   <View className="bg-gray-50 p-4 rounded-lg gap-2">
                     <Text className="text-sm">
                       <Text className="font-medium">Material:</Text> {runestone.material || 'Unknown'}
@@ -156,7 +156,7 @@ export const RunestonePage = observer(({ runestone, onVisitedStatusChange }: Run
 
                 {/* Status */}
                 <View>
-                  <Text className="font-semibold text-blue-700 mb-3 text-lg">Status</Text>
+                  <Text className="font-semibold mb-3 text-lg">Status</Text>
                   <View className="bg-gray-50 p-4 rounded-lg gap-2">
                     <Text className="text-sm">
                       <Text className="font-medium">Lost:</Text> {runestone.lost ? 'Yes' : 'No'}
@@ -171,7 +171,7 @@ export const RunestonePage = observer(({ runestone, onVisitedStatusChange }: Run
                 {/* Text Content */}
                 {!!runestone.norse_text && (
                   <View>
-                    <Text className="font-semibold text-blue-700 mb-3 text-lg">Norse Text</Text>
+                    <Text className="font-semibold mb-3 text-lg">Norse Text</Text>
                     <View className="bg-gray-50 p-4 rounded-lg">
                       <Text className="text-gray-800 font-mono text-sm">{runestone.norse_text}</Text>
                     </View>
@@ -180,7 +180,7 @@ export const RunestonePage = observer(({ runestone, onVisitedStatusChange }: Run
 
                 {!!runestone.transliteration && (
                   <View>
-                    <Text className="font-semibold text-blue-700 mb-3 text-lg">Transliteration</Text>
+                    <Text className="font-semibold mb-3 text-lg">Transliteration</Text>
                     <View className="bg-gray-50 p-4 rounded-lg">
                       <Text className="text-gray-800 font-mono text-sm">{runestone.transliteration}</Text>
                     </View>
@@ -189,7 +189,7 @@ export const RunestonePage = observer(({ runestone, onVisitedStatusChange }: Run
 
                 {!!runestone.swedish_translation && (
                   <View>
-                    <Text className="font-semibold text-blue-700 mb-3 text-lg">Swedish Translation</Text>
+                    <Text className="font-semibold mb-3 text-lg">Swedish Translation</Text>
                     <View className="bg-gray-50 p-4 rounded-lg">
                       <Text className="text-gray-800">{runestone.swedish_translation}</Text>
                     </View>
@@ -198,7 +198,7 @@ export const RunestonePage = observer(({ runestone, onVisitedStatusChange }: Run
 
                 {!!runestone.english_translation && (
                   <View>
-                    <Text className="font-semibold text-blue-700 mb-3 text-lg">English Translation</Text>
+                    <Text className="font-semibold mb-3 text-lg">English Translation</Text>
                     <View className="bg-gray-50 p-4 rounded-lg">
                       <Text className="text-gray-800">{runestone.english_translation}</Text>
                     </View>
