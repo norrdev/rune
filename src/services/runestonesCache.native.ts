@@ -1,7 +1,15 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabaseRunestones } from './supabaseRunestones';
 import { Runestone } from '../types';
 
 const TOTAL_RUNESTONES = 6815;
+
+// AsyncStorage keys
+const STORAGE_KEYS = {
+  RUNESTONES: 'runestones-cache',
+  LAST_UPDATE: 'runestones-last-update',
+  CACHED_BOUNDS: 'runestones-cached-bounds',
+};
 
 class RunestonesCache {
   private runestones: Runestone[] = [];
@@ -9,6 +17,48 @@ class RunestonesCache {
   private CACHE_DURATION = 365 * 24 * 60 * 60 * 1000; // 1 year
   private isInitialized = false;
   private cachedBounds: Map<string, [number, number, number, number]> = new Map();
+
+  constructor() {
+    // Load cached data from AsyncStorage on initialization
+    this.loadFromStorage();
+  }
+
+  private async loadFromStorage() {
+    try {
+      const [storedRunestones, storedLastUpdate, storedBounds] = await Promise.all([
+        AsyncStorage.getItem(STORAGE_KEYS.RUNESTONES),
+        AsyncStorage.getItem(STORAGE_KEYS.LAST_UPDATE),
+        AsyncStorage.getItem(STORAGE_KEYS.CACHED_BOUNDS),
+      ]);
+
+      if (storedRunestones) {
+        this.runestones = JSON.parse(storedRunestones);
+      }
+
+      if (storedLastUpdate) {
+        this.lastUpdate = parseInt(storedLastUpdate, 10);
+      }
+
+      if (storedBounds) {
+        const boundsArray = JSON.parse(storedBounds);
+        this.cachedBounds = new Map(boundsArray);
+      }
+    } catch (error) {
+      console.error('Failed to load from AsyncStorage:', error);
+    }
+  }
+
+  private async saveToStorage() {
+    try {
+      await Promise.all([
+        AsyncStorage.setItem(STORAGE_KEYS.RUNESTONES, JSON.stringify(this.runestones)),
+        AsyncStorage.setItem(STORAGE_KEYS.LAST_UPDATE, this.lastUpdate.toString()),
+        AsyncStorage.setItem(STORAGE_KEYS.CACHED_BOUNDS, JSON.stringify(Array.from(this.cachedBounds.entries()))),
+      ]);
+    } catch (error) {
+      console.error('Failed to save to AsyncStorage:', error);
+    }
+  }
 
   async getAllRunestones(): Promise<Runestone[]> {
     await this.initializeCache();
@@ -18,12 +68,21 @@ class RunestonesCache {
   private async initializeCache() {
     if (this.isInitialized) return;
 
+    // Check if we have valid cached data
+    if (this.runestones.length >= TOTAL_RUNESTONES && !this.isCacheExpired()) {
+      this.isInitialized = true;
+      return;
+    }
+
     try {
       const allRunestones = await supabaseRunestones.getAllRunestones();
       this.runestones = allRunestones;
       this.lastUpdate = Date.now();
       this.cachedBounds.set('*', [-180, -90, 180, 90]);
       this.isInitialized = true;
+
+      // Persist to MMKV
+      this.saveToStorage();
     } catch (error) {
       console.error('Failed to initialize native cache:', error);
     }
@@ -71,6 +130,9 @@ class RunestonesCache {
       ...runestones
     ];
     this.lastUpdate = Date.now();
+
+    // Persist to MMKV
+    this.saveToStorage();
   }
 
   async clearCache() {
@@ -78,6 +140,13 @@ class RunestonesCache {
     this.lastUpdate = 0;
     this.cachedBounds.clear();
     this.isInitialized = false;
+
+    // Clear AsyncStorage
+    await Promise.all([
+      AsyncStorage.removeItem(STORAGE_KEYS.RUNESTONES),
+      AsyncStorage.removeItem(STORAGE_KEYS.LAST_UPDATE),
+      AsyncStorage.removeItem(STORAGE_KEYS.CACHED_BOUNDS),
+    ]);
   }
 
   async ensureCacheInitialized() {
