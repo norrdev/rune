@@ -28,7 +28,7 @@
     "react-markdown": "^10.1.0",
     "react-native": "0.81.5",
     "react-native-css-interop": "^0.2.1",
-    "react-native-maps": "1.20.1",
+    "@maplibre/maplibre-react-native": "^10.0.0",
     "react-native-reanimated": "~4.1.1",
     "react-native-safe-area-context": "^5.6.2",
     "react-native-screens": "~4.16.0",

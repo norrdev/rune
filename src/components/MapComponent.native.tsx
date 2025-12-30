@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
-
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { View, StyleSheet, ActivityIndicator, Alert, Text } from 'react-native';
-import MapView, { Marker, PROVIDER_DEFAULT, type Region } from 'react-native-maps';
-import { runestonesCache } from '../services/runestonesCache'; // Resolves to .native.ts
+import MapLibreGL from '@maplibre/maplibre-react-native';
+import { runestonesCache } from '../services/runestonesCache';
 import type { Runestone } from '../types';
 import { RunestoneModal } from './RunestoneModal';
 import { visitedRunestonesStore } from '../stores/visitedRunestonesStore';
@@ -10,8 +9,32 @@ import { searchStore } from '../stores/searchStore';
 import { observer } from 'mobx-react-lite';
 import { reaction } from 'mobx';
 
+// Initialize MapLibre
+MapLibreGL.setAccessToken(null);
+
+// OpenFreeMap - detailed street maps
+const STYLE_URL = 'https://tiles.openfreemap.org/styles/bright';
+
 interface MapComponentProps {
   onVisitedCountChange?: (count: number) => void;
+}
+
+// GeoJSON types
+interface RunestoneFeature {
+  type: 'Feature';
+  properties: {
+    id: number;
+    visited: boolean;
+  };
+  geometry: {
+    type: 'Point';
+    coordinates: [number, number];
+  };
+}
+
+interface RunestoneGeoJSON {
+  type: 'FeatureCollection';
+  features: RunestoneFeature[];
 }
 
 export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProps) => {
@@ -19,27 +42,22 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
   const [loading, setLoading] = useState(true);
   const [selectedRunestone, setSelectedRunestone] = useState<Runestone | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const mapRef = useRef<MapView>(null);
+  const cameraRef = useRef<MapLibreGL.CameraRef>(null);
+  const runestonesRef = useRef<Runestone[]>([]);
 
-  // Initial Region (Stockholm)
-  const [region, setRegion] = useState<Region>({
-    latitude: 59.4293,
-    longitude: 18.0686,
-    latitudeDelta: 0.1,
-    longitudeDelta: 0.1,
-  });
+  // Initial center (Stockholm area - Jarlabanke bridge)
+  const [center] = useState<[number, number]>([18.0686, 59.4293]);
+  const [zoom] = useState(10);
 
-  const loadRunestones = React.useCallback(async () => {
+
+
+  const loadRunestones = useCallback(async () => {
     try {
       setLoading(true);
       const data = await runestonesCache.getAllRunestones();
-
-      // Filter for performance initially? 
-      // For 6000 items, basic Markers might be slow without clustering.
-      // But we'll try to render them and see.
+      runestonesRef.current = data;
       setRunestones(data);
 
-      // Update store with initial count
       if (onVisitedCountChange) {
         onVisitedCountChange(visitedRunestonesStore.visitedCount);
       }
@@ -55,17 +73,12 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
     loadRunestones();
   }, [loadRunestones]);
 
-  const handleMarkerPress = (runestone: Runestone) => {
-    setSelectedRunestone(runestone);
-    setIsModalOpen(true);
-  };
-
   const refreshVisitedStatus = () => {
-    // Trigger re-render if needed, but MobX observer should handle store updates
-    // We might need to refresh the local runestones list if we were filtering
     if (onVisitedCountChange) {
       onVisitedCountChange(visitedRunestonesStore.visitedCount);
     }
+    // Force re-render by updating state
+    setRunestones([...runestonesRef.current]);
   };
 
   // Navigate to selected runestone from search
@@ -73,20 +86,15 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
     const dispose = reaction(
       () => searchStore.selectedRunestone,
       (runestone) => {
-        if (runestone && mapRef.current) {
-          // Animate to the runestone's location
-          mapRef.current.animateToRegion({
-            latitude: runestone.latitude,
-            longitude: runestone.longitude,
-            latitudeDelta: 0.01, // Close zoom
-            longitudeDelta: 0.01,
-          }, 1000); // 1 second animation
+        if (runestone && cameraRef.current) {
+          cameraRef.current.setCamera({
+            centerCoordinate: [runestone.longitude, runestone.latitude],
+            zoomLevel: 14,
+            animationDuration: 1000,
+          });
 
-          // Open the modal for the selected runestone
           setSelectedRunestone(runestone);
           setIsModalOpen(true);
-
-          // Clear selected runestone after navigation
           searchStore.setSelectedRunestone(null);
         }
       }
@@ -95,46 +103,133 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
     return () => dispose();
   }, []);
 
-  // Optimization: Only render markers within current region?
-  // Or just render all if < 1000. 
-  // With 6000, we definitely need clustering or limiting.
-  // For now, let's limit to top 100 visible or something simple to prove it works.
+  // Create GeoJSON for ShapeSource with all runestones (clustering handles performance)
+  const createGeoJSON = useCallback((): RunestoneGeoJSON => {
+    return {
+      type: 'FeatureCollection',
+      features: runestones.map((stone) => ({
+        type: 'Feature',
+        properties: {
+          id: stone.id,
+          visited: visitedRunestonesStore.isVisited(stone.id),
+        },
+        geometry: {
+          type: 'Point',
+          coordinates: [stone.longitude, stone.latitude],
+        },
+      })),
+    };
+  }, [runestones]);
 
-  const visibleRunestones = runestones.filter(stone => {
-    const latDiff = Math.abs(stone.latitude - region.latitude);
-    const lonDiff = Math.abs(stone.longitude - region.longitude);
-    return latDiff < region.latitudeDelta / 2 + 0.05 && lonDiff < region.longitudeDelta / 2 + 0.05;
-  }).slice(0, 50); // Hard limit for safety in Expo Go initially
+  const handleRegionChange = useCallback(() => {
+    // Region change handler - can be used for analytics if needed
+  }, []);
+
+  const handleShapePress = useCallback((event: MapLibreGL.OnPressEvent) => {
+    const feature = event.features?.[0];
+    if (feature?.properties?.id) {
+      const runestone = runestonesRef.current.find(
+        (stone) => stone.id === feature.properties?.id
+      );
+      if (runestone) {
+        setSelectedRunestone(runestone);
+        setIsModalOpen(true);
+      }
+    }
+  }, []);
 
   return (
     <View style={styles.container}>
-      <MapView
-        ref={mapRef}
+      <MapLibreGL.MapView
         style={styles.map}
-        provider={PROVIDER_DEFAULT} // Uses Apple Maps on iOS, Google on Android
-        initialRegion={region}
-        onRegionChangeComplete={setRegion}
-        showsUserLocation
-        showsMyLocationButton
+        mapStyle={STYLE_URL}
+        onRegionDidChange={handleRegionChange}
+        attributionEnabled={true}
+        logoEnabled={false}
       >
-        {visibleRunestones.map((stone) => {
-          const isVisited = visitedRunestonesStore.isVisited(stone.id);
-          return (
-            <Marker
-              key={stone.id}
-              coordinate={{ latitude: stone.latitude, longitude: stone.longitude }}
-              onPress={() => handleMarkerPress(stone)}
-            >
-              <View style={styles.markerContainer}>
-                <View style={[
-                  styles.markerCircle,
-                  { backgroundColor: isVisited ? '#22c55e' : '#ef4444' }
-                ]} />
-              </View>
-            </Marker>
-          );
-        })}
-      </MapView>
+        <MapLibreGL.Camera
+          ref={cameraRef}
+          defaultSettings={{
+            centerCoordinate: center,
+            zoomLevel: zoom,
+          }}
+        />
+
+        <MapLibreGL.UserLocation visible={true} />
+
+        {runestones.length > 0 && (
+          <MapLibreGL.ShapeSource
+            id="runestones"
+            shape={createGeoJSON()}
+            onPress={handleShapePress}
+            cluster
+            clusterRadius={50}
+            clusterMaxZoomLevel={13}
+          >
+            {/* Cluster circles */}
+            <MapLibreGL.CircleLayer
+              id="clusters"
+              filter={['has', 'point_count']}
+              style={{
+                circleColor: [
+                  'step',
+                  ['get', 'point_count'],
+                  '#8B4513', // Small clusters
+                  100,
+                  '#A0522D', // Medium clusters
+                  750,
+                  '#CD853F', // Large clusters
+                ],
+                circleRadius: [
+                  'step',
+                  ['get', 'point_count'],
+                  20, // Small clusters
+                  100,
+                  30, // Medium clusters
+                  750,
+                  40, // Large clusters
+                ],
+              }}
+            />
+
+            {/* Cluster count labels */}
+            <MapLibreGL.SymbolLayer
+              id="cluster-count"
+              filter={['has', 'point_count']}
+              style={{
+                textField: ['get', 'point_count_abbreviated'],
+                textSize: 12,
+                textColor: '#ffffff',
+                textFont: ['Noto Sans Regular'],
+              }}
+            />
+
+            {/* Unvisited runestones - red */}
+            <MapLibreGL.CircleLayer
+              id="unvisited-runestones"
+              filter={['all', ['!', ['has', 'point_count']], ['==', ['get', 'visited'], false]]}
+              style={{
+                circleRadius: 8,
+                circleColor: '#ef4444',
+                circleStrokeWidth: 2,
+                circleStrokeColor: '#ffffff',
+              }}
+            />
+
+            {/* Visited runestones - green */}
+            <MapLibreGL.CircleLayer
+              id="visited-runestones"
+              filter={['all', ['!', ['has', 'point_count']], ['==', ['get', 'visited'], true]]}
+              style={{
+                circleRadius: 8,
+                circleColor: '#22c55e',
+                circleStrokeWidth: 2,
+                circleStrokeColor: '#ffffff',
+              }}
+            />
+          </MapLibreGL.ShapeSource>
+        )}
+      </MapLibreGL.MapView>
 
       {loading && (
         <View style={styles.loadingContainer}>
@@ -143,7 +238,6 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
         </View>
       )}
 
-      {/* Re-use the modal we ported! */}
       <RunestoneModal
         runestone={selectedRunestone}
         isOpen={isModalOpen}
@@ -170,17 +264,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.9)',
     padding: 20,
     borderRadius: 10,
-    alignItems: 'center'
-  },
-  markerContainer: {
     alignItems: 'center',
-    justifyContent: 'center',
   },
-  markerCircle: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: '#ffffff',
-  }
 });

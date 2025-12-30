@@ -1,6 +1,12 @@
 import { View, Text, StyleSheet } from 'react-native';
-import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
+import MapLibreGL from '@maplibre/maplibre-react-native';
 import { Runestone } from '../types';
+
+// Initialize MapLibre (safe to call multiple times)
+MapLibreGL.setAccessToken(null);
+
+// OpenFreeMap - detailed street maps
+const STYLE_URL = 'https://tiles.openfreemap.org/styles/bright';
 
 interface MiniMapProps {
     runestone: Runestone;
@@ -15,12 +21,7 @@ export const MiniMap = ({ runestone }: MiniMapProps) => {
         );
     }
 
-    const region = {
-        latitude: runestone.latitude,
-        longitude: runestone.longitude,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
-    };
+    const coordinates: [number, number] = [runestone.longitude, runestone.latitude];
 
     return (
         <View className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
@@ -28,23 +29,32 @@ export const MiniMap = ({ runestone }: MiniMapProps) => {
                 <Text className="font-semibold text-lg">Location</Text>
             </View>
             <View style={{ height: 192 }}>
-                <MapView
+                <MapLibreGL.MapView
                     style={StyleSheet.absoluteFillObject}
-                    provider={PROVIDER_DEFAULT}
-                    initialRegion={region}
+                    mapStyle={STYLE_URL}
                     scrollEnabled={false}
-                    zoomEnabled={false}
                     rotateEnabled={false}
                     pitchEnabled={false}
+                    zoomEnabled={false}
+                    attributionEnabled={false}
+                    logoEnabled={false}
                 >
-                    <Marker
-                        coordinate={{ latitude: runestone.latitude, longitude: runestone.longitude }}
+                    <MapLibreGL.Camera
+                        defaultSettings={{
+                            centerCoordinate: coordinates,
+                            zoomLevel: 14,
+                        }}
+                    />
+
+                    <MapLibreGL.PointAnnotation
+                        id={`marker-${runestone.id}`}
+                        coordinate={coordinates}
                     >
                         <View style={styles.markerContainer}>
                             <View style={styles.markerCircle} />
                         </View>
-                    </Marker>
-                </MapView>
+                    </MapLibreGL.PointAnnotation>
+                </MapLibreGL.MapView>
             </View>
         </View>
     );
