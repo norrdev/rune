@@ -15,6 +15,8 @@ MapLibreGL.setAccessToken(null);
 // OpenFreeMap - detailed street maps
 const STYLE_URL = 'https://tiles.openfreemap.org/styles/bright';
 
+const JARLABANKE_BRIDGE: [number, number] = [18.0686, 59.4293];
+
 interface MapComponentProps {
   onVisitedCountChange?: (count: number) => void;
 }
@@ -46,7 +48,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
   const runestonesRef = useRef<Runestone[]>([]);
 
   // Initial center (Stockholm area - Jarlabanke bridge)
-  const [center] = useState<[number, number]>([18.0686, 59.4293]);
+  const [center] = useState<[number, number]>(JARLABANKE_BRIDGE);
   const [zoom] = useState(10);
 
 

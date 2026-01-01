@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet } from 'react-native';
 import MapLibreGL from '@maplibre/maplibre-react-native';
-import { Runestone } from '../types';
+import type { Runestone } from '../types';
 
 // Initialize MapLibre (safe to call multiple times)
 MapLibreGL.setAccessToken(null);

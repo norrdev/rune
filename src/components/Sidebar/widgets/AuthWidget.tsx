@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, TextInput, Pressable, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, Pressable } from 'react-native';
 import { observer } from 'mobx-react-lite';
 import { authStore } from '../../../stores/authStore';
 import { Link } from 'expo-router';
