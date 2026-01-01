@@ -2,7 +2,7 @@ import { useRef, useEffect } from 'react';
 import { View, Text } from 'react-native';
 import { Map as MapLibre } from 'maplibre-gl';
 import type { Runestone } from '../../types';
-import '../styles/map.web.css';
+import '../../styles/map.web.css';
 import { STYLE_URL, MINIMAP_ZOOM, MARKER_COLOR } from '../Map/mapUtils';
 
 interface MiniMapProps {

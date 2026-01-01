@@ -5,7 +5,7 @@ import { observer } from 'mobx-react-lite';
 import { authStore } from '../stores/authStore';
 import { visitedRunestonesStore } from '../stores/visitedRunestonesStore';
 import { PageHeader } from './PageHeader';
-import { MiniMap } from './MiniMap';
+import { MiniMap } from './MiniMap/MiniMap';
 
 interface RunestonePageProps {
   runestone: Runestone | null;

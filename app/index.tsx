@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { View, Pressable, Text, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { MapComponent } from '../src/components/MapComponent';
+import { MapComponent } from '../src/components/Map/MapComponent';
 import { Sidebar } from '../src/components/Sidebar/Sidebar';
 
 export default function Page() {

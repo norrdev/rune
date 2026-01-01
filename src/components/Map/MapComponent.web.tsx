@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
-import '../styles/map.web.css';
+import '../../styles/map.web.css';
 import { GeolocateControl, Map as MapLibreMap, type GeoJSONSource } from 'maplibre-gl';
 import { runestonesCache } from '@services/runestonesCache';
 import type { Runestone } from '../../types';
