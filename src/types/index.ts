@@ -56,3 +56,30 @@ export interface RunestoneGeoJSON {
   type: 'FeatureCollection';
   features: RunestoneFeature[];
 }
+
+export interface RunestoneRow {
+  id: number;
+  signature_text: string;
+  found_location: string;
+  parish: string;
+  district: string;
+  municipality: string;
+  current_location: string;
+  material: string;
+  material_type: string | null;
+  rune_type: string;
+  dating: string;
+  style: string;
+  carver: string;
+  latitude: number;
+  longitude: number;
+  english_translation: string | null;
+  swedish_translation: string | null;
+  norse_text: string | null;
+  transliteration: string | null;
+  lost: 0 | 1;
+  ornamental: 0 | 1;
+  recent: 0 | 1;
+  visited: 0 | 1 | null;
+  slug: string | null;
+}

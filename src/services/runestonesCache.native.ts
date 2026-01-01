@@ -1,6 +1,6 @@
 import * as SQLite from 'expo-sqlite';
 import { supabaseRunestones } from './supabaseRunestones';
-import { Runestone } from '../types';
+import type { Runestone, RunestoneRow } from '../types';
 
 const TOTAL_RUNESTONES = 6815;
 const DB_NAME = 'runestones.db';
@@ -9,7 +9,6 @@ class RunestonesCache {
   private db: SQLite.SQLiteDatabase | null = null;
   private lastUpdate: number = 0;
   private CACHE_DURATION = 365 * 24 * 60 * 60 * 1000; // 1 year
-  private isInitialized = false;
   private initPromise: Promise<void> | null = null;
 
   constructor() {
@@ -69,7 +68,6 @@ class RunestonesCache {
         this.lastUpdate = parseInt(result.value, 10);
       }
 
-      this.isInitialized = true;
     } catch (error) {
       console.error('Failed to initialize SQLite database:', error);
     }
@@ -102,8 +100,8 @@ class RunestonesCache {
 
     if (!this.db) return [];
 
-    const rows = await this.db.getAllAsync<any>('SELECT * FROM runestones');
-    return rows.map(this.rowToRunestone);
+    const rows = await this.db.getAllAsync<RunestoneRow>('SELECT * FROM runestones');
+    return rows.map((row) => this.rowToRunestone(row));
   }
 
   private async initializeCache() {
@@ -190,7 +188,7 @@ class RunestonesCache {
     );
   }
 
-  private rowToRunestone(row: any): Runestone {
+  private rowToRunestone(row: RunestoneRow): Runestone {
     return {
       id: row.id,
       signature_text: row.signature_text,
@@ -200,22 +198,22 @@ class RunestonesCache {
       municipality: row.municipality,
       current_location: row.current_location,
       material: row.material,
-      material_type: row.material_type,
+      material_type: row.material_type ?? undefined,
       rune_type: row.rune_type,
       dating: row.dating,
       style: row.style,
       carver: row.carver,
       latitude: row.latitude,
       longitude: row.longitude,
-      english_translation: row.english_translation,
-      swedish_translation: row.swedish_translation,
-      norse_text: row.norse_text,
-      transliteration: row.transliteration,
+      english_translation: row.english_translation ?? undefined,
+      swedish_translation: row.swedish_translation ?? undefined,
+      norse_text: row.norse_text ?? undefined,
+      transliteration: row.transliteration ?? undefined,
       lost: row.lost === 1,
       ornamental: row.ornamental === 1,
       recent: row.recent === 1,
       visited: row.visited === 1,
-      slug: row.slug,
+      slug: row.slug ?? undefined,
     };
   }
 
@@ -232,14 +230,14 @@ class RunestonesCache {
 
     const [west, south, east, north] = bounds;
 
-    const rows = await this.db.getAllAsync<any>(
+    const rows = await this.db.getAllAsync<RunestoneRow>(
       `SELECT * FROM runestones 
        WHERE latitude >= ? AND latitude <= ? 
        AND longitude >= ? AND longitude <= ?`,
       [south, north, west, east]
     );
 
-    return rows.map(this.rowToRunestone);
+    return rows.map((row) => this.rowToRunestone(row));
   }
 
   async updateCache(runestones: Runestone[]) {
@@ -267,7 +265,6 @@ class RunestonesCache {
     await this.db.execAsync('DELETE FROM cache_metadata');
 
     this.lastUpdate = 0;
-    this.isInitialized = false;
   }
 
   async ensureCacheInitialized() {
@@ -280,7 +277,7 @@ class RunestonesCache {
 
     if (!this.db) return null;
 
-    const row = await this.db.getFirstAsync<any>(
+    const row = await this.db.getFirstAsync<RunestoneRow>(
       'SELECT * FROM runestones WHERE slug = ?',
       [slug]
     );
@@ -296,7 +293,7 @@ class RunestonesCache {
 
     const searchTerm = `%${query.toLowerCase().trim()}%`;
 
-    const rows = await this.db.getAllAsync<any>(
+    const rows = await this.db.getAllAsync<RunestoneRow>(
       `SELECT * FROM runestones 
        WHERE LOWER(signature_text) LIKE ?
        OR LOWER(found_location) LIKE ?
@@ -324,7 +321,7 @@ class RunestonesCache {
       ]
     );
 
-    return rows.map(this.rowToRunestone);
+    return rows.map((row) => this.rowToRunestone(row));
   }
 }
 

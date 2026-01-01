@@ -1,6 +1,6 @@
-import { openDB, DBSchema, IDBPDatabase } from 'idb/build/index.js';
+import { openDB, type DBSchema, type IDBPDatabase } from 'idb/build/index.js';
 import { supabaseRunestones } from './supabaseRunestones';
-import { Runestone } from '../types';
+import type { Runestone } from '../types';
 
 const TOTAL_RUNESTONES = 6815;
 
@@ -184,10 +184,8 @@ class RunestonesCache {
     const store = tx.objectStore('runestones');
     let cursor = await store.openCursor();
 
-    let checkedCount = 0;
     while (cursor && results.length < limit) {
       const runestone = cursor.value;
-      checkedCount++;
 
       // Check if any searchable field contains the search term
       if (this.matchesSearchTerm(runestone, searchTerm)) {
@@ -221,7 +219,7 @@ class RunestonesCache {
       runestone.transliteration,
     ];
 
-    return searchableFields.some((field) => field && field.toLowerCase().includes(searchTerm));
+    return searchableFields.some((field) => field?.toLowerCase().includes(searchTerm));
   }
 }
 
