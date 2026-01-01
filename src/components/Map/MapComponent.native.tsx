@@ -1,42 +1,24 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { View, StyleSheet, ActivityIndicator, Alert, Text } from 'react-native';
 import MapLibreGL from '@maplibre/maplibre-react-native';
-import { runestonesCache } from '../services/runestonesCache';
-import type { Runestone } from '../types';
-import { RunestoneModal } from './RunestoneModal';
-import { visitedRunestonesStore } from '../stores/visitedRunestonesStore';
-import { searchStore } from '../stores/searchStore';
+import { runestonesCache } from '@services/runestonesCache';
+import type { Runestone } from '../../types';
+import { RunestoneModal } from '../RunestoneModal';
+import { visitedRunestonesStore } from '../../stores/visitedRunestonesStore';
+import { searchStore } from '../../stores/searchStore';
 import { observer } from 'mobx-react-lite';
 import { reaction } from 'mobx';
+import {
+  JARLABANKE_BRIDGE,
+  STYLE_URL,
+  createGeoJSONData,
+} from './mapUtils';
 
 // Initialize MapLibre
 MapLibreGL.setAccessToken(null);
 
-// OpenFreeMap - detailed street maps
-const STYLE_URL = 'https://tiles.openfreemap.org/styles/bright';
-
-const JARLABANKE_BRIDGE: [number, number] = [18.0686, 59.4293];
-
 interface MapComponentProps {
   onVisitedCountChange?: (count: number) => void;
-}
-
-// GeoJSON types
-interface RunestoneFeature {
-  type: 'Feature';
-  properties: {
-    id: number;
-    visited: boolean;
-  };
-  geometry: {
-    type: 'Point';
-    coordinates: [number, number];
-  };
-}
-
-interface RunestoneGeoJSON {
-  type: 'FeatureCollection';
-  features: RunestoneFeature[];
 }
 
 export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProps) => {
@@ -106,21 +88,8 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
   }, []);
 
   // Create GeoJSON for ShapeSource with all runestones (clustering handles performance)
-  const createGeoJSON = useCallback((): RunestoneGeoJSON => {
-    return {
-      type: 'FeatureCollection',
-      features: runestones.map((stone) => ({
-        type: 'Feature',
-        properties: {
-          id: stone.id,
-          visited: visitedRunestonesStore.isVisited(stone.id),
-        },
-        geometry: {
-          type: 'Point',
-          coordinates: [stone.longitude, stone.latitude],
-        },
-      })),
-    };
+  const geoJsonData = useMemo(() => {
+    return createGeoJSONData(runestones);
   }, [runestones]);
 
   const handleRegionChange = useCallback(() => {
@@ -162,7 +131,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
         {runestones.length > 0 && (
           <MapLibreGL.ShapeSource
             id="runestones"
-            shape={createGeoJSON()}
+            shape={geoJsonData}
             onPress={handleShapePress}
             cluster
             clusterRadius={50}

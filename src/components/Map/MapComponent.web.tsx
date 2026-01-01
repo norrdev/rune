@@ -1,32 +1,22 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import '../styles/map.web.css';
-import { GeolocateControl, Map, type GeoJSONSource } from 'maplibre-gl';
+import { GeolocateControl, Map as MapLibreMap, type GeoJSONSource } from 'maplibre-gl';
 import { runestonesCache } from '@services/runestonesCache';
-import type { Runestone, RunestoneFeature, RunestoneGeoJSON } from '../types';
-import { RunestoneModal } from './RunestoneModal';
+import type { Runestone } from '../../types';
+import { RunestoneModal } from '../RunestoneModal';
 import { observer } from 'mobx-react-lite';
 import { reaction } from 'mobx';
 
 import { searchStore } from '@stores/searchStore';
 import { visitedRunestonesStore } from '@stores/visitedRunestonesStore';
-
-// Cluster styling constants
-const CLUSTER_COLORS = {
-  SMALL: '#8B4513', // Dark brown for clusters with < 100 points
-  MEDIUM: '#A0522D', // Medium brown for clusters with 100-750 points
-  LARGE: '#CD853F', // Light brown for clusters with > 750 points
-} as const;
-
-const CLUSTER_RADIUSES = {
-  SMALL: 20, // Radius for clusters with < 100 points
-  MEDIUM: 30, // Radius for clusters with 100-750 points
-  LARGE: 40, // Radius for clusters with > 750 points
-} as const;
-
-const CLUSTER_THRESHOLDS = {
-  MEDIUM: 100, // Threshold for medium clusters
-  LARGE: 750, // Threshold for large clusters
-} as const;
+import {
+  STYLE_URL,
+  JARLABANKE_BRIDGE,
+  CLUSTER_COLORS,
+  CLUSTER_RADIUSES,
+  CLUSTER_THRESHOLDS,
+  createGeoJSONData,
+} from './mapUtils';
 
 interface MapComponentProps {
   onVisitedCountChange?: (count: number) => void;
@@ -34,7 +24,7 @@ interface MapComponentProps {
 
 export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProps) => {
   const mapContainer = useRef<HTMLDivElement | null>(null);
-  const mapRef = useRef<Map | null>(null);
+  const mapRef = useRef<MapLibreMap | null>(null);
   const eventListenersAddedRef = useRef<boolean>(false);
   const styleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const runestonesRef = useRef<Runestone[]>([]);
@@ -46,16 +36,16 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Function to open modal with a runestone
-  const openModal = (runestone: Runestone) => {
+  const openModal = useCallback((runestone: Runestone) => {
     setSelectedRunestone(runestone);
     setIsModalOpen(true);
-  };
+  }, []);
 
   // Function to close modal
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setIsModalOpen(false);
     setSelectedRunestone(null);
-  };
+  }, []);
 
   // Function to refresh visited status (now simply applies the current visited state)
   const refreshVisitedStatus = useCallback(() => {
@@ -82,67 +72,10 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
     }
   }, []);
 
-  const createGeoJSONData = useCallback((stones: Runestone[]): RunestoneGeoJSON => {
-    // Check for and remove duplicates based on id
-    const uniqueStones = stones.filter((stone, index, arr) => arr.findIndex((s) => s.id === stone.id) === index);
-
-    // Group stones by coordinates to handle overlapping locations
-    const coordinateGroups = uniqueStones.reduce((acc: Record<string, Runestone[]>, stone) => {
-      // Robustly handle missing or invalid coordinates
-      const lng = typeof stone.longitude === 'number' && !isNaN(stone.longitude) ? stone.longitude : 0;
-      const lat = typeof stone.latitude === 'number' && !isNaN(stone.latitude) ? stone.latitude : 0;
-
-      const coordKey = `${lng.toFixed(6)},${lat.toFixed(6)}`;
-      acc[coordKey] = acc[coordKey] || [];
-      acc[coordKey].push(stone);
-      return acc;
-    }, {});
-
-    // Create features with slight offsets for overlapping stones
-    const features: RunestoneFeature[] = [];
-    Object.values(coordinateGroups).forEach((stonesAtLocation) => {
-      stonesAtLocation.forEach((stone, index) => {
-        // Robustly handle missing or invalid coordinates
-        const baseLng = typeof stone.longitude === 'number' && !isNaN(stone.longitude) ? stone.longitude : 0;
-        const baseLat = typeof stone.latitude === 'number' && !isNaN(stone.latitude) ? stone.latitude : 0;
-
-        // Add small offset for overlapping stones (except the first one)
-        const offset = index * 0.00005; // Very small offset (~5.5 meters)
-        const offsetLng = baseLng + (index > 0 ? offset * Math.cos(index) : 0);
-        const offsetLat = baseLat + (index > 0 ? offset * Math.sin(index) : 0);
-
-        features.push({
-          type: 'Feature',
-          properties: {
-            id: stone.id,
-            signature_text: stone.signature_text,
-            found_location: stone.found_location,
-            parish: stone.parish,
-            material: stone.material,
-            material_type: stone.material_type,
-            rune_type: stone.rune_type,
-            dating: stone.dating,
-            english_translation: stone.english_translation,
-            swedish_translation: stone.swedish_translation,
-            norse_text: stone.norse_text,
-            transliteration: stone.transliteration,
-            overlapping_count: stonesAtLocation.length,
-            original_coordinates: [baseLng, baseLat],
-            visited: !!stone.visited,
-          },
-          geometry: {
-            type: 'Point',
-            coordinates: [offsetLng, offsetLat],
-          },
-        });
-      });
-    });
-
-    return {
-      type: 'FeatureCollection',
-      features,
-    };
-  }, []);
+  const geoJsonData = useMemo(() => {
+    const runestonesWithCurrentVisitedStatus = visitedRunestonesStore.applyVisitedStatus(runestones);
+    return createGeoJSONData(runestonesWithCurrentVisitedStatus);
+  }, [runestones]);
 
   const updateClusters = useCallback(() => {
     if (!mapRef.current) return;
@@ -200,10 +133,6 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
     } catch (error) {
       console.error('Error removing layers:', error);
     }
-
-    // Create clustering approach - always apply current visited status
-    const runestonesWithCurrentVisitedStatus = visitedRunestonesStore.applyVisitedStatus(runestonesRef.current);
-    const geoJsonData = createGeoJSONData(runestonesWithCurrentVisitedStatus);
 
     try {
       // Check if source already exists and try to update it first
@@ -374,17 +303,17 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
     } catch (error) {
       console.error('Error adding clustering layers:', error);
     }
-  }, [runestones, createGeoJSONData, openModal, refreshVisitedStatus]);
+  }, [geoJsonData, openModal, runestones]);
 
   useEffect(() => {
     if (!mapContainer.current) return;
 
     const initMap = async () => {
-      const map = new Map({
+      const map = new MapLibreMap({
         container: mapContainer.current!,
-        center: [18.0686, 59.4293], // Jarlabanke bridge
+        center: JARLABANKE_BRIDGE,
         zoom: 13,
-        style: 'https://tiles.openfreemap.org/styles/bright',
+        style: STYLE_URL,
       });
 
       mapRef.current = map;
