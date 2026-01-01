@@ -23,6 +23,8 @@ export interface Runestone {
   recent: boolean;
   visited?: boolean;
   slug?: string;
+  link_url?: string;
+  direct_url?: string;
 }
 
 export interface RunestoneFeature {
@@ -82,4 +84,6 @@ export interface RunestoneRow {
   recent: 0 | 1;
   visited: 0 | 1 | null;
   slug: string | null;
+  link_url: string | null;
+  direct_url: string | null;
 }

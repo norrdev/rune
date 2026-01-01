@@ -214,6 +214,8 @@ class RunestonesCache {
       recent: row.recent === 1,
       visited: row.visited === 1,
       slug: row.slug ?? undefined,
+      link_url: row.link_url ?? undefined,
+      direct_url: row.direct_url ?? undefined,
     };
   }
 
