@@ -1,12 +1,10 @@
 import { View, Text, StyleSheet } from 'react-native';
 import MapLibreGL from '@maplibre/maplibre-react-native';
-import type { Runestone } from '../types';
+import type { Runestone } from '../../types';
+import { STYLE_URL, MINIMAP_ZOOM, MARKER_COLOR } from '../Map/mapUtils';
 
 // Initialize MapLibre (safe to call multiple times)
 MapLibreGL.setAccessToken(null);
-
-// OpenFreeMap - detailed street maps
-const STYLE_URL = 'https://tiles.openfreemap.org/styles/bright';
 
 interface MiniMapProps {
     runestone: Runestone;
@@ -42,7 +40,7 @@ export const MiniMap = ({ runestone }: MiniMapProps) => {
                     <MapLibreGL.Camera
                         defaultSettings={{
                             centerCoordinate: coordinates,
-                            zoomLevel: 14,
+                            zoomLevel: MINIMAP_ZOOM,
                         }}
                     />
 
@@ -69,7 +67,7 @@ const styles = StyleSheet.create({
         width: 16,
         height: 16,
         borderRadius: 8,
-        backgroundColor: '#ef4444',
+        backgroundColor: MARKER_COLOR,
         borderWidth: 2,
         borderColor: '#ffffff',
     },

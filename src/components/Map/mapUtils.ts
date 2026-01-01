@@ -24,6 +24,9 @@ export const CLUSTER_THRESHOLDS = {
   LARGE: 750, // Threshold for large clusters
 } as const;
 
+export const MINIMAP_ZOOM = 14;
+export const MARKER_COLOR = '#ef4444';
+
 /**
  * Creates GeoJSON features from an array of runestones, handling duplicates
  * and overlapping coordinates with small offsets.

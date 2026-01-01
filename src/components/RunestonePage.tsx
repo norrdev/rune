@@ -1,5 +1,5 @@
 import { View, Text, Pressable, ScrollView, ActivityIndicator } from 'react-native';
-import { Runestone } from '../types';
+import type { Runestone } from '../types';
 import { useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { authStore } from '../stores/authStore';

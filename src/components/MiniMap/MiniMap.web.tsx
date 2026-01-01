@@ -1,8 +1,9 @@
 import { useRef, useEffect } from 'react';
 import { View, Text } from 'react-native';
-import { Map, Marker } from 'maplibre-gl';
-import { Runestone } from '../types';
+import { Map as MapLibre } from 'maplibre-gl';
+import type { Runestone } from '../../types';
 import '../styles/map.web.css';
+import { STYLE_URL, MINIMAP_ZOOM, MARKER_COLOR } from '../Map/mapUtils';
 
 interface MiniMapProps {
     runestone: Runestone;
@@ -10,7 +11,7 @@ interface MiniMapProps {
 
 export const MiniMap = ({ runestone }: MiniMapProps) => {
     const mapContainer = useRef<View | null>(null);
-    const mapRef = useRef<Map | null>(null);
+    const mapRef = useRef<MapLibre | null>(null);
 
     useEffect(() => {
         // In react-native-web, the ref of a View is the DOM element
@@ -23,11 +24,11 @@ export const MiniMap = ({ runestone }: MiniMapProps) => {
             return;
         }
 
-        const map = new Map({
+        const map = new MapLibre({
             container: container,
             center: [lng, lat],
-            zoom: 14,
-            style: 'https://tiles.openfreemap.org/styles/bright',
+            zoom: MINIMAP_ZOOM,
+            style: STYLE_URL,
             interactive: false,
             attributionControl: false,
         });
@@ -63,7 +64,7 @@ export const MiniMap = ({ runestone }: MiniMapProps) => {
                 'source': 'stone-marker',
                 'paint': {
                     'circle-radius': 8,
-                    'circle-color': '#ef4444',
+                    'circle-color': MARKER_COLOR,
                     'circle-stroke-width': 2,
                     'circle-stroke-color': '#ffffff'
                 }
