@@ -85,6 +85,7 @@ class RunestonesCache {
     if (allStones.length < TOTAL_RUNESTONES) {
       const allRunestones = await supabaseRunestones.getAllRunestones();
       await this.updateCache(allRunestones);
+      return allRunestones;
     }
     return allStones;
   }

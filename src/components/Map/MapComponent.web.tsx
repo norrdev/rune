@@ -30,6 +30,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
   const runestonesRef = useRef<Runestone[]>([]);
   const [runestones, setRunestones] = useState<Runestone[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Modal state
   const [selectedRunestone, setSelectedRunestone] = useState<Runestone | null>(null);
@@ -56,6 +57,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
 
   const fetchAllRunestones = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       // Fetch all runestones from IDB cache (which will fall back to Supabase if needed)
       const allRunestones = await runestonesCache.getAllRunestones();
@@ -67,6 +69,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
       setRunestones(runestonesWithVisitedStatus);
     } catch (error) {
       console.error('Error fetching runestones:', error);
+      setError('Failed to load runestones. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -81,27 +84,29 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
     if (!mapRef.current) return;
 
     const map = mapRef.current;
+    
+    // Check style loaded status
+    const isStyleLoaded = map.isStyleLoaded();
 
     // Make sure the map style is loaded before adding layers
-    if (!map.isStyleLoaded()) {
+    if (!isStyleLoaded) {
       // Reset event listeners flag since style is changing
       eventListenersAddedRef.current = false;
 
       // Clear any existing timeout to prevent multiple timeouts
       if (styleTimeoutRef.current) {
         clearTimeout(styleTimeoutRef.current);
+        styleTimeoutRef.current = null;
       }
 
-      // Add timeout fallback in case styledata never fires (e.g., due to OpenFreeMap connectivity issues)
+      // Add timeout fallback in case styledata never fires
       styleTimeoutRef.current = setTimeout(() => {
         console.warn('Style loading timeout, attempting to add layers anyway');
-        styleTimeoutRef.current = null; // Clear the reference
-        if (mapRef.current?.isStyleLoaded()) {
+        styleTimeoutRef.current = null;
+        if (mapRef.current) {
           updateClusters();
-        } else {
-          console.error('Style failed to load completely. Skipping layer addition to prevent infinite loop.');
         }
-      }, 10000); // 10 second timeout
+      }, 2000); // Reduced to 2 seconds for faster retry
 
       map.once('styledata', () => {
         if (styleTimeoutRef.current) {
@@ -113,195 +118,158 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
       return;
     }
 
-    // Remove existing layers and sources
     try {
-      if (map.getLayer('clusters')) {
-        map.removeLayer('clusters');
-      }
-      if (map.getLayer('cluster-count')) {
-        map.removeLayer('cluster-count');
-      }
-      if (map.getLayer('unclustered-point-unvisited')) {
-        map.removeLayer('unclustered-point-unvisited');
-      }
-      if (map.getLayer('unclustered-point-visited')) {
-        map.removeLayer('unclustered-point-visited');
-      }
-      if (map.getSource('runestones')) {
-        map.removeSource('runestones');
-      }
-    } catch (error) {
-      console.error('Error removing layers:', error);
-    }
-
-    try {
-      // Check if source already exists and try to update it first
+      // Check if source already exists
       const existingSource = map.getSource('runestones') as GeoJSONSource;
+      
       if (existingSource) {
+        // Just update data if source exists
         existingSource.setData(geoJsonData);
-        return;
-      }
+      } else {
+        // Add source and layers if they don't exist
+        
+        // Add source with clustering
+        map.addSource('runestones', {
+          type: 'geojson',
+          data: geoJsonData,
+          cluster: true,
+          clusterMaxZoom: 13, // Max zoom to cluster points on
+          clusterRadius: 50, // Radius of each cluster when clustering points
+        });
 
-      // Add source with clustering
-      map.addSource('runestones', {
-        type: 'geojson',
-        data: geoJsonData,
-        cluster: true,
-        clusterMaxZoom: 13, // Max zoom to cluster points on
-        clusterRadius: 50, // Radius of each cluster when clustering points (defaults to 50)
-      });
+        // Add cluster circles
+        map.addLayer({
+          id: 'clusters',
+          type: 'circle',
+          source: 'runestones',
+          filter: ['has', 'point_count'],
+          paint: {
+            'circle-color': [
+              'step',
+              ['get', 'point_count'],
+              CLUSTER_COLORS.SMALL,
+              CLUSTER_THRESHOLDS.MEDIUM,
+              CLUSTER_COLORS.MEDIUM,
+              CLUSTER_THRESHOLDS.LARGE,
+              CLUSTER_COLORS.LARGE,
+            ],
+            'circle-radius': [
+              'step',
+              ['get', 'point_count'],
+              CLUSTER_RADIUSES.SMALL,
+              CLUSTER_THRESHOLDS.MEDIUM,
+              CLUSTER_RADIUSES.MEDIUM,
+              CLUSTER_THRESHOLDS.LARGE,
+              CLUSTER_RADIUSES.LARGE,
+            ],
+          },
+        });
 
-      // Add cluster circles
-      map.addLayer({
-        id: 'clusters',
-        type: 'circle',
-        source: 'runestones',
-        filter: ['has', 'point_count'],
-        paint: {
-          'circle-color': [
-            'step',
-            ['get', 'point_count'],
-            CLUSTER_COLORS.SMALL,
-            CLUSTER_THRESHOLDS.MEDIUM,
-            CLUSTER_COLORS.MEDIUM,
-            CLUSTER_THRESHOLDS.LARGE,
-            CLUSTER_COLORS.LARGE,
-          ],
-          'circle-radius': [
-            'step',
-            ['get', 'point_count'],
-            CLUSTER_RADIUSES.SMALL,
-            CLUSTER_THRESHOLDS.MEDIUM,
-            CLUSTER_RADIUSES.MEDIUM,
-            CLUSTER_THRESHOLDS.LARGE,
-            CLUSTER_RADIUSES.LARGE,
-          ],
-        },
-      });
+        // Add cluster count labels
+        map.addLayer({
+          id: 'cluster-count',
+          type: 'symbol',
+          source: 'runestones',
+          filter: ['has', 'point_count'],
+          layout: {
+            'text-field': '{point_count}',
+            'text-size': 12,
+            // Use a broader font stack or a standard one that is likely to be available
+            'text-font': ['Noto Sans Regular', 'Arial Unicode MS Regular'], 
+          },
+          paint: {
+            'text-color': '#ffffff',
+          },
+        });
 
-      // Add cluster count labels
-      map.addLayer({
-        id: 'cluster-count',
-        type: 'symbol',
-        source: 'runestones',
-        filter: ['has', 'point_count'],
-        layout: {
-          'text-field': '{point_count}',
-          'text-size': 12,
-          'text-font': ['Noto Sans Regular'],
-        },
-        paint: {
-          'text-color': '#ffffff',
-        },
-      });
+        // Add individual runestone points (unclustered) - unvisited runestones
+        map.addLayer({
+          id: 'unclustered-point-unvisited',
+          type: 'circle',
+          source: 'runestones',
+          filter: ['all', ['!', ['has', 'point_count']], ['==', ['get', 'visited'], false]],
+          paint: {
+            'circle-color': '#FF0000',
+            'circle-radius': 9,
+            'circle-stroke-width': 3,
+            'circle-stroke-color': '#fff',
+          },
+        });
 
-      // Add individual runestone points (unclustered) - unvisited runestones
-      map.addLayer({
-        id: 'unclustered-point-unvisited',
-        type: 'circle',
-        source: 'runestones',
-        filter: ['all', ['!', ['has', 'point_count']], ['==', ['get', 'visited'], false]],
-        paint: {
-          'circle-color': '#FF0000',
-          'circle-radius': 9,
-          'circle-stroke-width': 3,
-          'circle-stroke-color': '#fff',
-        },
-      });
+        // Add individual runestone points (unclustered) - visited runestones
+        map.addLayer({
+          id: 'unclustered-point-visited',
+          type: 'circle',
+          source: 'runestones',
+          filter: ['all', ['!', ['has', 'point_count']], ['==', ['get', 'visited'], true]],
+          paint: {
+            'circle-color': '#00FF00',
+            'circle-radius': 9,
+            'circle-stroke-width': 3,
+            'circle-stroke-color': '#fff',
+          },
+        });
 
-      // Add individual runestone points (unclustered) - visited runestones
-      map.addLayer({
-        id: 'unclustered-point-visited',
-        type: 'circle',
-        source: 'runestones',
-        filter: ['all', ['!', ['has', 'point_count']], ['==', ['get', 'visited'], true]],
-        paint: {
-          'circle-color': '#00FF00',
-          'circle-radius': 9,
-          'circle-stroke-width': 3,
-          'circle-stroke-color': '#fff',
-        },
-      });
+        // Add event listeners (only add once per component lifecycle)
+        if (!eventListenersAddedRef.current) {
+          eventListenersAddedRef.current = true;
 
-      // Add event listeners (only add once per component lifecycle)
-      if (!eventListenersAddedRef.current) {
-        eventListenersAddedRef.current = true;
+          // Click event for clusters - zoom in
+          map.on('click', 'clusters', (e) => {
+            const features = map.queryRenderedFeatures(e.point, {
+              layers: ['clusters'],
+            });
+            const clusterId = features[0].properties?.cluster_id;
+            const source = map.getSource('runestones') as GeoJSONSource;
 
-        // Click event for clusters - zoom in
-        map.on('click', 'clusters', (e) => {
-          const features = map.queryRenderedFeatures(e.point, {
-            layers: ['clusters'],
-          });
-          const clusterId = features[0].properties?.cluster_id;
-          const source = map.getSource('runestones') as GeoJSONSource;
-
-          if (source && clusterId !== undefined) {
-            source
-              .getClusterExpansionZoom(clusterId)
-              .then((zoom: number) => {
-                const coordinates = (features[0].geometry as unknown as { coordinates: [number, number] }).coordinates;
-                map.easeTo({
-                  center: coordinates,
-                  zoom: zoom,
+            if (source && clusterId !== undefined) {
+              source
+                .getClusterExpansionZoom(clusterId)
+                .then((zoom: number) => {
+                  const coordinates = (features[0].geometry as unknown as { coordinates: [number, number] }).coordinates;
+                  map.easeTo({
+                    center: coordinates,
+                    zoom: zoom,
+                  });
+                })
+                .catch((err: Error) => {
+                  console.error('Error getting cluster expansion zoom:', err);
                 });
-              })
-              .catch((err: Error) => {
-                console.error('Error getting cluster expansion zoom:', err);
-              });
-          }
-        });
+            }
+          });
 
-        // Click event for individual runestones - open modal (both visited and unvisited)
-        map.on('click', 'unclustered-point-unvisited', (e) => {
-          const feature = e.features?.[0];
-          if (!feature || !feature.geometry || feature.geometry.type !== 'Point') return;
+          // Click event for individual runestones - open modal (both visited and unvisited)
+          const onPointClick = (e: any) => {
+             const feature = e.features?.[0];
+             if (!feature || !feature.geometry || feature.geometry.type !== 'Point') return;
+ 
+             const properties = feature.properties!;
+ 
+             // Find the full runestone data using the id
+             const runestone = runestones.find((stone) => stone.id === properties.id);
+             if (!runestone) return;
+ 
+             // Open the modal with this runestone
+             openModal(runestone);
+          };
 
-          const properties = feature.properties!;
+          map.on('click', 'unclustered-point-unvisited', onPointClick);
+          map.on('click', 'unclustered-point-visited', onPointClick);
 
-          // Find the full runestone data using the id
-          const runestone = runestones.find((stone) => stone.id === properties.id);
-          if (!runestone) return;
+          // Change cursor to pointer when hovering over clusters or points
+          const setPointer = () => { map.getCanvas().style.cursor = 'pointer'; };
+          const resetCursor = () => { map.getCanvas().style.cursor = ''; };
 
-          // Open the modal with this runestone
-          openModal(runestone);
-        });
-
-        map.on('click', 'unclustered-point-visited', (e) => {
-          const feature = e.features?.[0];
-          if (!feature || !feature.geometry || feature.geometry.type !== 'Point') return;
-
-          const properties = feature.properties!;
-
-          // Find the full runestone data using the id
-          const runestone = runestones.find((stone) => stone.id === properties.id);
-          if (!runestone) return;
-
-          // Open the modal with this runestone
-          openModal(runestone);
-        });
-
-        // Change cursor to pointer when hovering over clusters or points
-        map.on('mouseenter', 'clusters', () => {
-          map.getCanvas().style.cursor = 'pointer';
-        });
-        map.on('mouseleave', 'clusters', () => {
-          map.getCanvas().style.cursor = '';
-        });
-        map.on('mouseenter', 'unclustered-point-unvisited', () => {
-          map.getCanvas().style.cursor = 'pointer';
-        });
-        map.on('mouseleave', 'unclustered-point-unvisited', () => {
-          map.getCanvas().style.cursor = '';
-        });
-        map.on('mouseenter', 'unclustered-point-visited', () => {
-          map.getCanvas().style.cursor = 'pointer';
-        });
-        map.on('mouseleave', 'unclustered-point-visited', () => {
-          map.getCanvas().style.cursor = '';
-        });
+          map.on('mouseenter', 'clusters', setPointer);
+          map.on('mouseleave', 'clusters', resetCursor);
+          map.on('mouseenter', 'unclustered-point-unvisited', setPointer);
+          map.on('mouseleave', 'unclustered-point-unvisited', resetCursor);
+          map.on('mouseenter', 'unclustered-point-visited', setPointer);
+          map.on('mouseleave', 'unclustered-point-visited', resetCursor);
+        }
       }
     } catch (error) {
-      console.error('Error adding clustering layers:', error);
+      console.error('Error updating map layers:', error);
     }
   }, [geoJsonData, openModal, runestones]);
 
@@ -357,11 +325,17 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
     }
   }, [updateClusters, runestones.length]);
 
-  // React to changes in visited runestones store
+  // React to changes in visited runestones store using reaction
   useEffect(() => {
-    if (runestonesRef.current.length > 0) {
-      refreshVisitedStatus();
-    }
+    // We use a reaction to MobX store changes to update our local state
+    const dispose = reaction(
+      () => visitedRunestonesStore.visitedCount, // Track visited count changes
+      () => {
+        refreshVisitedStatus();
+      }
+    );
+    
+    return () => dispose();
   }, [refreshVisitedStatus]);
 
   // Fetch runestones when component mounts
@@ -376,6 +350,9 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
       onVisitedCountChange(visitedRunestonesStore.visitedCount);
     }
   }, [onVisitedCountChange]);
+
+
+
 
   // Navigate to selected runestone
   useEffect(() => {
@@ -415,6 +392,30 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
             <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full"></div>
             <span className="text-sm font-medium text-gray-700">Loading runestones...</span>
           </div>
+        </div>
+      )}
+
+      {/* Error Message */}
+      {error && (
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-50/95 backdrop-blur-sm px-6 py-4 rounded-lg shadow-lg z-[1001] border border-red-200 max-w-sm text-center">
+          <div className="text-red-600 font-medium mb-2">Error</div>
+          <p className="text-gray-700 text-sm mb-3">{error}</p>
+          <button 
+            type="button"
+            onClick={() => fetchAllRunestones()}
+            className="bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 rounded text-sm font-medium transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
+
+
+      {/* No Data Message */}
+      {!loading && !error && runestones.length === 0 && (
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-sm px-6 py-4 rounded-lg shadow-lg z-[1001]">
+          <p className="text-gray-700 font-medium">No runestones found</p>
         </div>
       )}
 
