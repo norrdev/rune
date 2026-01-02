@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { View, Text, ScrollView, ActivityIndicator, Pressable } from 'react-native';
 import { Link } from 'expo-router';
 import { PageHeader } from '../../src/components/PageHeader';
-import { runestonesCache } from '../../src/services/runestonesCache';
+import { runestonesCache } from '../../src/services/Cache/runestonesCache';
 import type { Runestone } from '../../src/types';
 
 export default function Runestones() {

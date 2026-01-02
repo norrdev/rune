@@ -1,6 +1,6 @@
 import { makeObservable, observable, computed, action, runInAction, reaction } from 'mobx';
 import { supabaseRunestones } from '../services/supabaseRunestones';
-import { runestonesCache } from '../services/runestonesCache';
+import { runestonesCache } from '../services/Cache/runestonesCache';
 import { authStore } from './authStore';
 import type { Runestone } from '../types';
 

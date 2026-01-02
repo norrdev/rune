@@ -1,6 +1,6 @@
 import { makeObservable, observable, computed, action, runInAction } from 'mobx';
-import { Runestone } from '../types';
-import { runestonesCache } from '../services/runestonesCache';
+import type { Runestone } from '../types';
+import { runestonesCache } from '../services/Cache/runestonesCache';
 
 class SearchStore {
   searchQuery: string = '';

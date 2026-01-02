@@ -1,6 +1,6 @@
 import * as SQLite from 'expo-sqlite';
-import { supabaseRunestones } from './supabaseRunestones';
-import type { Runestone, RunestoneRow } from '../types';
+import { supabaseRunestones } from '../supabaseRunestones';
+import type { Runestone, RunestoneRow } from '../../types';
 
 const TOTAL_RUNESTONES = 6815;
 const DB_NAME = 'runestones.db';

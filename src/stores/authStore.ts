@@ -1,5 +1,5 @@
 import { makeObservable, observable, computed, action, runInAction } from 'mobx';
-import { User } from '@supabase/supabase-js';
+import type { User } from '@supabase/supabase-js';
 import { Platform } from 'react-native';
 import * as Linking from 'expo-linking';
 import { supabase } from '../services/supabase';

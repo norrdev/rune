@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import '../../styles/map.web.css';
 import { GeolocateControl, Map as MapLibreMap, type GeoJSONSource } from 'maplibre-gl';
-import { runestonesCache } from '@services/runestonesCache';
+import { runestonesCache } from '@services/Cache/runestonesCache';
 import type { Runestone } from '../../types';
 import { RunestoneModal } from '../RunestoneModal';
 import { observer } from 'mobx-react-lite';

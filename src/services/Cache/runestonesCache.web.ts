@@ -1,6 +1,6 @@
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb/build/index.js';
-import { supabaseRunestones } from './supabaseRunestones';
-import type { Runestone } from '../types';
+import { supabaseRunestones } from '../supabaseRunestones';
+import type { Runestone } from '../../types';
 
 const TOTAL_RUNESTONES = 6815;
 

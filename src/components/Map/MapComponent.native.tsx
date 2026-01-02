@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { View, StyleSheet, ActivityIndicator, Alert, Text } from 'react-native';
 import MapLibreGL from '@maplibre/maplibre-react-native';
-import { runestonesCache } from '@services/runestonesCache';
+import { runestonesCache } from '@services/Cache/runestonesCache';
 import type { Runestone } from '../../types';
 import { RunestoneModal } from '../RunestoneModal';
 import { visitedRunestonesStore } from '../../stores/visitedRunestonesStore';
