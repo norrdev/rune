@@ -11,6 +11,9 @@ node_modules
 dist
 dist-ssr
 *.local
+.expo
+android
+ios
 
 # Editor directories and files
 .vscode/*
@@ -38,6 +41,3 @@ logfile
 .wrangler
 .dev.vars*
 
-#Cursor
-.cursor
-.cursorrules
