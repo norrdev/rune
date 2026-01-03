@@ -1,10 +1,11 @@
-import type { Runestone } from '../types';
+import type { Runestone } from '../../types';
 import { useState } from 'react';
-import { View, Text, Pressable, ScrollView, Modal, ActivityIndicator, Image } from 'react-native';
+import { View, Text, Pressable, ScrollView, Modal, ActivityIndicator } from 'react-native';
 import { observer } from 'mobx-react-lite';
-import { authStore } from '../stores/authStore';
-import { visitedRunestonesStore } from '../stores/visitedRunestonesStore';
+import { authStore } from '../../stores/authStore';
+import { visitedRunestonesStore } from '../../stores/visitedRunestonesStore';
 import { Link } from 'expo-router';
+import { RunestoneMedia } from './components/RunestoneMedia';
 
 interface RunestoneModalProps {
   runestone: Runestone | null;
@@ -83,13 +84,7 @@ export const RunestoneModal = observer(({ runestone, isOpen, onClose, onVisitedS
               </View>
 
               {/* Link */}
-              <View>
-                <Text className="font-semibold text-gray-700 mb-2">Media</Text>
-                <View className="bg-gray-50 p-3 rounded">
-                  <Image source={{ uri: runestone.direct_url }}  className="w-full h-48" />
-                  <Text className="text-gray-800">{runestone.link_url}</Text>
-                </View>
-              </View>
+              <RunestoneMedia runestone={runestone} />
 
               {/* Basic Details */}
               <View>

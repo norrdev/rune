@@ -2,7 +2,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { useState, useEffect } from 'react';
 import type { Runestone } from '../../src/types';
 import { runestonesCache } from '../../src/services/Cache/runestonesCache';
-import { RunestonePage } from '../../src/components/RunestonePage';
+import { RunestonePage } from '../../src/components/Runestone/RunestonePage';
 import { View, Text, Pressable, ActivityIndicator } from 'react-native';
 import { Link } from 'expo-router';
 

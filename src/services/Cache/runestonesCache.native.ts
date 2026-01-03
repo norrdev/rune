@@ -46,7 +46,9 @@ class RunestonesCache {
           ornamental INTEGER NOT NULL,
           recent INTEGER NOT NULL,
           visited INTEGER DEFAULT 0,
-          slug TEXT
+          slug TEXT,
+          link_url TEXT,
+          direct_url TEXT
         );
 
         CREATE INDEX IF NOT EXISTS idx_coordinates ON runestones(latitude, longitude);
@@ -157,8 +159,9 @@ class RunestonesCache {
         id, signature_text, found_location, parish, district, municipality,
         current_location, material, material_type, rune_type, dating, style,
         carver, latitude, longitude, english_translation, swedish_translation,
-        norse_text, transliteration, lost, ornamental, recent, visited, slug
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        norse_text, transliteration, lost, ornamental, recent, visited, slug,
+        link_url, direct_url
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         runestone.id,
         runestone.signature_text,
@@ -184,6 +187,8 @@ class RunestonesCache {
         runestone.recent ? 1 : 0,
         runestone.visited ? 1 : 0,
         runestone.slug || null,
+        runestone.link_url || null,
+        runestone.direct_url || null,
       ]
     );
   }

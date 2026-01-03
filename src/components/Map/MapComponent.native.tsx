@@ -3,7 +3,7 @@ import { View, StyleSheet, ActivityIndicator, Alert, Text } from 'react-native';
 import MapLibreGL from '@maplibre/maplibre-react-native';
 import { runestonesCache } from '@services/Cache/runestonesCache';
 import type { Runestone } from '../../types';
-import { RunestoneModal } from '../RunestoneModal';
+import { RunestoneModal } from '../Runestone/RunestoneModal';
 import { visitedRunestonesStore } from '../../stores/visitedRunestonesStore';
 import { searchStore } from '../../stores/searchStore';
 import { observer } from 'mobx-react-lite';

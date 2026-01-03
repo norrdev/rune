@@ -3,7 +3,7 @@ import '../../styles/map.web.css';
 import { GeolocateControl, Map as MapLibreMap, type GeoJSONSource } from 'maplibre-gl';
 import { runestonesCache } from '@services/Cache/runestonesCache';
 import type { Runestone } from '../../types';
-import { RunestoneModal } from '../RunestoneModal';
+import { RunestoneModal } from '../Runestone/RunestoneModal';
 import { observer } from 'mobx-react-lite';
 import { reaction } from 'mobx';
 
