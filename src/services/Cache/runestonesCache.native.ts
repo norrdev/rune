@@ -4,6 +4,7 @@ import type { Runestone, RunestoneRow } from '../../types';
 
 const TOTAL_RUNESTONES = 6815;
 const DB_NAME = 'runestones.db';
+const SCHEMA_VERSION = 2; // Increment this to force table recreation
 
 class RunestonesCache {
   private db: SQLite.SQLiteDatabase | null = null;
@@ -20,7 +21,27 @@ class RunestonesCache {
     try {
       this.db = await SQLite.openDatabaseAsync(DB_NAME);
 
-      // Create tables if they don't exist
+      // Check current schema version
+      let currentVersion = 0;
+      try {
+        const result = await this.db.getFirstAsync<{ value: string }>(
+          "SELECT value FROM cache_metadata WHERE key = 'schema_version'"
+        );
+        if (result) {
+          currentVersion = parseInt(result.value, 10);
+        }
+      } catch (_e) {
+        // Table likely doesn't exist, ignore error
+      }
+
+      // If schema version mismatch, drop tables to force recreate
+      if (currentVersion < SCHEMA_VERSION) {
+        console.log(`Schema version mismatch (current: ${currentVersion}, target: ${SCHEMA_VERSION}). Dropping tables...`);
+        await this.db.execAsync('DROP TABLE IF EXISTS runestones');
+        await this.db.execAsync('DROP TABLE IF EXISTS cache_metadata');
+      }
+
+      // Create tables
       await this.db.execAsync(`
         CREATE TABLE IF NOT EXISTS runestones (
           id INTEGER PRIMARY KEY,
@@ -59,6 +80,14 @@ class RunestonesCache {
           value TEXT NOT NULL
         );
       `);
+
+      // Store new schema version
+      if (currentVersion < SCHEMA_VERSION) {
+         await this.db.runAsync(
+          "INSERT OR REPLACE INTO cache_metadata (key, value) VALUES ('schema_version', ?)",
+          [SCHEMA_VERSION.toString()]
+        );
+      }
 
       // Load last update timestamp
       const result = await this.db.getFirstAsync<{ value: string }>(
