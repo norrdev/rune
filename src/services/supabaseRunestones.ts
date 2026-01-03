@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { Runestone } from '../types';
+import type { Runestone } from '../types';
 import { authStore } from '../stores/authStore';
 
 class SupabaseRunestonesService {
@@ -55,6 +55,8 @@ class SupabaseRunestonesService {
       ornamental: Boolean(row.ornamental),
       recent: Boolean(row.recent),
       slug: row.slug || '',
+      link_url: row.link_url || '',
+      direct_url: row.direct_url || '',
     }));
   }
 
@@ -94,6 +96,8 @@ class SupabaseRunestonesService {
       ornamental: Boolean(row.ornamental),
       recent: Boolean(row.recent),
       slug: row.slug || '',
+      link_url: row.link_url || '',
+      direct_url: row.direct_url || '',
     }));
   }
 

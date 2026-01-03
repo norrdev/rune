@@ -1,1 +1,1 @@
-npm run build && npx wrangler deploy
+npx expo export --platform web && npx wrangler deploy

@@ -23,6 +23,8 @@ export interface Runestone {
   recent: boolean;
   visited?: boolean;
   slug?: string;
+  link_url?: string;
+  direct_url?: string;
 }
 
 export interface RunestoneFeature {
@@ -55,4 +57,33 @@ export interface RunestoneFeature {
 export interface RunestoneGeoJSON {
   type: 'FeatureCollection';
   features: RunestoneFeature[];
+}
+
+export interface RunestoneRow {
+  id: number;
+  signature_text: string;
+  found_location: string;
+  parish: string;
+  district: string;
+  municipality: string;
+  current_location: string;
+  material: string;
+  material_type: string | null;
+  rune_type: string;
+  dating: string;
+  style: string;
+  carver: string;
+  latitude: number;
+  longitude: number;
+  english_translation: string | null;
+  swedish_translation: string | null;
+  norse_text: string | null;
+  transliteration: string | null;
+  lost: 0 | 1;
+  ornamental: 0 | 1;
+  recent: 0 | 1;
+  visited: 0 | 1 | null;
+  slug: string | null;
+  link_url: string | null;
+  direct_url: string | null;
 }

@@ -20,21 +20,10 @@ ios
 !.vscode/extensions.json
 .idea
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+*.pem
 
-# Database files
-*.sqlite3
-*.sqlite
-*.db
-
-# Devbox
-pgdata
-.devbox
-logfile
+# local env files
+.env*.local
 .env
 
 # Cloudflare
