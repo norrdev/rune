@@ -3,7 +3,6 @@ import { View, Text, TextInput, Pressable, ScrollView } from 'react-native';
 import { observer } from 'mobx-react-lite';
 import { authStore } from '../src/stores/authStore';
 import { useRouter } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PageHeader } from '../src/components/PageHeader';
 
 export default observer(function LoginPage() {
@@ -16,7 +15,6 @@ export default observer(function LoginPage() {
     const [success, setSuccess] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
-    const insets = useSafeAreaInsets();
 
     const handleAuth = async () => {
         setError(null);

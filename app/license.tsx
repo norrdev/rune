@@ -169,8 +169,8 @@ export default function License() {
                 ),
                 strong: ({ children }) => <Text className="font-bold">{children}</Text>,
                 em: ({ children }) => <Text className="italic text-gray-600">{children}</Text>,
-                a: ({ children, href }) => (
-                  <Text className="text-primary underline" onPress={() => {/* Link handling would go here */ }}>{children}</Text>
+                a: ({ children }) => (
+                  <Text className="text-primary underline">{children}</Text>
                 ),
                 code: ({ children }) => (
                   <View className="bg-gray-100 rounded p-4 my-4">

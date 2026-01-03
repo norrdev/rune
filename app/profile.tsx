@@ -4,7 +4,7 @@ import { Stack, Link, useRouter } from 'expo-router';
 import { observer } from 'mobx-react-lite';
 import { authStore } from '../src/stores/authStore';
 import { visitedRunestonesStore } from '../src/stores/visitedRunestonesStore';
-import { Runestone } from '../src/types';
+import type { Runestone } from '../src/types';
 import { PageHeader } from '../src/components/PageHeader';
 
 export default observer(function Profile() {
@@ -39,7 +39,7 @@ export default observer(function Profile() {
     };
 
     loadVisitedRunestoneDetails();
-  }, [visitedRunestonesStore.visitedCount, authStore.isFullyAuthenticated, visitedRunestonesStore.loading]);
+  }, []);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -53,7 +53,7 @@ export default observer(function Profile() {
     try {
       await authStore.signOut();
       router.replace('/');
-    } catch (error) {
+    } catch (_e) {
       Alert.alert('Error', 'Failed to sign out');
     }
   };

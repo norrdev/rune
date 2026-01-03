@@ -5,7 +5,7 @@ import { PageHeader } from '../src/components/PageHeader';
 
 const readmeContent = `# Runestone Safari
 
-_Version 1.1_
+_Version 2.0_
 
 [https://runestonesafari.com/](https://runestonesafari.com/)
 
@@ -98,8 +98,8 @@ export default function About() {
                 ),
                 strong: ({ children }) => <Text className="font-bold">{children}</Text>,
                 em: ({ children }) => <Text className="italic">{children}</Text>,
-                a: ({ children, href }) => (
-                  <Text className="text-primary underline" onPress={() => {/* Link handling would go here */ }}>{children}</Text>
+                a: ({ children }) => (
+                  <Text className="text-primary underline">{children}</Text>
                 ),
                 code: ({ children }) => (
                   <View className="bg-gray-100 rounded p-4 my-4">

@@ -45,8 +45,8 @@ export default function Privacy() {
                   'To gather analysis or valuable information to improve our service',
                   'To monitor the usage of our service',
                   'To detect, prevent and address technical issues'
-                ].map((item, index) => (
-                  <View key={index} className="flex-row items-start mb-2">
+                ].map((item) => (
+                  <View key={item} className="flex-row items-start mb-2">
                     <Text className="text-primary mr-2">•</Text>
                     <Text className="flex-1 text-gray-700">{item}</Text>
                   </View>
@@ -87,8 +87,8 @@ export default function Privacy() {
                   'Request restriction of processing your data',
                   'Request transfer of your data',
                   'Withdraw consent'
-                ].map((item, index) => (
-                  <View key={index} className="flex-row items-start mb-2">
+                ].map((item) => (
+                  <View key={item} className="flex-row items-start mb-2">
                     <Text className="text-primary mr-2">•</Text>
                     <Text className="flex-1 text-gray-700">{item}</Text>
                   </View>
