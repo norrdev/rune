@@ -17,22 +17,6 @@ Runestone Safari is an interactive map application that allows you to explore Sw
 - List of visited runestones
 - Ability to mark visited runestones (if you have account)
 
-## Technology Stack
-
-- Devbox and nix package manager for project setup
-- Typescript
-- React 19
-- React Compiler
-- React Router
-- MobX State management
-- MapLibre GL for interactive mapping and clustering
-- Supabase for real-time PostgreSQL database and Supabase Storage for photos
-- IDB for offline caching
-- Tailwind CSS for styling
-- Vite for fast development and building
-- Cursor AI with Anthropic Claude 4 as a code assistant
-- Cloudflare for hosting
-
 ## Data Sources
 
 - [OpenFreeMap](https://openfreemap.org/) for map tiles
