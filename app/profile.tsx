@@ -39,7 +39,7 @@ export default observer(function Profile() {
     };
 
     loadVisitedRunestoneDetails();
-  }, []);
+  }, [authStore.isFullyAuthenticated, visitedRunestonesStore.loading, visitedRunestonesStore.visitedCount]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {

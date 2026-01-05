@@ -88,9 +88,9 @@ class VisitedRunestonesStore {
     this.setError(null);
 
     try {
-      // Only fetch visited runestone IDs from Supabase
-      const visitedRunestones = await supabaseRunestones.getAllVisitedRunestones();
-      const visitedIds = new Set(visitedRunestones.map((rs) => rs.id));
+      // Fetch visited runestone IDs from Supabase
+      const visitedData = await supabaseRunestones.getAllVisitedRunestones();
+      const visitedIds = new Set(visitedData.map((rs: any) => rs.id));
 
       runInAction(() => {
         this.setVisitedRunestoneIds(visitedIds);
