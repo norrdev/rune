@@ -5,7 +5,7 @@ import { authStore } from '../stores/authStore';
 class SupabaseRunestonesService {
   private static instance: SupabaseRunestonesService;
 
-  private constructor() {}
+  private constructor() { }
 
   public static getInstance(): SupabaseRunestonesService {
     if (!SupabaseRunestonesService.instance) {
@@ -114,10 +114,6 @@ class SupabaseRunestonesService {
     if (error) {
       console.error('Error fetching visited runestones:', error);
       throw error;
-    }
-
-    if (!data) {
-      return [];
     }
 
     return data;

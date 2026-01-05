@@ -28,7 +28,7 @@ export default observer(function LoginPage() {
                 await authStore.signIn(email, password);
             }
             // Redirect to profile or home after successful login
-            router.push('/profile');
+            router.replace('/profile');
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An error occurred');
         } finally {
