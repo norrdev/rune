@@ -61,8 +61,6 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
     if (onVisitedCountChange) {
       onVisitedCountChange(visitedRunestonesStore.visitedCount);
     }
-    // Force re-render by updating state
-    setRunestones([...runestonesRef.current]);
   };
 
   // Navigate to selected runestone from search
@@ -89,8 +87,10 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
 
   // Create GeoJSON for ShapeSource with all runestones (clustering handles performance)
   const geoJsonData = useMemo(() => {
-    return createGeoJSONData(runestones);
-  }, [runestones]);
+    // Apply visited status from the store
+    const runestonesWithVisited = visitedRunestonesStore.applyVisitedStatus(runestones);
+    return createGeoJSONData(runestonesWithVisited);
+  }, [runestones, visitedRunestonesStore.visitedCount]);
 
   const handleRegionChange = useCallback(() => {
     // Region change handler - can be used for analytics if needed
