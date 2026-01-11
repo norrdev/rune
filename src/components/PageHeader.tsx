@@ -1,4 +1,4 @@
-import { Link, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { View, Text, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -19,7 +19,10 @@ export const PageHeader = ({ title }: PageHeaderProps) => {
   };
 
   return (
-    <View className="bg-white shadow-sm border-t border-gray-200" style={{ paddingTop: insets.top }}>
+    <View
+      className="bg-white shadow-sm border-t border-gray-200"
+      style={{ paddingTop: insets.top }}
+    >
       <View className="px-4 py-3">
         <View className="flex-row items-center gap-3">
           <Pressable
