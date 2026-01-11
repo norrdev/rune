@@ -12,6 +12,22 @@ import {
   JARLABANKE_BRIDGE,
   STYLE_URL,
   createGeoJSONData,
+  DEFAULT_ZOOM_NATIVE,
+  SEARCH_ZOOM_NATIVE,
+  CAMERA_ANIMATION_DURATION_NATIVE,
+  CLUSTER_RADIUS,
+  CLUSTER_MAX_ZOOM,
+  LAYER_IDS,
+  RUNESTONES_SOURCE_ID,
+  LOADING_INDICATOR_COLOR,
+  UNVISITED_MARKER_COLOR,
+  VISITED_MARKER_COLOR,
+  MARKER_RADIUS_NATIVE,
+  MARKER_STROKE_WIDTH_NATIVE,
+  MARKER_STROKE_COLOR,
+  CLUSTER_COUNT_TEXT_SIZE,
+  CLUSTER_COUNT_TEXT_COLOR,
+  CLUSTER_COUNT_FONT_NATIVE,
 } from './mapUtils';
 
 // Initialize MapLibre
@@ -31,16 +47,18 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
 
   // Initial center (Stockholm area - Jarlabanke bridge)
   const [center] = useState<[number, number]>(JARLABANKE_BRIDGE);
-  const [zoom] = useState(10);
-
-
+  const [zoom] = useState(DEFAULT_ZOOM_NATIVE);
 
   const loadRunestones = useCallback(async () => {
     try {
       setLoading(true);
       const data = await runestonesCache.getAllRunestones();
-      runestonesRef.current = data;
-      setRunestones(data);
+
+      // Apply visited status from store
+      const dataWithVisited = visitedRunestonesStore.applyVisitedStatus(data);
+
+      runestonesRef.current = dataWithVisited;
+      setRunestones(dataWithVisited);
 
       if (onVisitedCountChange) {
         onVisitedCountChange(visitedRunestonesStore.visitedCount);
@@ -57,13 +75,26 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
     loadRunestones();
   }, [loadRunestones]);
 
-  const refreshVisitedStatus = () => {
+  const refreshVisitedStatus = useCallback(() => {
     if (onVisitedCountChange) {
       onVisitedCountChange(visitedRunestonesStore.visitedCount);
     }
-    // Force re-render by updating state
-    setRunestones([...runestonesRef.current]);
-  };
+    // Update runestones with new visited status
+    const updatedRunestones = visitedRunestonesStore.applyVisitedStatus(runestonesRef.current);
+    runestonesRef.current = updatedRunestones;
+    setRunestones(updatedRunestones);
+  }, [onVisitedCountChange]);
+
+  // React to visited status changes (e.g. login/logout or manual marking)
+  useEffect(() => {
+    const dispose = reaction(
+      () => visitedRunestonesStore.visitedCount,
+      () => {
+        refreshVisitedStatus();
+      },
+    );
+    return () => dispose();
+  }, [refreshVisitedStatus]);
 
   // Navigate to selected runestone from search
   useEffect(() => {
@@ -73,15 +104,15 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
         if (runestone && cameraRef.current) {
           cameraRef.current.setCamera({
             centerCoordinate: [runestone.longitude, runestone.latitude],
-            zoomLevel: 14,
-            animationDuration: 1000,
+            zoomLevel: SEARCH_ZOOM_NATIVE,
+            animationDuration: CAMERA_ANIMATION_DURATION_NATIVE,
           });
 
           setSelectedRunestone(runestone);
           setIsModalOpen(true);
           searchStore.setSelectedRunestone(null);
         }
-      }
+      },
     );
 
     return () => dispose();
@@ -99,9 +130,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
   const handleShapePress = useCallback((event: MapLibreGL.OnPressEvent) => {
     const feature = event.features?.[0];
     if (feature?.properties?.id) {
-      const runestone = runestonesRef.current.find(
-        (stone) => stone.id === feature.properties?.id
-      );
+      const runestone = runestonesRef.current.find((stone) => stone.id === feature.properties?.id);
       if (runestone) {
         setSelectedRunestone(runestone);
         setIsModalOpen(true);
@@ -130,16 +159,16 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
 
         {runestones.length > 0 && (
           <MapLibreGL.ShapeSource
-            id="runestones"
+            id={RUNESTONES_SOURCE_ID}
             shape={geoJsonData}
             onPress={handleShapePress}
             cluster
-            clusterRadius={50}
-            clusterMaxZoomLevel={13}
+            clusterRadius={CLUSTER_RADIUS}
+            clusterMaxZoomLevel={CLUSTER_MAX_ZOOM}
           >
             {/* Cluster circles */}
             <MapLibreGL.CircleLayer
-              id="clusters"
+              id={LAYER_IDS.CLUSTERS}
               filter={['has', 'point_count']}
               style={{
                 circleColor: [
@@ -165,37 +194,37 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
 
             {/* Cluster count labels */}
             <MapLibreGL.SymbolLayer
-              id="cluster-count"
+              id={LAYER_IDS.CLUSTER_COUNT}
               filter={['has', 'point_count']}
               style={{
                 textField: ['get', 'point_count_abbreviated'],
-                textSize: 12,
-                textColor: '#ffffff',
-                textFont: ['Noto Sans Regular'],
+                textSize: CLUSTER_COUNT_TEXT_SIZE,
+                textColor: CLUSTER_COUNT_TEXT_COLOR,
+                textFont: CLUSTER_COUNT_FONT_NATIVE,
               }}
             />
 
             {/* Unvisited runestones - red */}
             <MapLibreGL.CircleLayer
-              id="unvisited-runestones"
+              id={LAYER_IDS.UNVISITED}
               filter={['all', ['!', ['has', 'point_count']], ['==', ['get', 'visited'], false]]}
               style={{
-                circleRadius: 8,
-                circleColor: '#ef4444',
-                circleStrokeWidth: 2,
-                circleStrokeColor: '#ffffff',
+                circleRadius: MARKER_RADIUS_NATIVE,
+                circleColor: UNVISITED_MARKER_COLOR,
+                circleStrokeWidth: MARKER_STROKE_WIDTH_NATIVE,
+                circleStrokeColor: MARKER_STROKE_COLOR,
               }}
             />
 
             {/* Visited runestones - green */}
             <MapLibreGL.CircleLayer
-              id="visited-runestones"
+              id={LAYER_IDS.VISITED}
               filter={['all', ['!', ['has', 'point_count']], ['==', ['get', 'visited'], true]]}
               style={{
-                circleRadius: 8,
-                circleColor: '#22c55e',
-                circleStrokeWidth: 2,
-                circleStrokeColor: '#ffffff',
+                circleRadius: MARKER_RADIUS_NATIVE,
+                circleColor: VISITED_MARKER_COLOR,
+                circleStrokeWidth: MARKER_STROKE_WIDTH_NATIVE,
+                circleStrokeColor: MARKER_STROKE_COLOR,
               }}
             />
           </MapLibreGL.ShapeSource>
@@ -204,7 +233,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
 
       {loading && (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#866c53" />
+          <ActivityIndicator size="large" color={LOADING_INDICATOR_COLOR} />
           <Text style={{ marginTop: 10 }}>Loading markers...</Text>
         </View>
       )}

@@ -16,6 +16,21 @@ import {
   CLUSTER_RADIUSES,
   CLUSTER_THRESHOLDS,
   createGeoJSONData,
+  DEFAULT_ZOOM_WEB,
+  SEARCH_ZOOM_WEB,
+  CLUSTER_MAX_ZOOM,
+  CLUSTER_RADIUS,
+  CAMERA_ANIMATION_DURATION_WEB,
+  UNVISITED_MARKER_COLOR,
+  VISITED_MARKER_COLOR,
+  MARKER_RADIUS_WEB,
+  MARKER_STROKE_WIDTH_WEB,
+  MARKER_STROKE_COLOR,
+  CLUSTER_COUNT_TEXT_SIZE,
+  CLUSTER_COUNT_TEXT_COLOR,
+  CLUSTER_COUNT_FONT_WEB,
+  LAYER_IDS,
+  RUNESTONES_SOURCE_ID,
 } from './mapUtils';
 
 interface MapComponentProps {
@@ -76,7 +91,8 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
   }, []);
 
   const geoJsonData = useMemo(() => {
-    const runestonesWithCurrentVisitedStatus = visitedRunestonesStore.applyVisitedStatus(runestones);
+    const runestonesWithCurrentVisitedStatus =
+      visitedRunestonesStore.applyVisitedStatus(runestones);
     return createGeoJSONData(runestonesWithCurrentVisitedStatus);
   }, [runestones]);
 
@@ -84,7 +100,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
     if (!mapRef.current) return;
 
     const map = mapRef.current;
-    
+
     // Check style loaded status
     const isStyleLoaded = map.isStyleLoaded();
 
@@ -120,28 +136,28 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
 
     try {
       // Check if source already exists
-      const existingSource = map.getSource('runestones') as GeoJSONSource;
-      
+      const existingSource = map.getSource(RUNESTONES_SOURCE_ID) as GeoJSONSource;
+
       if (existingSource) {
         // Just update data if source exists
         existingSource.setData(geoJsonData);
       } else {
         // Add source and layers if they don't exist
-        
+
         // Add source with clustering
-        map.addSource('runestones', {
+        map.addSource(RUNESTONES_SOURCE_ID, {
           type: 'geojson',
           data: geoJsonData,
           cluster: true,
-          clusterMaxZoom: 13, // Max zoom to cluster points on
-          clusterRadius: 50, // Radius of each cluster when clustering points
+          clusterMaxZoom: CLUSTER_MAX_ZOOM, // Max zoom to cluster points on
+          clusterRadius: CLUSTER_RADIUS, // Radius of each cluster when clustering points
         });
 
         // Add cluster circles
         map.addLayer({
-          id: 'clusters',
+          id: LAYER_IDS.CLUSTERS,
           type: 'circle',
-          source: 'runestones',
+          source: RUNESTONES_SOURCE_ID,
           filter: ['has', 'point_count'],
           paint: {
             'circle-color': [
@@ -167,46 +183,46 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
 
         // Add cluster count labels
         map.addLayer({
-          id: 'cluster-count',
+          id: LAYER_IDS.CLUSTER_COUNT,
           type: 'symbol',
-          source: 'runestones',
+          source: RUNESTONES_SOURCE_ID,
           filter: ['has', 'point_count'],
           layout: {
             'text-field': '{point_count}',
-            'text-size': 12,
+            'text-size': CLUSTER_COUNT_TEXT_SIZE,
             // Use a broader font stack or a standard one that is likely to be available
-            'text-font': ['Noto Sans Regular', 'Arial Unicode MS Regular'], 
+            'text-font': CLUSTER_COUNT_FONT_WEB,
           },
           paint: {
-            'text-color': '#ffffff',
+            'text-color': CLUSTER_COUNT_TEXT_COLOR,
           },
         });
 
         // Add individual runestone points (unclustered) - unvisited runestones
         map.addLayer({
-          id: 'unclustered-point-unvisited',
+          id: LAYER_IDS.UNVISITED,
           type: 'circle',
-          source: 'runestones',
+          source: RUNESTONES_SOURCE_ID,
           filter: ['all', ['!', ['has', 'point_count']], ['==', ['get', 'visited'], false]],
           paint: {
-            'circle-color': '#FF0000',
-            'circle-radius': 9,
-            'circle-stroke-width': 3,
-            'circle-stroke-color': '#fff',
+            'circle-color': UNVISITED_MARKER_COLOR,
+            'circle-radius': MARKER_RADIUS_WEB,
+            'circle-stroke-width': MARKER_STROKE_WIDTH_WEB,
+            'circle-stroke-color': MARKER_STROKE_COLOR,
           },
         });
 
         // Add individual runestone points (unclustered) - visited runestones
         map.addLayer({
-          id: 'unclustered-point-visited',
+          id: LAYER_IDS.VISITED,
           type: 'circle',
-          source: 'runestones',
+          source: RUNESTONES_SOURCE_ID,
           filter: ['all', ['!', ['has', 'point_count']], ['==', ['get', 'visited'], true]],
           paint: {
-            'circle-color': '#00FF00',
-            'circle-radius': 9,
-            'circle-stroke-width': 3,
-            'circle-stroke-color': '#fff',
+            'circle-color': VISITED_MARKER_COLOR,
+            'circle-radius': MARKER_RADIUS_WEB,
+            'circle-stroke-width': MARKER_STROKE_WIDTH_WEB,
+            'circle-stroke-color': MARKER_STROKE_COLOR,
           },
         });
 
@@ -215,18 +231,20 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
           eventListenersAddedRef.current = true;
 
           // Click event for clusters - zoom in
-          map.on('click', 'clusters', (e) => {
+          map.on('click', LAYER_IDS.CLUSTERS, (e) => {
             const features = map.queryRenderedFeatures(e.point, {
-              layers: ['clusters'],
+              layers: [LAYER_IDS.CLUSTERS],
             });
             const clusterId = features[0].properties?.cluster_id;
-            const source = map.getSource('runestones') as GeoJSONSource;
+            const source = map.getSource(RUNESTONES_SOURCE_ID) as GeoJSONSource;
 
             if (source && clusterId !== undefined) {
               source
                 .getClusterExpansionZoom(clusterId)
                 .then((zoom: number) => {
-                  const coordinates = (features[0].geometry as unknown as { coordinates: [number, number] }).coordinates;
+                  const coordinates = (
+                    features[0].geometry as unknown as { coordinates: [number, number] }
+                  ).coordinates;
                   map.easeTo({
                     center: coordinates,
                     zoom: zoom,
@@ -240,32 +258,36 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
 
           // Click event for individual runestones - open modal (both visited and unvisited)
           const onPointClick = (e: any) => {
-             const feature = e.features?.[0];
-             if (!feature || !feature.geometry || feature.geometry.type !== 'Point') return;
- 
-             const properties = feature.properties!;
- 
-             // Find the full runestone data using the id
-             const runestone = runestones.find((stone) => stone.id === properties.id);
-             if (!runestone) return;
- 
-             // Open the modal with this runestone
-             openModal(runestone);
+            const feature = e.features?.[0];
+            if (!feature || !feature.geometry || feature.geometry.type !== 'Point') return;
+
+            const properties = feature.properties!;
+
+            // Find the full runestone data using the id
+            const runestone = runestones.find((stone) => stone.id === properties.id);
+            if (!runestone) return;
+
+            // Open the modal with this runestone
+            openModal(runestone);
           };
 
-          map.on('click', 'unclustered-point-unvisited', onPointClick);
-          map.on('click', 'unclustered-point-visited', onPointClick);
+          map.on('click', LAYER_IDS.UNVISITED, onPointClick);
+          map.on('click', LAYER_IDS.VISITED, onPointClick);
 
           // Change cursor to pointer when hovering over clusters or points
-          const setPointer = () => { map.getCanvas().style.cursor = 'pointer'; };
-          const resetCursor = () => { map.getCanvas().style.cursor = ''; };
+          const setPointer = () => {
+            map.getCanvas().style.cursor = 'pointer';
+          };
+          const resetCursor = () => {
+            map.getCanvas().style.cursor = '';
+          };
 
-          map.on('mouseenter', 'clusters', setPointer);
-          map.on('mouseleave', 'clusters', resetCursor);
-          map.on('mouseenter', 'unclustered-point-unvisited', setPointer);
-          map.on('mouseleave', 'unclustered-point-unvisited', resetCursor);
-          map.on('mouseenter', 'unclustered-point-visited', setPointer);
-          map.on('mouseleave', 'unclustered-point-visited', resetCursor);
+          map.on('mouseenter', LAYER_IDS.CLUSTERS, setPointer);
+          map.on('mouseleave', LAYER_IDS.CLUSTERS, resetCursor);
+          map.on('mouseenter', LAYER_IDS.UNVISITED, setPointer);
+          map.on('mouseleave', LAYER_IDS.UNVISITED, resetCursor);
+          map.on('mouseenter', LAYER_IDS.VISITED, setPointer);
+          map.on('mouseleave', LAYER_IDS.VISITED, resetCursor);
         }
       }
     } catch (error) {
@@ -280,7 +302,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
       const map = new MapLibreMap({
         container: mapContainer.current!,
         center: JARLABANKE_BRIDGE,
-        zoom: 13,
+        zoom: DEFAULT_ZOOM_WEB,
         style: STYLE_URL,
       });
 
@@ -297,7 +319,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
             enableHighAccuracy: true,
           },
           trackUserLocation: true,
-        })
+        }),
       );
     };
 
@@ -332,9 +354,9 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
       () => visitedRunestonesStore.visitedCount, // Track visited count changes
       () => {
         refreshVisitedStatus();
-      }
+      },
     );
-    
+
     return () => dispose();
   }, [refreshVisitedStatus]);
 
@@ -351,9 +373,6 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
     }
   }, [onVisitedCountChange]);
 
-
-
-
   // Navigate to selected runestone
   useEffect(() => {
     const dispose = reaction(
@@ -365,8 +384,8 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
           // Fly to the runestone's location
           map.flyTo({
             center: [runestone.longitude, runestone.latitude],
-            zoom: 16, // Close zoom to show the runestone clearly
-            duration: 2000, // 2 second animation
+            zoom: SEARCH_ZOOM_WEB, // Close zoom to show the runestone clearly
+            duration: CAMERA_ANIMATION_DURATION_WEB, // Unified animation duration
           });
 
           // Open the modal for the selected runestone
@@ -375,7 +394,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
           // Clear selected runestone after navigation
           searchStore.setSelectedRunestone(null);
         }
-      }
+      },
     );
 
     return () => dispose();
@@ -400,7 +419,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-50/95 backdrop-blur-sm px-6 py-4 rounded-lg shadow-lg z-[1001] border border-red-200 max-w-sm text-center">
           <div className="text-red-600 font-medium mb-2">Error</div>
           <p className="text-gray-700 text-sm mb-3">{error}</p>
-          <button 
+          <button
             type="button"
             onClick={() => fetchAllRunestones()}
             className="bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 rounded text-sm font-medium transition-colors"
@@ -409,8 +428,6 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
           </button>
         </div>
       )}
-
-
 
       {/* No Data Message */}
       {!loading && !error && runestones.length === 0 && (
