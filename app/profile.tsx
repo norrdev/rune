@@ -1,5 +1,13 @@
 import { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Platform } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+  Alert,
+  Platform,
+} from 'react-native';
 import { Stack, Link, useRouter } from 'expo-router';
 import { observer } from 'mobx-react-lite';
 import { authStore } from '../src/stores/authStore';
@@ -39,7 +47,7 @@ export default observer(function Profile() {
     };
 
     loadVisitedRunestoneDetails();
-  }, [authStore.isFullyAuthenticated, visitedRunestonesStore.loading, visitedRunestonesStore.visitedCount]);
+  }, []);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -70,7 +78,7 @@ export default observer(function Profile() {
         [
           { text: 'Cancel', style: 'cancel' },
           { text: 'Delete', style: 'destructive', onPress: () => authStore.deleteUser() },
-        ]
+        ],
       );
     }
   };
@@ -118,7 +126,9 @@ export default observer(function Profile() {
           <View className="w-8 h-8 rounded-full bg-gray-400" />
         </View>
         <Text className="text-xl font-semibold text-gray-900 mb-2">Not Logged In</Text>
-        <Text className="text-gray-600 mb-6">Please log in to view your profile and visited runestones.</Text>
+        <Text className="text-gray-600 mb-6">
+          Please log in to view your profile and visited runestones.
+        </Text>
         <Link href="/" asChild>
           <TouchableOpacity className="bg-primary px-6 py-2 rounded-md">
             <Text className="text-white font-medium">Back to Home</Text>
@@ -138,9 +148,12 @@ export default observer(function Profile() {
             <Text className="text-white font-bold">!</Text>
           </View>
         </View>
-        <Text className="text-xl font-semibold text-gray-900 mb-2">Email Confirmation Required</Text>
+        <Text className="text-xl font-semibold text-gray-900 mb-2">
+          Email Confirmation Required
+        </Text>
         <Text className="text-gray-600 mb-4">
-          Please check your email ({authStore.user.email}) and click the confirmation link to access your profile.
+          Please check your email ({authStore.user.email}) and click the confirmation link to access
+          your profile.
         </Text>
         <Text className="text-sm text-gray-500 mb-6">
           Once confirmed, you'll be able to view your visited runestones and track your progress.
@@ -161,7 +174,6 @@ export default observer(function Profile() {
 
       <View className="md:p-8 lg:p-12">
         <View className="md:max-w-5xl md:mx-auto w-full bg-white md:rounded-lg md:shadow-sm md:border md:border-gray-100 overflow-hidden">
-
           <View className="p-4 md:p-6">
             {/* User Info Section */}
             <View className="bg-gray-50 rounded-lg p-8 mb-8">
@@ -176,7 +188,8 @@ export default observer(function Profile() {
                     {authStore.user?.email}
                   </Text>
                   <Text className="text-base text-gray-500 mt-1">
-                    Member since {authStore.user?.created_at ? formatDate(authStore.user.created_at) : 'Unknown'}
+                    Member since{' '}
+                    {authStore.user?.created_at ? formatDate(authStore.user.created_at) : 'Unknown'}
                   </Text>
                 </View>
               </View>
@@ -204,7 +217,9 @@ export default observer(function Profile() {
                   <Text className="text-green-600 font-bold text-lg">✓</Text>
                 </View>
                 <Text className="text-sm font-medium text-gray-500 mb-1">Visited</Text>
-                <Text className="text-3xl font-semibold text-gray-900">{visitedRunestonesStore.visitedCount}</Text>
+                <Text className="text-3xl font-semibold text-gray-900">
+                  {visitedRunestonesStore.visitedCount}
+                </Text>
               </View>
 
               <View className="flex-1 min-w-[200px] bg-gray-50 rounded-lg p-6 mb-4 mx-2">
@@ -212,7 +227,9 @@ export default observer(function Profile() {
                   <Text className="text-blue-600 font-bold text-lg">M</Text>
                 </View>
                 <Text className="text-sm font-medium text-gray-500 mb-1">Total</Text>
-                <Text className="text-3xl font-semibold text-gray-900">{visitedRunestonesStore.totalRunestonesCount}</Text>
+                <Text className="text-3xl font-semibold text-gray-900">
+                  {visitedRunestonesStore.totalRunestonesCount}
+                </Text>
               </View>
 
               <View className="flex-1 min-w-[200px] bg-gray-50 rounded-lg p-6 mb-4">
@@ -220,7 +237,9 @@ export default observer(function Profile() {
                   <Text className="text-purple-600 font-bold text-lg">%</Text>
                 </View>
                 <Text className="text-sm font-medium text-gray-500 mb-1">Done</Text>
-                <Text className="text-3xl font-semibold text-gray-900">{visitedRunestonesStore.completionPercentage}%</Text>
+                <Text className="text-3xl font-semibold text-gray-900">
+                  {visitedRunestonesStore.completionPercentage}%
+                </Text>
               </View>
             </View>
 
@@ -229,7 +248,8 @@ export default observer(function Profile() {
               <View className="flex-row justify-between items-center mb-2">
                 <Text className="text-lg font-medium text-gray-900">Progress</Text>
                 <Text className="text-sm text-gray-500">
-                  {visitedRunestonesStore.visitedCount} of {visitedRunestonesStore.totalRunestonesCount}
+                  {visitedRunestonesStore.visitedCount} of{' '}
+                  {visitedRunestonesStore.totalRunestonesCount}
                 </Text>
               </View>
               <View className="w-full bg-gray-200 rounded-full h-3">
@@ -244,24 +264,31 @@ export default observer(function Profile() {
             <View className="bg-gray-50 rounded-lg p-6">
               <View className="flex-row justify-between items-center mb-4">
                 <Text className="text-lg font-medium text-gray-900">Visited Runestones</Text>
-                <Text className="text-sm text-gray-500">
-                  {visitedRunestoneDetails.length}
-                </Text>
+                <Text className="text-sm text-gray-500">{visitedRunestoneDetails.length}</Text>
               </View>
 
               {visitedRunestoneDetails.length === 0 ? (
                 <View className="items-center py-8">
                   <Text className="text-gray-600">You haven't visited any runestones yet.</Text>
-                  <Text className="text-sm text-gray-500 mt-1">Start exploring to see them here!</Text>
+                  <Text className="text-sm text-gray-500 mt-1">
+                    Start exploring to see them here!
+                  </Text>
                 </View>
               ) : (
                 <View className="space-y-3">
                   {visitedRunestoneDetails.map((runestone) => (
-                    <View key={runestone.id} className="bg-white rounded-lg border border-gray-200 p-4 mb-3">
+                    <View
+                      key={runestone.id}
+                      className="bg-white rounded-lg border border-gray-200 p-4 mb-3"
+                    >
                       <View className="flex-row justify-between items-center">
                         <View className="flex-1 mr-4">
-                          <Text className="text-lg font-medium text-gray-900" numberOfLines={1}>{runestone.signature_text}</Text>
-                          <Text className="text-sm text-gray-500 mt-1" numberOfLines={1}>{runestone.found_location}</Text>
+                          <Text className="text-lg font-medium text-gray-900" numberOfLines={1}>
+                            {runestone.signature_text}
+                          </Text>
+                          <Text className="text-sm text-gray-500 mt-1" numberOfLines={1}>
+                            {runestone.found_location}
+                          </Text>
                         </View>
                         <Link href={`/runestones/${runestone.slug}`} asChild>
                           <TouchableOpacity className="bg-white border border-gray-300 px-4 py-2 rounded-md">
@@ -274,9 +301,7 @@ export default observer(function Profile() {
                 </View>
               )}
             </View>
-
           </View>
-
         </View>
       </View>
     </ScrollView>
