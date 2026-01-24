@@ -1,5 +1,14 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { View, StyleSheet, ActivityIndicator, Alert, Text } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  ActivityIndicator,
+  Alert,
+  Text,
+  TouchableOpacity,
+  PermissionsAndroid,
+  Platform,
+} from 'react-native';
 import MapLibreGL from '@maplibre/maplibre-react-native';
 import { runestonesCache } from '@services/Cache/runestonesCache';
 import type { Runestone } from '../../types';
@@ -48,6 +57,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
   // Initial center (Stockholm area - Jarlabanke bridge)
   const [center] = useState<[number, number]>(JARLABANKE_BRIDGE);
   const [zoom] = useState(DEFAULT_ZOOM_NATIVE);
+  const [isLocating, setIsLocating] = useState(false);
 
   const loadRunestones = useCallback(async () => {
     try {
@@ -135,6 +145,57 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
         setSelectedRunestone(runestone);
         setIsModalOpen(true);
       }
+    }
+  }, []);
+
+  const handleLocationPress = useCallback(async () => {
+    try {
+      setIsLocating(true);
+
+      // Request location permission on Android
+      if (Platform.OS === 'android') {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+          {
+            title: 'Location Permission',
+            message: 'This app needs access to your location to center the map on your position.',
+            buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Cancel',
+            buttonPositive: 'OK',
+          },
+        );
+
+        if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+          Alert.alert('Permission Denied', 'Location permission is required to use this feature.');
+          setIsLocating(false);
+          return;
+        }
+      }
+
+      // Get user location from the UserLocation component
+      const location = await MapLibreGL.locationManager.getLastKnownLocation();
+
+      if (location && cameraRef.current) {
+        cameraRef.current.setCamera({
+          centerCoordinate: [location.coords.longitude, location.coords.latitude],
+          zoomLevel: 15,
+          animationDuration: CAMERA_ANIMATION_DURATION_NATIVE,
+        });
+      }
+    } catch (error) {
+      console.error('Error getting location:', error);
+      Alert.alert('Location Error', 'Unable to get your current location');
+    } finally {
+      setIsLocating(false);
+    }
+  }, []);
+
+  const handleCompassPress = useCallback(() => {
+    if (cameraRef.current) {
+      cameraRef.current.setCamera({
+        heading: 0,
+        animationDuration: CAMERA_ANIMATION_DURATION_NATIVE,
+      });
     }
   }, []);
 
@@ -238,6 +299,31 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
         </View>
       )}
 
+      {/* Map Control Buttons */}
+      <View style={styles.controlButtons}>
+        {/* Location Button */}
+        <TouchableOpacity
+          style={styles.controlButton}
+          onPress={handleLocationPress}
+          activeOpacity={0.7}
+        >
+          {isLocating ? (
+            <ActivityIndicator size="small" color="#4285F4" />
+          ) : (
+            <Text style={styles.controlButtonIcon}>📍</Text>
+          )}
+        </TouchableOpacity>
+
+        {/* Compass Button */}
+        <TouchableOpacity
+          style={styles.controlButton}
+          onPress={handleCompassPress}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.controlButtonIcon}>🧭</Text>
+        </TouchableOpacity>
+      </View>
+
       <RunestoneModal
         runestone={selectedRunestone}
         isOpen={isModalOpen}
@@ -265,5 +351,30 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 10,
     alignItems: 'center',
+  },
+  controlButtons: {
+    position: 'absolute',
+    bottom: 100,
+    right: 16,
+    gap: 12,
+  },
+  controlButton: {
+    width: 48,
+    height: 48,
+    backgroundColor: '#ffffff',
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  controlButtonIcon: {
+    fontSize: 24,
   },
 });

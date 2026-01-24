@@ -1,10 +1,13 @@
 {
-  "name": "temp_expo_app",
+  "name": "runestonesafari",
   "version": "2.0.1",
   "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
+    "android:build": "cd android && ./gradlew assembleRelease",
+    "android:debug": "cd android && ./gradlew assembleDebug",
+    "emulator": "emulator -avd $(emulator -list-avds | head -n 1)",
     "ios": "expo run:ios",
     "web": "expo start --web"
   },
@@ -13,10 +16,10 @@
     "@maplibre/maplibre-react-native": "^10.0.0",
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@supabase/supabase-js": "^2.89.0",
-    "expo": "~54.0.30",
+    "expo": "~54.0.32",
     "expo-constants": "^18.0.12",
     "expo-linking": "^8.0.11",
-    "expo-router": "^6.0.21",
+    "expo-router": "~6.0.22",
     "expo-sqlite": "~16.0.10",
     "expo-status-bar": "~3.0.9",
     "idb": "^8.0.3",
@@ -32,8 +35,9 @@
     "react-native-reanimated": "~4.1.1",
     "react-native-safe-area-context": "^5.6.2",
     "react-native-screens": "~4.16.0",
-    "react-native-svg": "^15.15.1",
+    "react-native-svg": "15.12.1",
     "react-native-web": "~0.21.0",
+    "react-native-worklets-core": "^1.6.2",
     "tailwindcss": "^3.4.19"
   },
   "private": true,
