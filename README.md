@@ -1,6 +1,6 @@
 # Runestone Safari
 
-_Version 1.1_
+_Version 2.1_
 
 [https://runestonesafari.com/](https://runestonesafari.com/)
 

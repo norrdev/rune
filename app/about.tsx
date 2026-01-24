@@ -5,7 +5,7 @@ import { PageHeader } from '../src/components/PageHeader';
 
 const readmeContent = `# Runestone Safari
 
-_Version 2.0_
+_Version 2.1_
 
 [https://runestonesafari.com/](https://runestonesafari.com/)
 
@@ -28,21 +28,13 @@ Runestone Safari is an interactive map application that allows you to explore Sw
 - [Samnordisk Runtextdatabas](https://www.uu.se/institution/nordiska/forskning/projekt/samnordisk-runtextdatabas) for runestone data
 - Original SQLite database from [Rundata-net](https://www.rundata.info/)
 
-## Roadmap
-
-- Add photo to visited runestone (forced Creative Commons license)
-- Add collections of runestones, like a "Jarlabanke runestones", "Varganian runestones", "Estrid runestones"
-- Add some gamification
-- Add some social features
-- Mobile applications for Android and iOS
-
 ## Acknowledgments
 
 - [Vadim Frolov](https://github.com/fralik) and Sofia Pereswetoff-Morath for [runes.sqlite3](https://github.com/fralik/rundata-net/blob/master/rundatanet/static/runes/runes.sqlite3)
 
 ## License
 
-Copyright (C) 2025 Denis Filonov
+Copyright (C) 2025-2026 Denis Filonov
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -66,13 +58,18 @@ export default function About() {
 
       <View className="md:p-8 lg:p-12">
         <View className="md:max-w-5xl md:mx-auto w-full bg-white md:rounded-lg md:shadow-sm md:border md:border-gray-100 overflow-hidden">
-
           <View className="p-4 md:p-8">
             <ReactMarkdown
               components={{
-                h1: ({ children }) => <Text className="text-3xl font-bold text-primary mb-6">{children}</Text>,
-                h2: ({ children }) => <Text className="text-xl font-semibold text-primary mt-8 mb-4">{children}</Text>,
-                p: ({ children }) => <Text className="text-base text-gray-700 mb-4 leading-6">{children}</Text>,
+                h1: ({ children }) => (
+                  <Text className="text-3xl font-bold text-primary mb-6">{children}</Text>
+                ),
+                h2: ({ children }) => (
+                  <Text className="text-xl font-semibold text-primary mt-8 mb-4">{children}</Text>
+                ),
+                p: ({ children }) => (
+                  <Text className="text-base text-gray-700 mb-4 leading-6">{children}</Text>
+                ),
                 ul: ({ children }) => <View className="mb-4 ml-4">{children}</View>,
                 li: ({ children }) => (
                   <View className="flex-row items-start mb-2">
@@ -82,9 +79,7 @@ export default function About() {
                 ),
                 strong: ({ children }) => <Text className="font-bold">{children}</Text>,
                 em: ({ children }) => <Text className="italic">{children}</Text>,
-                a: ({ children }) => (
-                  <Text className="text-primary underline">{children}</Text>
-                ),
+                a: ({ children }) => <Text className="text-primary underline">{children}</Text>,
                 code: ({ children }) => (
                   <View className="bg-gray-100 rounded p-4 my-4">
                     <Text className="text-sm font-mono text-gray-800">{children}</Text>
@@ -95,7 +90,6 @@ export default function About() {
               {readmeContent}
             </ReactMarkdown>
           </View>
-
         </View>
       </View>
     </ScrollView>
