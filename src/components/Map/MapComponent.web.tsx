@@ -46,6 +46,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
   const [runestones, setRunestones] = useState<Runestone[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isLocating, setIsLocating] = useState(false);
 
   // Modal state
   const [selectedRunestone, setSelectedRunestone] = useState<Runestone | null>(null);
@@ -68,6 +69,47 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
     const updatedRunestones = visitedRunestonesStore.applyVisitedStatus(runestonesRef.current);
     runestonesRef.current = updatedRunestones;
     setRunestones(updatedRunestones);
+  }, []);
+
+  const handleLocationPress = useCallback(() => {
+    if (!mapRef.current) return;
+
+    setIsLocating(true);
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          mapRef.current?.flyTo({
+            center: [longitude, latitude],
+            zoom: 15,
+            duration: CAMERA_ANIMATION_DURATION_WEB,
+          });
+          setIsLocating(false);
+        },
+        (error) => {
+          console.error('Error getting location:', error);
+          alert('Unable to get your current location. Please check your browser permissions.');
+          setIsLocating(false);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 5000,
+          maximumAge: 0,
+        },
+      );
+    } else {
+      alert('Geolocation is not supported by your browser');
+      setIsLocating(false);
+    }
+  }, []);
+
+  const handleCompassPress = useCallback(() => {
+    if (!mapRef.current) return;
+
+    mapRef.current.easeTo({
+      bearing: 0,
+      duration: CAMERA_ANIMATION_DURATION_WEB,
+    });
   }, []);
 
   const fetchAllRunestones = useCallback(async () => {
@@ -435,6 +477,34 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
           <p className="text-gray-700 font-medium">No runestones found</p>
         </div>
       )}
+
+      {/* Map Control Buttons */}
+      <div className="absolute bottom-24 right-4 flex flex-col gap-3 z-[1000]">
+        {/* Location Button */}
+        <button
+          type="button"
+          onClick={handleLocationPress}
+          disabled={isLocating}
+          className="w-12 h-12 bg-white rounded-full shadow-lg hover:shadow-xl transition-shadow flex items-center justify-center cursor-pointer disabled:opacity-50"
+          title="Go to my location"
+        >
+          {isLocating ? (
+            <div className="animate-spin h-5 w-5 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+          ) : (
+            <span className="text-2xl">📍</span>
+          )}
+        </button>
+
+        {/* Compass Button */}
+        <button
+          type="button"
+          onClick={handleCompassPress}
+          className="w-12 h-12 bg-white rounded-full shadow-lg hover:shadow-xl transition-shadow flex items-center justify-center cursor-pointer"
+          title="Reset map orientation"
+        >
+          <span className="text-2xl">🧭</span>
+        </button>
+      </div>
 
       {/* Runestone Modal */}
       <RunestoneModal
