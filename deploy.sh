@@ -1,1 +1,0 @@
-npx expo export --platform web && npx wrangler deploy
