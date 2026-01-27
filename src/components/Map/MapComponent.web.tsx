@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import '../../styles/map.web.css';
-import { GeolocateControl, Map as MapLibreMap, type GeoJSONSource } from 'maplibre-gl';
+import { Map as MapLibreMap, type GeoJSONSource } from 'maplibre-gl';
 import { runestonesCache } from '@services/Cache/runestonesCache';
 import type { Runestone } from '../../types';
 import { RunestoneModal } from '../Runestone/RunestoneModal';
@@ -354,15 +354,6 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
       map.on('load', () => {
         fetchAllRunestones();
       });
-
-      map.addControl(
-        new GeolocateControl({
-          positionOptions: {
-            enableHighAccuracy: true,
-          },
-          trackUserLocation: true,
-        }),
-      );
     };
 
     initMap();
