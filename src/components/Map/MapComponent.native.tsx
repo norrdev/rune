@@ -9,6 +9,7 @@ import {
   PermissionsAndroid,
   Platform,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MapLibreGL from '@maplibre/maplibre-react-native';
 import { runestonesCache } from '@services/Cache/runestonesCache';
 import type { Runestone } from '../../types';
@@ -53,6 +54,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
   const [isModalOpen, setIsModalOpen] = useState(false);
   const cameraRef = useRef<MapLibreGL.CameraRef>(null);
   const runestonesRef = useRef<Runestone[]>([]);
+  const insets = useSafeAreaInsets();
 
   // Initial center (Stockholm area - Jarlabanke bridge)
   const [center] = useState<[number, number]>(JARLABANKE_BRIDGE);
@@ -300,7 +302,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
       )}
 
       {/* Map Control Buttons */}
-      <View style={styles.controlButtons}>
+      <View style={[styles.controlButtons, { top: insets.top + 16, right: 16 }]}>
         {/* Location Button */}
         <TouchableOpacity
           style={styles.controlButton}
@@ -354,8 +356,6 @@ const styles = StyleSheet.create({
   },
   controlButtons: {
     position: 'absolute',
-    bottom: 100,
-    right: 16,
     gap: 12,
   },
   controlButton: {
