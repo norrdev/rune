@@ -1,29 +1,13 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import {
-  View,
-  StyleSheet,
-  ActivityIndicator,
-  Alert,
-  Text,
-  TouchableOpacity,
-  PermissionsAndroid,
-  Platform,
-} from 'react-native';
+import { useEffect, useRef, useCallback } from 'react';
+import { View, StyleSheet, ActivityIndicator, Text, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MapLibreGL from '@maplibre/maplibre-react-native';
-import { runestonesCache } from '@services/Cache/runestonesCache';
-import type { Runestone } from '../../types';
 import { RunestoneModal } from '../Runestone/RunestoneModal';
 import { visitedRunestonesStore } from '../../stores/visitedRunestonesStore';
-import { searchStore } from '../../stores/searchStore';
+import { mapStore } from '../../stores/mapStore';
 import { observer } from 'mobx-react-lite';
-import { reaction } from 'mobx';
 import {
-  JARLABANKE_BRIDGE,
   STYLE_URL,
-  createGeoJSONData,
-  DEFAULT_ZOOM_NATIVE,
-  SEARCH_ZOOM_NATIVE,
   CAMERA_ANIMATION_DURATION_NATIVE,
   CLUSTER_RADIUS,
   CLUSTER_MAX_ZOOM,
@@ -48,182 +32,70 @@ interface MapComponentProps {
 }
 
 export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProps) => {
-  const [runestones, setRunestones] = useState<Runestone[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedRunestone, setSelectedRunestone] = useState<Runestone | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const cameraRef = useRef<MapLibreGL.CameraRef>(null);
-  const runestonesRef = useRef<Runestone[]>([]);
   const insets = useSafeAreaInsets();
 
-  // Initial center (Stockholm area - Jarlabanke bridge)
-  const [center] = useState<[number, number]>(JARLABANKE_BRIDGE);
-  const [zoom] = useState(DEFAULT_ZOOM_NATIVE);
-  const [isLocating, setIsLocating] = useState(false);
-
-  const loadRunestones = useCallback(async () => {
-    try {
-      setLoading(true);
-      const data = await runestonesCache.getAllRunestones();
-
-      // Apply visited status from store
-      const dataWithVisited = visitedRunestonesStore.applyVisitedStatus(data);
-
-      runestonesRef.current = dataWithVisited;
-      setRunestones(dataWithVisited);
-
-      if (onVisitedCountChange) {
-        onVisitedCountChange(visitedRunestonesStore.visitedCount);
-      }
-    } catch (error) {
-      console.error('Failed to load runestones:', error);
-      Alert.alert('Error', 'Failed to load runestones');
-    } finally {
-      setLoading(false);
-    }
-  }, [onVisitedCountChange]);
-
+  // Initialize map store for native platform and load runestones
   useEffect(() => {
-    loadRunestones();
-  }, [loadRunestones]);
+    mapStore.setPlatform('native');
+    mapStore.loadRunestones();
+  }, []);
 
-  const refreshVisitedStatus = useCallback(() => {
+  // Notify parent of visited count changes
+  const notifyVisitedCount = useCallback(() => {
     if (onVisitedCountChange) {
       onVisitedCountChange(visitedRunestonesStore.visitedCount);
     }
-    // Update runestones with new visited status
-    const updatedRunestones = visitedRunestonesStore.applyVisitedStatus(runestonesRef.current);
-    runestonesRef.current = updatedRunestones;
-    setRunestones(updatedRunestones);
   }, [onVisitedCountChange]);
 
-  // React to visited status changes (e.g. login/logout or manual marking)
   useEffect(() => {
-    const dispose = reaction(
-      () => visitedRunestonesStore.visitedCount,
-      () => {
-        refreshVisitedStatus();
-      },
-    );
-    return () => dispose();
-  }, [refreshVisitedStatus]);
+    notifyVisitedCount();
+  }, [notifyVisitedCount]);
 
-  // Navigate to selected runestone from search
+  // Sync camera with store (for programmatic navigation)
   useEffect(() => {
-    const dispose = reaction(
-      () => searchStore.selectedRunestone,
-      (runestone) => {
-        if (runestone && cameraRef.current) {
-          cameraRef.current.setCamera({
-            centerCoordinate: [runestone.longitude, runestone.latitude],
-            zoomLevel: SEARCH_ZOOM_NATIVE,
-            animationDuration: CAMERA_ANIMATION_DURATION_NATIVE,
-          });
-
-          setSelectedRunestone(runestone);
-          setIsModalOpen(true);
-          searchStore.setSelectedRunestone(null);
-        }
-      },
-    );
-
-    return () => dispose();
-  }, []);
-
-  // Create GeoJSON for ShapeSource with all runestones (clustering handles performance)
-  const geoJsonData = useMemo(() => {
-    return createGeoJSONData(runestones);
-  }, [runestones]);
-
-  const handleRegionChange = useCallback(() => {
-    // Region change handler - can be used for analytics if needed
-  }, []);
-
-  const handleShapePress = useCallback((event: MapLibreGL.OnPressEvent) => {
-    const feature = event.features?.[0];
-    if (feature?.properties?.id) {
-      const runestone = runestonesRef.current.find((stone) => stone.id === feature.properties?.id);
-      if (runestone) {
-        setSelectedRunestone(runestone);
-        setIsModalOpen(true);
-      }
-    }
-  }, []);
-
-  const handleLocationPress = useCallback(async () => {
-    try {
-      setIsLocating(true);
-
-      // Request location permission on Android
-      if (Platform.OS === 'android') {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-          {
-            title: 'Location Permission',
-            message: 'This app needs access to your location to center the map on your position.',
-            buttonNeutral: 'Ask Me Later',
-            buttonNegative: 'Cancel',
-            buttonPositive: 'OK',
-          },
-        );
-
-        if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-          Alert.alert('Permission Denied', 'Location permission is required to use this feature.');
-          setIsLocating(false);
-          return;
-        }
-      }
-
-      // Get user location from the UserLocation component
-      const location = await MapLibreGL.locationManager.getLastKnownLocation();
-
-      if (location && cameraRef.current) {
-        cameraRef.current.setCamera({
-          centerCoordinate: [location.coords.longitude, location.coords.latitude],
-          zoomLevel: 15,
-          animationDuration: CAMERA_ANIMATION_DURATION_NATIVE,
-        });
-      }
-    } catch (error) {
-      console.error('Error getting location:', error);
-      Alert.alert('Location Error', 'Unable to get your current location');
-    } finally {
-      setIsLocating(false);
-    }
-  }, []);
-
-  const handleCompassPress = useCallback(() => {
-    if (cameraRef.current) {
+    if (cameraRef.current && mapStore.cameraUpdateTrigger > 0) {
       cameraRef.current.setCamera({
-        heading: 0,
+        centerCoordinate: mapStore.center,
+        zoomLevel: mapStore.zoom,
+        heading: mapStore.bearing,
         animationDuration: CAMERA_ANIMATION_DURATION_NATIVE,
       });
     }
   }, []);
+
+  const handleShapePress = (event: MapLibreGL.OnPressEvent) => {
+    const feature = event.features?.[0];
+    if (feature?.properties?.id) {
+      const runestone = mapStore.runestones.find((stone) => stone.id === feature.properties?.id);
+      if (runestone) {
+        mapStore.openModal(runestone);
+      }
+    }
+  };
 
   return (
     <View style={styles.container}>
       <MapLibreGL.MapView
         style={styles.map}
         mapStyle={STYLE_URL}
-        onRegionDidChange={handleRegionChange}
         attributionEnabled={true}
         logoEnabled={false}
       >
         <MapLibreGL.Camera
           ref={cameraRef}
           defaultSettings={{
-            centerCoordinate: center,
-            zoomLevel: zoom,
+            centerCoordinate: mapStore.center,
+            zoomLevel: mapStore.zoom,
           }}
         />
 
         <MapLibreGL.UserLocation visible={true} />
 
-        {runestones.length > 0 && (
+        {mapStore.hasRunestones && (
           <MapLibreGL.ShapeSource
             id={RUNESTONES_SOURCE_ID}
-            shape={geoJsonData}
+            shape={mapStore.geoJsonData}
             onPress={handleShapePress}
             cluster
             clusterRadius={CLUSTER_RADIUS}
@@ -294,7 +166,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
         )}
       </MapLibreGL.MapView>
 
-      {loading && (
+      {mapStore.loading && (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={LOADING_INDICATOR_COLOR} />
           <Text style={{ marginTop: 10 }}>Loading markers...</Text>
@@ -306,10 +178,10 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
         {/* Location Button */}
         <TouchableOpacity
           style={styles.controlButton}
-          onPress={handleLocationPress}
+          onPress={() => mapStore.getCurrentLocation()}
           activeOpacity={0.7}
         >
-          {isLocating ? (
+          {mapStore.isLocating ? (
             <ActivityIndicator size="small" color="#4285F4" />
           ) : (
             <Text style={styles.controlButtonIcon}>📍</Text>
@@ -319,7 +191,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
         {/* Compass Button */}
         <TouchableOpacity
           style={styles.controlButton}
-          onPress={handleCompassPress}
+          onPress={() => mapStore.resetBearing()}
           activeOpacity={0.7}
         >
           <Text style={styles.controlButtonIcon}>🧭</Text>
@@ -327,10 +199,10 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
       </View>
 
       <RunestoneModal
-        runestone={selectedRunestone}
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onVisitedStatusChange={refreshVisitedStatus}
+        runestone={mapStore.selectedRunestone}
+        isOpen={mapStore.isModalOpen}
+        onClose={() => mapStore.closeModal()}
+        onVisitedStatusChange={() => mapStore.refreshVisitedStatus()}
       />
     </View>
   );
