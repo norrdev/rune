@@ -1,12 +1,16 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import React, { Component, type ErrorInfo, type ReactNode } from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
 class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
   state = { error: null };
-  static getDerivedStateFromError(error: Error) { return { error }; }
-  componentDidCatch(error: Error, info: ErrorInfo) { console.error('App crash:', error, info); }
+  static getDerivedStateFromError(error: Error) {
+    return { error };
+  }
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error('App crash:', error, info);
+  }
   render() {
     if (this.state.error) {
       const err = this.state.error as Error;
@@ -27,5 +31,5 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <ErrorBoundary>
       <App />
     </ErrorBoundary>
-  </React.StrictMode>
+  </React.StrictMode>,
 );
