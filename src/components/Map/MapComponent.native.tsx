@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { View, StyleSheet, ActivityIndicator, Text, TouchableOpacity } from 'react-native';
+import { MapPin, Compass } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MapLibreGL from '@maplibre/maplibre-react-native';
 import { RunestoneModal } from '../Runestone/RunestoneModal';
@@ -184,7 +185,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
           {mapStore.isLocating ? (
             <ActivityIndicator size="small" color="#4285F4" />
           ) : (
-            <Text style={styles.controlButtonIcon}>📍</Text>
+            <MapPin size={24} color="#1f2937" />
           )}
         </TouchableOpacity>
 
@@ -194,7 +195,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
           onPress={() => mapStore.resetBearing()}
           activeOpacity={0.7}
         >
-          <Text style={styles.controlButtonIcon}>🧭</Text>
+          <Compass size={24} color="#1f2937" />
         </TouchableOpacity>
       </View>
 

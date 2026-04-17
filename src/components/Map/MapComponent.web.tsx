@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
+import { MapPin, Compass } from 'lucide-react';
 import '../../styles/map.web.css';
 import { Map as MapLibreMap, type GeoJSONSource } from 'maplibre-gl';
 import { RunestoneModal } from '../Runestone/RunestoneModal';
@@ -149,7 +150,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
           {mapStore.isLocating ? (
             <div className="animate-spin h-5 w-5 border-2 border-blue-500 border-t-transparent rounded-full"></div>
           ) : (
-            <span className="text-2xl">📍</span>
+            <MapPin size={24} color="#1f2937" />
           )}
         </button>
 
@@ -160,7 +161,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
           className="w-12 h-12 bg-white rounded-full shadow-lg hover:shadow-xl transition-shadow flex items-center justify-center cursor-pointer"
           title="Reset map orientation"
         >
-          <span className="text-2xl">🧭</span>
+          <Compass size={24} color="#1f2937" />
         </button>
       </div>
 
