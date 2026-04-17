@@ -9,3 +9,10 @@
 - Preparation for mobile app version.
 - Login widget removed, login page added.
 - Runestones pictures.
+
+## 2.3
+- Added map controls (location and compass buttons).
+- Added loading, error and no data messages.
+- Added runestone modal.
+- Added runestone preview pictures.
+
