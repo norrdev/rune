@@ -1,9 +1,8 @@
 import { observer } from 'mobx-react-lite';
-import { View, Text, Pressable, useWindowDimensions, ScrollView } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SearchWidget } from './widgets/SearchWidget';
 import { authStore } from '../../stores/authStore';
-import { Link } from 'expo-router';
+import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 
 // Cluster styling constants (matching MapComponent)
 const CLUSTER_COLORS = {
@@ -19,155 +18,149 @@ interface SidebarProps {
 }
 
 export const Sidebar = observer(({ visitedCount, visible = false, onClose }: SidebarProps) => {
-  const { width } = useWindowDimensions();
-  const insets = useSafeAreaInsets();
-  const isMobile = width < 768;
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
-  // On mobile, if not visible, render nothing (or handle transition separately, simple toggle for now)
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // On mobile, if not visible, render nothing
   if (isMobile && !visible) {
     return null;
   }
-
-  // Adjust container classes based on mobile/desktop
-  // For simplicity in this port, we'll use conditional rendering for the overlay and a fixed/absolute view for sidebar
 
   return (
     <>
       {/* Mobile overlay */}
       {visible && isMobile && (
-        <Pressable
-          className="absolute inset-0 bg-black/50 z-40"
-          onPress={onClose}
+        <button
+          className="absolute inset-0 bg-black/50 z-40 w-full h-full border-none"
+          onClick={onClose}
+          aria-label="Close Sidebar"
         />
       )}
 
-      <View
-        className={`bg-white border-r border-gray-200 flex-col z-50 relative
+      <div
+        className={`bg-white border-r border-gray-200 flex flex-col z-50 relative
           ${isMobile ? 'absolute top-0 left-0 h-full w-80' : 'w-64 max-w-sm h-full'}
         `}
       >
         {/* Close button for mobile */}
         {isMobile && (
-          <Pressable
-            className="absolute z-50 bg-white rounded-full w-10 h-10 items-center justify-center shadow"
+          <button
+            className="absolute z-50 bg-white rounded-full w-10 h-10 flex items-center justify-center shadow"
             style={{
-              top: insets.top + 16,
+              top: 16,
               right: 16,
             }}
-            onPress={onClose}
+            onClick={onClose}
           >
-            <Text className="text-gray-600 font-bold text-lg">✕</Text>
-          </Pressable>
+            <span className="text-gray-600 font-bold text-lg">✕</span>
+          </button>
         )}
 
         {/* All content except footer */}
-        <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 20 }}>
+        <div className="flex-1 overflow-y-auto pb-5">
           {/* Header */}
-          <View
+          <div
             className="px-6 pb-6 border-b border-gray-200"
-            style={{ paddingTop: isMobile ? insets.top + 24 : 24 }}
+            style={{ paddingTop: isMobile ? 24 : 24 }}
           >
-            <Text className="text-xl font-bold text-primary">Runestone Safari</Text>
-            <Text className="text-sm text-gray-600 mt-1">Explore Swedish runestones</Text>
-          </View>
+            <div className="text-xl font-bold text-primary">Runestone Safari</div>
+            <div className="text-sm text-gray-600 mt-1">Explore Swedish runestones</div>
+          </div>
 
           {/* Search Widget */}
           <SearchWidget onClose={onClose} />
 
           {/* Visited Runestone Count */}
           {authStore.user && (
-            <View className="p-4 border-t border-gray-200">
-              <View className="items-center">
-                <Link href="/profile" asChild>
-                  <Pressable>
-                    <Text className="text-sm text-gray-600">
-                      <Text className="font-medium text-primary">{visitedCount}</Text> visited runestones
-                    </Text>
-                  </Pressable>
+            <div className="p-4 border-t border-gray-200">
+              <div className="flex flex-col items-center">
+                <Link to="/profile" className="text-sm text-gray-600 hover:text-gray-800">
+                  <span className="font-medium text-primary">{visitedCount}</span> visited runestones
                 </Link>
-              </View>
-            </View>
+              </div>
+            </div>
           )}
 
           {/* Map Legend */}
-          <View className="p-4 border-t border-gray-200">
-            <Text className="text-xs font-medium text-gray-700 mb-3">Map Legend:</Text>
-            <View className="gap-2">
-              <View className="flex-row items-center gap-2">
-                <View className="w-3 h-3 rounded-full" style={{ backgroundColor: CLUSTER_COLORS.SMALL }} />
-                <Text className="text-xs text-gray-600">&lt; 100 stones</Text>
-              </View>
-              <View className="flex-row items-center gap-2">
-                <View className="w-3 h-3 rounded-full" style={{ backgroundColor: CLUSTER_COLORS.MEDIUM }} />
-                <Text className="text-xs text-gray-600">100-750 stones</Text>
-              </View>
-              <View className="flex-row items-center gap-2">
-                <View className="w-3 h-3 rounded-full" style={{ backgroundColor: CLUSTER_COLORS.LARGE }} />
-                <Text className="text-xs text-gray-600">&gt; 750 stones</Text>
-              </View>
-              <View className="flex-row items-center gap-2">
-                <View className="w-3 h-3 rounded-full bg-red-500 border-2 border-white" />
-                <Text className="text-xs text-gray-600">Unvisited stone</Text>
-              </View>
-              <View className="flex-row items-center gap-2">
-                <View className="w-3 h-3 rounded-full bg-green-500 border-2 border-white" />
-                <Text className="text-xs text-gray-600">Visited stone</Text>
-              </View>
-            </View>
-          </View>
+          <div className="p-4 border-t border-gray-200">
+            <div className="text-xs font-medium text-gray-700 mb-3">Map Legend:</div>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: CLUSTER_COLORS.SMALL }} />
+                <span className="text-xs text-gray-600">&lt; 100 stones</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: CLUSTER_COLORS.MEDIUM }} />
+                <span className="text-xs text-gray-600">100-750 stones</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: CLUSTER_COLORS.LARGE }} />
+                <span className="text-xs text-gray-600">&gt; 750 stones</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-red-500 border-2 border-white" />
+                <span className="text-xs text-gray-600">Unvisited stone</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-green-500 border-2 border-white" />
+                <span className="text-xs text-gray-600">Visited stone</span>
+              </div>
+            </div>
+          </div>
 
           {/* Authentication Section */}
           {authStore.user && authStore.isEmailConfirmed ? (
-            <View className="p-4 border-t border-gray-200">
-              <Text className="text-sm text-gray-600 mb-2">
-                Signed in as <Text className="font-medium">{authStore.user.email}</Text>
-              </Text>
-              <View className="gap-2">
-                <Link href="/profile" asChild>
-                  <Pressable className="w-full px-3 py-2 border border-primary rounded active:bg-primary/10 flex-row items-center justify-center">
-                    <Text className="text-sm text-primary">View Profile</Text>
-                  </Pressable>
+            <div className="p-4 border-t border-gray-200">
+              <div className="text-sm text-gray-600 mb-2">
+                Signed in as <span className="font-medium">{authStore.user.email}</span>
+              </div>
+              <div className="flex flex-col gap-2">
+                <Link to="/profile" className="w-full px-3 py-2 border border-primary rounded hover:bg-primary/10 flex items-center justify-center text-sm text-primary">
+                  View Profile
                 </Link>
-                <Pressable
-                  onPress={async () => {
+                <button
+                  onClick={async () => {
                     try {
                       await authStore.signOut();
                     } catch (err) {
                       console.error('Sign out error:', err);
                     }
                   }}
-                  className="w-full px-3 py-2 bg-primary rounded active:bg-primary/90 flex items-center"
+                  className="w-full px-3 py-2 bg-primary rounded hover:bg-blue-600 flex items-center justify-center text-sm text-white transition-colors"
                 >
-                  <Text className="text-sm text-white">Sign Out</Text>
-                </Pressable>
-              </View>
-            </View>
+                  Sign Out
+                </button>
+              </div>
+            </div>
           ) : (
-            <View className="p-4 border-t border-gray-200">
-              <Link href="/login" asChild>
-                <Pressable className="w-full px-4 py-3 bg-primary rounded-lg items-center active:bg-primary/90">
-                  <Text className="text-sm font-medium text-white">Sign In</Text>
-                </Pressable>
+            <div className="p-4 border-t border-gray-200 flex flex-col items-center">
+              <Link to="/login" className="w-full px-4 py-3 bg-primary rounded-lg flex items-center justify-center hover:bg-blue-600 transition-colors">
+                <span className="text-sm font-medium text-white">Sign In</span>
               </Link>
-              <Text className="text-xs text-gray-500 text-center mt-2">
+              <div className="text-xs text-gray-500 text-center mt-2">
                 Sign in to track your runestone visits
-              </Text>
-            </View>
+              </div>
+            </div>
           )}
-        </ScrollView>
+        </div>
 
         {/* Footer */}
-        <View className="p-4 border-t border-gray-200 bg-gray-50">
-          <View className="flex-row flex-wrap justify-center gap-1">
-            <Link href="/about"><Text className="text-xs text-gray-500 underline">About</Text></Link>
-            <Text className="text-xs text-gray-500">•</Text>
-            <Link href="/privacy"><Text className="text-xs text-gray-500 underline">Privacy Policy</Text></Link>
-            <Text className="text-xs text-gray-500">•</Text>
-            <Link href="/license"><Text className="text-xs text-gray-500 underline">License</Text></Link>
-          </View>
-          <Text className="text-xs text-gray-500 text-center mt-1">© 2025 Denis Filonov</Text>
-        </View>
-      </View>
+        <div className="p-4 border-t border-gray-200 bg-gray-50 mt-auto">
+          <div className="flex flex-wrap justify-center gap-1">
+            <Link to="/about" className="text-xs text-gray-500 hover:text-gray-700 underline">About</Link>
+            <span className="text-xs text-gray-500">•</span>
+            <Link to="/privacy" className="text-xs text-gray-500 hover:text-gray-700 underline">Privacy Policy</Link>
+            <span className="text-xs text-gray-500">•</span>
+            <Link to="/license" className="text-xs text-gray-500 hover:text-gray-700 underline">License</Link>
+          </div>
+          <div className="text-xs text-gray-500 text-center mt-1">© 2025 Denis Filonov</div>
+        </div>
+      </div>
     </>
   );
 });

@@ -1,40 +1,34 @@
-import { useRouter } from 'expo-router';
-import { View, Text, Pressable } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigate } from 'react-router-dom';
 
 interface PageHeaderProps {
   title: string;
 }
 
 export const PageHeader = ({ title }: PageHeaderProps) => {
-  const insets = useSafeAreaInsets();
-  const router = useRouter();
+  const navigate = useNavigate();
 
   const handleBack = () => {
-    if (router.canGoBack()) {
-      router.back();
+    if (window.history.length > 1) {
+      navigate(-1);
     } else {
-      router.push('/');
+      navigate('/');
     }
   };
 
   return (
-    <View
-      className="bg-white shadow-sm border-t border-gray-200"
-      style={{ paddingTop: insets.top }}
-    >
-      <View className="px-4 py-3">
-        <View className="flex-row items-center gap-3">
-          <Pressable
-            onPress={handleBack}
-            className="p-3 -ml-3 active:opacity-50"
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+    <div className="bg-white shadow-sm border-b border-gray-200">
+      <div className="px-4 py-3 pb-3">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleBack}
+            className="p-3 -ml-3 hover:opacity-75 transition-opacity"
+            aria-label="Go Back"
           >
-            <Text className="text-primary text-3xl font-light">‹</Text>
-          </Pressable>
-          <Text className="text-xl font-semibold text-gray-900 flex-1">{title}</Text>
-        </View>
-      </View>
-    </View>
+            <span className="text-primary text-3xl font-light leading-none">‹</span>
+          </button>
+          <h1 className="text-xl font-semibold text-gray-900 flex-1 m-0">{title}</h1>
+        </div>
+      </div>
+    </div>
   );
 };
