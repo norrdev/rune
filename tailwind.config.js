@@ -7,7 +7,11 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#000000', // Tailwind blue-500
+        primary: {
+          DEFAULT: '#866c53',
+          dark: '#6b5642',
+          light: '#a8947f',
+        },
       }
     },
   },

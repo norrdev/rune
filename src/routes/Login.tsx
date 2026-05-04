@@ -99,7 +99,7 @@ export const Login = observer(function LoginPage() {
                     <button
                         onClick={handleResetPassword}
                         disabled={loading}
-                        className={`w-full px-4 py-3 bg-primary rounded-lg text-white font-medium mb-6 hover:bg-blue-600 transition ${loading ? 'opacity-50' : ''}`}
+                        className={`w-full px-4 py-3 bg-primary rounded-lg text-white font-medium mb-6 hover:bg-primary-dark transition ${loading ? 'opacity-50' : ''}`}
                     >
                         {loading ? 'Sending...' : 'Reset Password'}
                     </button>
@@ -110,7 +110,7 @@ export const Login = observer(function LoginPage() {
                             setError(null);
                             setSuccess(null);
                         }}
-                        className="w-full py-2 text-sm text-primary underline hover:text-blue-700"
+                        className="w-full py-2 text-sm text-primary underline hover:text-primary-dark"
                     >
                         Back to Sign In
                     </button>
@@ -140,7 +140,7 @@ export const Login = observer(function LoginPage() {
                     <button
                         onClick={handleMagicLink}
                         disabled={loading}
-                        className={`w-full px-4 py-3 bg-primary rounded-lg text-white font-medium mb-6 hover:bg-blue-600 transition ${loading ? 'opacity-50' : ''}`}
+                        className={`w-full px-4 py-3 bg-primary rounded-lg text-white font-medium mb-6 hover:bg-primary-dark transition ${loading ? 'opacity-50' : ''}`}
                     >
                         {loading ? 'Sending...' : 'Send Magic Link'}
                     </button>
@@ -151,7 +151,7 @@ export const Login = observer(function LoginPage() {
                             setError(null);
                             setSuccess(null);
                         }}
-                        className="w-full py-2 text-sm text-primary underline hover:text-blue-700"
+                        className="w-full py-2 text-sm text-primary underline hover:text-primary-dark"
                     >
                         Back to Sign In
                     </button>
@@ -190,26 +190,26 @@ export const Login = observer(function LoginPage() {
                 <button
                     onClick={handleAuth}
                     disabled={loading}
-                    className={`w-full px-4 py-3 bg-primary rounded-lg text-white font-medium mb-6 hover:bg-blue-600 transition ${loading ? 'opacity-50' : ''}`}
+                    className={`w-full px-4 py-3 bg-primary rounded-lg text-white font-medium mb-6 hover:bg-primary-dark transition ${loading ? 'opacity-50' : ''}`}
                 >
                     {loading ? 'Loading...' : isSignUp ? 'Sign Up' : 'Sign In'}
                 </button>
 
                 <div className="flex flex-col gap-4 items-center">
-                    <button onClick={handleToggleSignUp} className="text-sm text-primary underline hover:text-blue-700">
+                    <button onClick={handleToggleSignUp} className="text-sm text-primary underline hover:text-primary-dark">
                         {isSignUp ? 'Already have an account? Sign In' : 'Need an account? Sign Up'}
                     </button>
 
                     <button
                         onClick={() => setIsForgotPassword(true)}
-                        className="text-sm text-primary underline hover:text-blue-700"
+                        className="text-sm text-primary underline hover:text-primary-dark"
                     >
                         Forgot password?
                     </button>
 
                     <button
                         onClick={() => setIsMagicLink(true)}
-                        className="text-sm text-primary underline hover:text-blue-700"
+                        className="text-sm text-primary underline hover:text-primary-dark"
                     >
                         Sign in with Magic Link
                     </button>

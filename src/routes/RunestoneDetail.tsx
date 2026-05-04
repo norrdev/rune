@@ -88,7 +88,7 @@ export const RunestoneDetail = observer(function RunestoneDetailPage() {
           <div className="text-red-600 text-4xl mb-4">⚠️</div>
           <h2 className="text-2xl font-bold text-gray-800 mb-2">Runestone Not Found</h2>
           <p className="text-gray-600 mb-6">{error}</p>
-          <Link to="/" className="bg-primary px-6 py-2 rounded-lg text-white font-medium hover:bg-blue-600">
+          <Link to="/" className="bg-primary px-6 py-2 rounded-lg text-white font-medium hover:bg-primary-dark">
             ← Back to Map
           </Link>
         </div>

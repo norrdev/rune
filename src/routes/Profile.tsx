@@ -88,7 +88,7 @@ export const Profile = observer(function ProfilePage() {
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">Error</h2>
           <p className="text-gray-600 mb-6">{errorMessage}</p>
-          <Link to="/" className="bg-primary px-6 py-2 rounded-md hover:bg-blue-600 transition text-white font-medium">
+          <Link to="/" className="bg-primary px-6 py-2 rounded-md hover:bg-primary-dark transition text-white font-medium">
             Back to Home
           </Link>
         </div>
@@ -109,7 +109,7 @@ export const Profile = observer(function ProfilePage() {
           <p className="text-gray-600 mb-6">
             Please log in to view your profile and visited runestones.
           </p>
-          <Link to="/" className="bg-primary px-6 py-2 rounded-md hover:bg-blue-600 transition text-white font-medium">
+          <Link to="/" className="bg-primary px-6 py-2 rounded-md hover:bg-primary-dark transition text-white font-medium">
             Back to Home
           </Link>
         </div>
@@ -137,7 +137,7 @@ export const Profile = observer(function ProfilePage() {
           <p className="text-sm text-gray-500 mb-6">
             Once confirmed, you'll be able to view your visited runestones and track your progress.
           </p>
-          <Link to="/" className="bg-primary px-6 py-2 rounded-md hover:bg-blue-600 transition text-white font-medium">
+          <Link to="/" className="bg-primary px-6 py-2 rounded-md hover:bg-primary-dark transition text-white font-medium">
             Back to Home
           </Link>
         </div>
@@ -199,8 +199,8 @@ export const Profile = observer(function ProfilePage() {
               </div>
 
               <div className="flex-1 min-w-[150px] bg-gray-50 rounded-lg p-6">
-                <div className="w-10 h-10 bg-blue-100 rounded-md flex items-center justify-center mb-3">
-                  <span className="text-blue-600 font-bold text-lg">M</span>
+                <div className="w-10 h-10 bg-primary-light/25 rounded-md flex items-center justify-center mb-3">
+                  <span className="text-primary-dark font-bold text-lg">M</span>
                 </div>
                 <div className="text-sm font-medium text-gray-500 mb-1">Total</div>
                 <div className="text-3xl font-semibold text-gray-900">

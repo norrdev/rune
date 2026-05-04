@@ -131,7 +131,7 @@ export const Sidebar = observer(({ visitedCount, visible = false, onClose }: Sid
                       console.error('Sign out error:', err);
                     }
                   }}
-                  className="w-full px-3 py-2 bg-primary rounded hover:bg-blue-600 flex items-center justify-center text-sm text-white transition-colors"
+                  className="w-full px-3 py-2 bg-primary rounded hover:bg-primary-dark flex items-center justify-center text-sm text-white transition-colors"
                 >
                   Sign Out
                 </button>
@@ -139,7 +139,7 @@ export const Sidebar = observer(({ visitedCount, visible = false, onClose }: Sid
             </div>
           ) : (
             <div className="p-4 border-t border-gray-200 flex flex-col items-center">
-              <Link to="/login" className="w-full px-4 py-3 bg-primary rounded-lg flex items-center justify-center hover:bg-blue-600 transition-colors">
+              <Link to="/login" className="w-full px-4 py-3 bg-primary rounded-lg flex items-center justify-center hover:bg-primary-dark transition-colors">
                 <span className="text-sm font-medium text-white">Sign In</span>
               </Link>
               <div className="text-xs text-gray-500 text-center mt-2">
