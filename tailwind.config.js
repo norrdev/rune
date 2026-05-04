@@ -7,7 +7,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#3b82f6', // Tailwind blue-500
+        primary: '#000000', // Tailwind blue-500
       }
     },
   },
