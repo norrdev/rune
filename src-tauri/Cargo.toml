@@ -1,10 +1,10 @@
 [package]
 name = "app"
-version = "0.1.0"
-description = "A Tauri App"
-authors = ["you"]
-license = ""
-repository = ""
+version = "3.0.0"
+description = "Runestone Safari"
+authors = ["Denis Filonov"]
+license = "GPL-3.0"
+repository = "https://github.com/norr/rune"
 edition = "2021"
 rust-version = "1.77.2"
 

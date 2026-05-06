@@ -4,10 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "dev": "vite",
     "start": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "tauri": "tauri",
     "deploy": "wrangler deploy"
   },
   "dependencies": {
