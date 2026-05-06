@@ -1,7 +1,5 @@
 # Runestone Safari
 
-_Version 2.1_
-
 [https://runestonesafari.com/](https://runestonesafari.com/)
 
 Runestone Safari is an interactive map application that allows you to explore Swedish runestones.
@@ -51,3 +49,4 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 ```
+
