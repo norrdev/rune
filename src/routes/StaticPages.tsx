@@ -3,7 +3,7 @@ import { PageHeader } from '../components/PageHeader';
 
 const readmeContent = `# Runestone Safari
 
-_Version 2.1_
+_Version 3.0_
 
 [https://runestonesafari.com/](https://runestonesafari.com/)
 
