@@ -67,9 +67,9 @@ function MarkdownContainer({ title, content }: { title: string, content: string 
       <div className="md:p-8 lg:p-12 flex-1 w-full text-left">
         <div className="md:max-w-4xl md:mx-auto w-full bg-white md:rounded-lg md:shadow-sm md:border md:border-gray-100 overflow-hidden">
           <div className="p-4 md:p-8">
-            <ReactMarkdown
-              className="prose prose-blue max-w-none text-gray-700"
-              components={{
+            <div className="prose prose-blue max-w-none text-gray-700">
+              <ReactMarkdown
+                components={{
                   h1: ({ node, ...props }) => <h1 className="text-3xl font-bold text-primary mb-6" {...props} />,
                   h2: ({ node, ...props }) => <h2 className="text-xl font-semibold text-primary mt-8 mb-4 border-b pb-2" {...props} />,
                   h3: ({ node, ...props }) => <h3 className="text-lg font-semibold text-primary mt-6 mb-3" {...props} />,
@@ -77,10 +77,11 @@ function MarkdownContainer({ title, content }: { title: string, content: string 
                   ul: ({ node, ...props }) => <ul className="list-disc ml-6 mb-4 space-y-2" {...props} />,
                   a: ({ node, ...props }) => <a className="text-primary hover:underline" target="_blank" rel="noopener noreferrer" {...props} />,
                   code: ({ node, ...props }) => <code className="bg-gray-100 px-1 py-0.5 rounded font-mono text-sm" {...props} />
-              }}
-            >
-              {content}
-            </ReactMarkdown>
+                }}
+              >
+                {content}
+              </ReactMarkdown>
+            </div>
           </div>
         </div>
       </div>
