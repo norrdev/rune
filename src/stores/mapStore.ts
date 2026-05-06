@@ -240,24 +240,10 @@ class MapStore {
     this.setIsLocating(true);
 
     try {
-      if (this.platform === 'web') {
-        // Web: use browser geolocation API
-        await this.getCurrentLocationWeb();
-      } else {
-        // Native: use MapLibre location manager
-        await this.getCurrentLocationNative();
-      }
+      await this.getCurrentLocationWeb();
     } catch (error) {
       console.error('Error getting location:', error);
-      const errorMessage = 'Unable to get your current location';
-
-      if (this.platform === 'web') {
-        alert(errorMessage);
-      } else {
-        // Dynamically import Alert for native
-        const { Alert } = await import('react-native');
-        Alert.alert('Location Error', errorMessage);
-      }
+      alert('Unable to get your current location');
     } finally {
       runInAction(() => {
         this.setIsLocating(false);
@@ -288,39 +274,6 @@ class MapStore {
         },
       );
     });
-  }
-
-  private async getCurrentLocationNative(): Promise<void> {
-    // Dynamically import React Native modules only when needed
-    const { Platform, PermissionsAndroid } = await import('react-native');
-    const MapLibreGL = await import('@maplibre/maplibre-react-native');
-
-    // Request location permission on Android
-    if (Platform.OS === 'android') {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-        {
-          title: 'Location Permission',
-          message: 'This app needs access to your location to center the map on your position.',
-          buttonNeutral: 'Ask Me Later',
-          buttonNegative: 'Cancel',
-          buttonPositive: 'OK',
-        },
-      );
-
-      if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-        throw new Error('Location permission denied');
-      }
-    }
-
-    // Get user location from MapLibre
-    const location = await MapLibreGL.default.locationManager.getLastKnownLocation();
-
-    if (location) {
-      this.flyToLocation(location.coords.longitude, location.coords.latitude, 15);
-    } else {
-      throw new Error('Location not available');
-    }
   }
 
   // ============ Computed Values ============

@@ -1,7 +1,5 @@
 import { makeObservable, observable, computed, action, runInAction } from 'mobx';
 import type { User } from '@supabase/supabase-js';
-import { Platform } from 'react-native';
-import * as Linking from 'expo-linking';
 import { supabase } from '../services/supabase';
 
 class AuthStore {
@@ -78,7 +76,7 @@ class AuthStore {
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: Platform.OS === 'web' ? `${window.location.origin}/auth/callback` : Linking.createURL('/auth/callback'),
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
     if (error) throw error;
@@ -94,7 +92,7 @@ class AuthStore {
 
   async resetPassword(email: string) {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: Platform.OS === 'web' ? `${window.location.origin}/reset-password` : Linking.createURL('/reset-password'),
+      redirectTo: `${window.location.origin}/reset-password`,
     });
     if (error) throw error;
   }

@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { View, Text, TextInput, Pressable } from 'react-native';
 import { observer } from 'mobx-react-lite';
 import { authStore } from '../../../stores/authStore';
-import { Link } from 'expo-router';
+import { Link } from 'react-router-dom';
 
 export const AuthWidget = observer(() => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -79,176 +78,175 @@ export const AuthWidget = observer(() => {
 
   if (authStore.loading) {
     return (
-        <View className="p-4">
-            <Text className="text-sm text-gray-500">Loading...</Text>
-        </View>
+        <div className="p-4">
+            <span className="text-sm text-gray-500">Loading...</span>
+        </div>
     );
   }
 
   if (authStore.user && !authStore.isEmailConfirmed) {
     return (
-      <View className="p-4 border-t border-gray-200">
-        <Text className="text-sm text-gray-600 mb-3">
-          Signed up as <Text className="font-medium">{authStore.user.email}</Text>
-        </Text>
-        <View className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-3 flex-row items-start">
-             {/* Icon placeholder (simplified) */}
-             <Text className="text-yellow-600 mr-2">⚠️</Text>
-            <View className="flex-1">
-              <Text className="text-sm font-medium text-yellow-800">Email confirmation required</Text>
-              <Text className="text-sm text-yellow-700 mt-1">
+      <div className="p-4 border-t border-gray-200">
+        <div className="text-sm text-gray-600 mb-3">
+          Signed up as <span className="font-medium">{authStore.user.email}</span>
+        </div>
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-3 flex items-start">
+             <span className="text-yellow-600 mr-2">⚠️</span>
+            <div className="flex-1">
+              <div className="text-sm font-medium text-yellow-800">Email confirmation required</div>
+              <div className="text-sm text-yellow-700 mt-1">
                 Please check your email and click the confirmation link to access your profile.
-              </Text>
-            </View>
-        </View>
-        <Pressable
-          onPress={handleSignOut}
-          className="w-full px-3 py-2 border border-gray-300 rounded active:bg-gray-50 flex items-center"
+              </div>
+            </div>
+        </div>
+        <button
+          onClick={handleSignOut}
+          className="w-full px-3 py-2 border border-gray-300 rounded hover:bg-gray-50 flex items-center justify-center transition-colors focus:ring-2 focus:ring-primary focus:outline-none"
         >
-          <Text className="text-sm text-gray-700">Sign Out</Text>
-        </Pressable>
-      </View>
+          <span className="text-sm text-gray-700">Sign Out</span>
+        </button>
+      </div>
     );
   }
 
   if (authStore.user && authStore.isEmailConfirmed) {
     return (
-      <View className="p-4 border-t border-gray-200">
-        <Text className="text-sm text-gray-600 mb-2">
-          Signed in as <Text className="font-medium">{authStore.user.email}</Text>
-        </Text>
-        <View className="gap-2">
-          <Link href="/profile" asChild>
-            <Pressable className="w-full px-3 py-2 border border-primary rounded active:bg-primary/10 flex-row items-center justify-center">
-                <Text className="text-sm text-primary">View Profile</Text>
-            </Pressable>
-          </Link>
-          <Pressable
-            onPress={handleSignOut}
-            className="w-full px-3 py-2 bg-primary rounded active:bg-primary/90 flex items-center"
+      <div className="p-4 border-t border-gray-200">
+        <div className="text-sm text-gray-600 mb-2">
+          Signed in as <span className="font-medium">{authStore.user.email}</span>
+        </div>
+        <div className="flex flex-col gap-2">
+          <Link
+            to="/profile"
+            className="w-full px-3 py-2 border border-primary rounded hover:bg-primary/10 flex items-center justify-center transition-colors focus:ring-2 focus:ring-primary focus:outline-none"
           >
-            <Text className="text-sm text-white">Sign Out</Text>
-          </Pressable>
-        </View>
-      </View>
+              <span className="text-sm text-primary">View Profile</span>
+          </Link>
+          <button
+            onClick={handleSignOut}
+            className="w-full px-3 py-2 bg-primary rounded hover:bg-primary/90 flex items-center justify-center transition-colors focus:ring-2 focus:ring-primary focus:outline-none"
+          >
+            <span className="text-sm text-white border-0 bg-transparent cursor-pointer font-inherit">Sign Out</span>
+          </button>
+        </div>
+      </div>
     );
   }
 
   if (isForgotPassword) {
     return (
-      <View className="p-4 border-t border-gray-200 gap-3">
-          <TextInput
+      <div className="p-4 border-t border-gray-200 flex flex-col gap-3">
+          <input
+            type="email"
             placeholder="Enter your email"
             value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            className="w-full px-3 py-2 text-sm border border-gray-300 rounded"
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-primary focus:outline-none"
           />
-          {error && <Text className="text-sm text-red-500">{error}</Text>}
-          {success && <Text className="text-sm text-green-500">{success}</Text>}
-          <Pressable
-            onPress={handleResetPassword}
+          {error && <span className="text-sm text-red-500">{error}</span>}
+          {success && <span className="text-sm text-green-500">{success}</span>}
+          <button
+            onClick={handleResetPassword}
             disabled={loading}
-            className={`w-full px-3 py-2 bg-primary rounded flex items-center ${loading ? 'opacity-50' : ''}`}
+            className={`w-full px-3 py-2 bg-primary text-white rounded flex items-center justify-center focus:ring-2 focus:ring-primary focus:outline-none ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-primary/90 transition-colors cursor-pointer'}`}
           >
-            <Text className="text-sm text-white">{loading ? 'Sending...' : 'Reset Password'}</Text>
-          </Pressable>
-          <Pressable
-            onPress={() => {
+            <span className="text-sm font-inherit bg-transparent border-0">{loading ? 'Sending...' : 'Reset Password'}</span>
+          </button>
+          <button
+            onClick={() => {
               setIsForgotPassword(false);
               setError(null);
               setSuccess(null);
             }}
-            className="w-full items-center"
+            className="w-full flex items-center justify-center bg-transparent border-0 cursor-pointer p-2 hover:bg-gray-50 focus:ring-2 focus:ring-primary rounded focus:outline-none"
           >
-            <Text className="text-sm text-primary underline">Back to Sign In</Text>
-          </Pressable>
-      </View>
+            <span className="text-sm text-primary underline">Back to Sign In</span>
+          </button>
+      </div>
     );
   }
 
   if (isMagicLink) {
     return (
-      <View className="p-4 border-t border-gray-200 gap-3">
-          <TextInput
+      <div className="p-4 border-t border-gray-200 flex flex-col gap-3">
+          <input
+            type="email"
             placeholder="Enter your email"
             value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            className="w-full px-3 py-2 text-sm border border-gray-300 rounded"
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none"
           />
-          {error && <Text className="text-sm text-red-500">{error}</Text>}
-          {success && <Text className="text-sm text-green-500">{success}</Text>}
-          <Pressable
-            onPress={handleMagicLink}
+          {error && <span className="text-sm text-red-500">{error}</span>}
+          {success && <span className="text-sm text-green-500">{success}</span>}
+          <button
+            onClick={handleMagicLink}
             disabled={loading}
-            className={`w-full px-3 py-2 bg-primary rounded flex items-center ${loading ? 'opacity-50' : ''}`}
+            className={`w-full px-3 py-2 bg-primary rounded flex items-center justify-center text-white focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-primary/90 transition-colors cursor-pointer border-0'}`}
           >
-            <Text className="text-sm text-white">{loading ? 'Sending...' : 'Send Magic Link'}</Text>
-          </Pressable>
-          <Pressable
-            onPress={() => {
+            <span className="text-sm font-inherit bg-transparent border-0">{loading ? 'Sending...' : 'Send Magic Link'}</span>
+          </button>
+          <button
+            onClick={() => {
               setIsMagicLink(false);
               setError(null);
               setSuccess(null);
             }}
-            className="w-full items-center"
+            className="w-full flex items-center justify-center bg-transparent border-0 cursor-pointer p-2 hover:bg-gray-50 focus:ring-2 focus:ring-primary rounded focus:outline-none"
           >
-            <Text className="text-sm text-primary underline">Back to Sign In</Text>
-          </Pressable>
-      </View>
+            <span className="text-sm text-primary underline">Back to Sign In</span>
+          </button>
+      </div>
     );
   }
 
   return (
-    <View className="p-4 border-t border-gray-200 gap-3">
-        <TextInput
+    <div className="p-4 border-t border-gray-200 flex flex-col gap-3">
+        <input
+          type="email"
           placeholder="Email"
           value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-          keyboardType="email-address"
-          className="w-full px-3 py-2 text-sm border border-gray-300 rounded"
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none"
         />
-        <TextInput
+        <input
+          type="password"
           placeholder="Password"
           value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          className="w-full px-3 py-2 text-sm border border-gray-300 rounded"
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none"
         />
-        {error && <Text className="text-sm text-red-500">{error}</Text>}
-        {success && <Text className="text-sm text-green-500">{success}</Text>}
-        <Pressable
-          onPress={handleAuth}
+        {error && <span className="text-sm text-red-500">{error}</span>}
+        {success && <span className="text-sm text-green-500">{success}</span>}
+        <button
+          onClick={handleAuth}
           disabled={loading}
-          className={`w-full px-3 py-2 bg-primary rounded flex items-center ${loading ? 'opacity-50' : ''}`}
+          className={`w-full px-3 py-2 bg-primary rounded flex items-center justify-center text-white focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 border-0 ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-primary/90 transition-colors cursor-pointer'}`}
         >
-          <Text className="text-sm text-white">{loading ? 'Loading...' : isSignUp ? 'Sign Up' : 'Sign In'}</Text>
-        </Pressable>
-        <View className="gap-2">
-          <Pressable onPress={handleToggleSignUp} className="w-full items-center">
-             <Text className="text-sm text-primary underline">
+          <span className="text-sm font-inherit">{loading ? 'Loading...' : isSignUp ? 'Sign Up' : 'Sign In'}</span>
+        </button>
+        <div className="flex flex-col gap-2">
+          <button onClick={handleToggleSignUp} className="w-full flex items-center justify-center bg-transparent border-0 cursor-pointer p-2 hover:bg-gray-50 focus:ring-2 focus:ring-primary rounded focus:outline-none">
+             <span className="text-sm text-primary underline">
                 {isSignUp ? 'Already have an account? Sign In' : 'Need an account? Sign Up'}
-             </Text>
-          </Pressable>
-          <Pressable
-            onPress={() => setIsForgotPassword(true)}
-            className="w-full items-center"
+             </span>
+          </button>
+          <button
+            onClick={() => setIsForgotPassword(true)}
+            className="w-full flex items-center justify-center bg-transparent border-0 cursor-pointer p-2 hover:bg-gray-50 focus:ring-2 focus:ring-primary rounded focus:outline-none"
           >
-            <Text className="text-sm text-primary underline">
+            <span className="text-sm text-primary underline">
                 Forgot password?
-            </Text>
-          </Pressable>
-          <Pressable
-            onPress={() => setIsMagicLink(true)}
-            className="w-full items-center"
+            </span>
+          </button>
+          <button
+            onClick={() => setIsMagicLink(true)}
+            className="w-full flex items-center justify-center bg-transparent border-0 cursor-pointer p-2 hover:bg-gray-50 focus:ring-2 focus:ring-primary rounded focus:outline-none"
           >
-            <Text className="text-sm text-primary underline">
+            <span className="text-sm text-primary underline">
                 Sign in with Magic Link
-            </Text>
-          </Pressable>
-        </View>
-    </View>
+            </span>
+          </button>
+        </div>
+    </div>
   );
 });

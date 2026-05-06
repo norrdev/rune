@@ -1,8 +1,19 @@
 /** @type {import('tailwindcss').Config} */
-export const darkMode = 'class';
-export const content = ["./app/**/*.{js,jsx,ts,tsx}", "./src/components/**/*.{js,jsx,ts,tsx}"];
-export const theme = {
-  extend: {},
-};
-export const presets = [require("nativewind/preset")];
-export const plugins = [];
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          DEFAULT: '#866c53',
+          dark: '#6b5642',
+          light: '#a8947f',
+        },
+      }
+    },
+  },
+  plugins: [],
+}

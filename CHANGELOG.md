@@ -16,3 +16,7 @@
 - Added runestone modal.
 - Added runestone preview pictures.
 
+## 3.0
+- Refactoring of the codebase, usung Tauri.
+- Bug Fixes.
+

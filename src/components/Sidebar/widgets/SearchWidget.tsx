@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { View, Text, TextInput, Pressable, ActivityIndicator, ScrollView, Platform } from 'react-native';
 import { observer } from 'mobx-react-lite';
 import { searchStore } from '../../../stores/searchStore';
 
@@ -14,7 +13,8 @@ export const SearchWidget = observer(({ onClose }: SearchWidgetProps) => {
     searchStore.performSearch(searchQuery);
   };
 
-  const handleInputChange = (text: string) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const text = e.target.value;
     setSearchQuery(text);
 
     // Perform search as user types
@@ -26,69 +26,71 @@ export const SearchWidget = observer(({ onClose }: SearchWidgetProps) => {
   };
 
   return (
-    <View className="p-4">
-      <View className="relative">
-        <TextInput
+    <div className="p-4">
+      <div className="relative">
+        <input
+          type="text"
           placeholder="Search runestones..."
           value={searchQuery}
-          onChangeText={handleInputChange}
-          onSubmitEditing={handleSearch}
-          className="w-full px-3 py-2 pr-12 text-sm border border-gray-300 rounded"
+          onChange={handleInputChange}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') handleSearch();
+          }}
+          className="w-full px-3 py-2 pr-12 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
         />
-        <Pressable
-          onPress={handleSearch}
+        <button
+          onClick={handleSearch}
           disabled={searchStore.isLoading}
-          className={`absolute right-2 top-0 bottom-0 justify-center p-1 ${searchStore.isLoading ? 'opacity-50' : ''}`}
+          className={`absolute right-2 top-0 bottom-0 justify-center p-1 font-medium ${searchStore.isLoading ? 'opacity-50' : ''}`}
         >
           {searchStore.isLoading ? (
-            <ActivityIndicator size="small" color="#000" />
+            <div className="w-4 h-4 border-2 border-gray-300 border-t-black rounded-full animate-spin"></div>
           ) : (
-            <Text className="text-primary">Search</Text>
+            <span className="text-primary">Search</span>
           )}
-        </Pressable>
-      </View>
+        </button>
+      </div>
 
       {/* Search Results */}
       {searchStore.hasSearched && (
-        <View className="mt-4">
+        <div className="mt-4">
           {searchStore.isLoading ? (
-            <Text className="text-sm text-gray-500 text-center py-2">Searching...</Text>
+            <div className="text-sm text-gray-500 text-center py-2">Searching...</div>
           ) : searchStore.hasResults ? (
-            <View className="gap-2">
-              <Text className="text-sm text-gray-600">
+            <div className="flex flex-col gap-2">
+              <div className="text-sm text-gray-600">
                 Found {searchStore.resultCount} result{searchStore.resultCount !== 1 ? 's' : ''}
-              </Text>
-              <ScrollView className="max-h-64" showsVerticalScrollIndicator={true}>
+              </div>
+              <div className="max-h-64 overflow-y-auto">
                 {searchStore.searchResults.slice(0, 10).map((runestone) => (
-                  <Pressable
+                  <button
                     key={runestone.id}
-                    className="p-2 bg-gray-50 rounded mb-1 active:bg-gray-100"
-                    onPress={() => {
-                      // On native, close the sidebar before showing the modal
-                      if (Platform.OS !== 'web' && onClose) {
+                    className="w-full text-left p-2 bg-gray-50 rounded mb-1 hover:bg-gray-100 transition-colors"
+                    onClick={() => {
+                      if (window.innerWidth < 768 && onClose) {
                         onClose();
                       }
                       searchStore.setSelectedRunestone(runestone);
                     }}
                   >
-                    <Text className="font-medium text-sm">{runestone.signature_text}</Text>
-                    <Text className="text-xs text-gray-500">
+                    <div className="font-medium text-sm">{runestone.signature_text}</div>
+                    <div className="text-xs text-gray-500">
                       {runestone.found_location}, {runestone.parish}
-                    </Text>
-                  </Pressable>
+                    </div>
+                  </button>
                 ))}
                 {searchStore.resultCount > 10 && (
-                  <Text className="text-xs text-gray-500 text-center py-1">
+                  <div className="text-xs text-gray-500 text-center py-1">
                     Showing first 10 of {searchStore.resultCount} results
-                  </Text>
+                  </div>
                 )}
-              </ScrollView>
-            </View>
+              </div>
+            </div>
           ) : (
-            <Text className="text-sm text-gray-500 text-center py-2">No runestones found</Text>
+            <div className="text-sm text-gray-500 text-center py-2">No runestones found</div>
           )}
-        </View>
+        </div>
       )}
-    </View>
+    </div>
   );
 });
