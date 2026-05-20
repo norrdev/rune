@@ -10,7 +10,8 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "deploy": "wrangler deploy",
-    "tauri:icons": "tauri icon src-tauri/icons/icon-manifest.json && node scripts/sync-android-branding.mjs"
+    "tauri:icons": "tauri icon src-tauri/icons/icon-manifest.json && node scripts/sync-android-branding.mjs",
+    "android:release": "node scripts/android-release.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.103.3",
