@@ -593,7 +593,7 @@ _END OF TERMS AND CONDITIONS_
 
 function MarkdownContainer({ title, content }: { title: string; content: string }) {
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <div className="flex flex-1 flex-col h-full min-h-0 overflow-y-auto bg-gray-50">
       <PageHeader title={title} />
       <div className="md:p-8 lg:p-12 flex-1 w-full text-left">
         <div className="md:max-w-4xl md:mx-auto w-full bg-white md:rounded-lg md:shadow-sm md:border md:border-gray-100 overflow-hidden">
@@ -653,7 +653,7 @@ export function License() {
 
 export function Privacy() {
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 text-left">
+    <div className="flex flex-1 flex-col h-full min-h-0 overflow-y-auto bg-gray-50 text-left">
       <PageHeader title="Privacy Policy" />
       <div className="md:p-8 lg:p-12 flex-1 w-full text-left">
         <div className="md:max-w-4xl md:mx-auto w-full bg-white md:rounded-lg md:shadow-sm md:border md:border-gray-100 overflow-hidden">

@@ -8,7 +8,7 @@ import { RunestoneDetail } from './routes/RunestoneDetail';
 function App() {
   return (
     <Router>
-      <div className="w-full h-screen overflow-y-auto overflow-x-hidden text-gray-900 bg-white">
+      <div className="flex min-h-0 w-full flex-1 flex-col overflow-hidden text-gray-900 bg-white">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/runestones/:slug" element={<RunestoneDetail />} />

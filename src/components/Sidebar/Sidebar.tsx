@@ -47,17 +47,17 @@ export const Sidebar = observer(({ visitedCount, visible = false, onClose }: Sid
         className={`bg-white border-r border-gray-200 flex flex-col z-50 relative
           ${isMobile ? 'absolute top-0 left-0 h-full w-80' : 'w-64 max-w-sm h-full'}
         `}
-        style={isMobile ? { paddingTop: 'env(safe-area-inset-top)' } : {}}
+        style={
+          isMobile
+            ? { paddingTop: 'max(env(safe-area-inset-top, 0px), 2.75rem)' }
+            : {}
+        }
       >
         {/* Close button for mobile */}
         {isMobile && (
           <button
             type="button"
-            className="absolute z-50 bg-white rounded-full w-12 h-12 flex items-center justify-center shadow"
-            style={{
-              top: 16,
-              right: 16,
-            }}
+            className="absolute z-50 bg-white rounded-full w-12 h-12 flex items-center justify-center shadow top-4 right-4"
             onClick={onClose}
           >
             <span className="text-gray-600 font-bold text-lg">✕</span>

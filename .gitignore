@@ -12,8 +12,9 @@ dist
 dist-ssr
 *.local
 .expo
-android
-ios
+# Only ignore native dirs at repo root (e.g. Expo/Capacitor), not Tauri’s src-tauri/gen/android
+/android
+/ios
 
 # Editor directories and files
 .vscode/*

@@ -14,16 +14,12 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="flex flex-1 flex-row bg-gray-50 h-full w-full overflow-hidden">
-      {/* Mobile Menu Button */}
+    <div className="flex flex-1 min-h-0 flex-row bg-gray-50 h-full w-full overflow-hidden">
+      {/* Mobile menu: fixed to viewport so we are not clipped by #root padding context; max() gives a minimum inset when env(safe-area-*) is 0 (common on Android WebView). */}
       {isMobile && !sidebarOpen && (
         <button
           type="button"
-          className="absolute z-30 bg-white rounded-full w-12 h-12 flex items-center justify-center border border-gray-200 shadow-md hover:bg-gray-50 focus:outline-none"
-          style={{
-            top: 16,
-            left: 16,
-          }}
+          className="fixed z-30 bg-white rounded-full w-12 h-12 flex items-center justify-center border border-gray-200 shadow-md hover:bg-gray-50 focus:outline-none top-[calc(0.25rem+max(2.75rem,env(safe-area-inset-top,0px)))] left-[calc(0.25rem+max(1rem,env(safe-area-inset-left,0px)))]"
           onClick={() => setSidebarOpen(true)}
           aria-label="Open Menu"
         >

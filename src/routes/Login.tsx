@@ -80,7 +80,7 @@ export const Login = observer(function LoginPage() {
 
   if (isForgotPassword) {
     return (
-      <div className="flex flex-col min-h-screen bg-white">
+      <div className="flex flex-1 min-h-0 h-full flex-col overflow-y-auto bg-white">
         <PageHeader title="Reset Password" />
         <div className="flex-1 flex flex-col px-4 py-6 md:px-8 md:py-8 w-full max-w-lg mx-auto justify-center">
           <p className="text-base text-gray-600 mb-6">
@@ -125,7 +125,7 @@ export const Login = observer(function LoginPage() {
 
   if (isMagicLink) {
     return (
-      <div className="flex flex-col min-h-screen bg-white">
+      <div className="flex flex-1 min-h-0 h-full flex-col overflow-y-auto bg-white">
         <PageHeader title="Magic Link Sign In" />
         <div className="flex-1 flex flex-col px-4 py-6 md:px-8 md:py-8 w-full max-w-lg mx-auto justify-center">
           <p className="text-base text-gray-600 mb-6">
@@ -169,7 +169,7 @@ export const Login = observer(function LoginPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-white">
+    <div className="flex flex-1 min-h-0 h-full flex-col overflow-y-auto bg-white">
       <PageHeader title={isSignUp ? 'Create Account' : 'Sign In'} />
       <div className="flex-1 flex flex-col px-4 py-6 md:px-8 md:py-8 w-full max-w-lg mx-auto justify-center">
         <p className="text-base text-gray-600 mb-6">

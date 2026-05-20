@@ -70,7 +70,7 @@ export const RunestoneDetail = observer(function RunestoneDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col min-h-screen bg-gray-50">
+      <div className="flex flex-1 min-h-0 h-full flex-col overflow-y-auto bg-gray-50">
         <PageHeader title="Loading..." />
         <div className="flex-1 flex flex-col items-center justify-center">
           <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
@@ -82,7 +82,7 @@ export const RunestoneDetail = observer(function RunestoneDetailPage() {
 
   if (error || !runestone) {
     return (
-      <div className="flex flex-col min-h-screen bg-gray-50">
+      <div className="flex flex-1 min-h-0 h-full flex-col overflow-y-auto bg-gray-50">
         <PageHeader title="Error" />
         <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
           <div className="text-red-600 text-4xl mb-4">⚠️</div>
@@ -100,7 +100,7 @@ export const RunestoneDetail = observer(function RunestoneDetailPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 overflow-y-auto">
+    <div className="flex flex-1 min-h-0 h-full flex-col overflow-y-auto bg-gray-50">
       <PageHeader title={runestone.signature_text || `Runestone ${runestone.id}`} />
 
       <div className="px-4 py-4 md:py-8 md:max-w-4xl md:mx-auto w-full">

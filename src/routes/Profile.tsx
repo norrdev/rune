@@ -71,7 +71,7 @@ export const Profile = observer(function ProfilePage() {
   // Loading state
   if (authStore.loading || visitedRunestonesStore.loading || detailsLoading) {
     return (
-      <div className="flex flex-col min-h-screen bg-gray-50 overflow-y-auto items-center justify-center p-4">
+      <div className="flex flex-1 flex-col h-full min-h-0 bg-gray-50 overflow-y-auto items-center justify-center p-4">
         <PageHeader title="Profile" />
         <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mt-10"></div>
         <p className="mt-4 text-gray-600">Loading profile...</p>
@@ -83,7 +83,7 @@ export const Profile = observer(function ProfilePage() {
   if (visitedRunestonesStore.error || detailsError) {
     const errorMessage = visitedRunestonesStore.error || detailsError;
     return (
-      <div className="flex flex-col min-h-screen bg-gray-50 overflow-y-auto">
+      <div className="flex flex-1 flex-col h-full min-h-0 bg-gray-50 overflow-y-auto">
         <PageHeader title="Error" />
         <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
           <div className="mb-4 bg-red-100 p-4 rounded-full">
@@ -107,7 +107,7 @@ export const Profile = observer(function ProfilePage() {
   // Not Logged In
   if (!authStore.user) {
     return (
-      <div className="flex flex-col min-h-screen bg-gray-50 overflow-y-auto">
+      <div className="flex flex-1 flex-col h-full min-h-0 bg-gray-50 overflow-y-auto">
         <PageHeader title="Not Logged In" />
         <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
           <div className="mb-4 bg-gray-200 p-4 rounded-full">
@@ -131,7 +131,7 @@ export const Profile = observer(function ProfilePage() {
   // Email Confirmation Required
   if (authStore.user && !authStore.isEmailConfirmed) {
     return (
-      <div className="flex flex-col min-h-screen bg-gray-50 overflow-y-auto">
+      <div className="flex flex-1 flex-col h-full min-h-0 bg-gray-50 overflow-y-auto">
         <PageHeader title="Email Required" />
         <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
           <div className="mb-4 bg-yellow-100 p-4 rounded-full">
@@ -159,7 +159,7 @@ export const Profile = observer(function ProfilePage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 overflow-y-auto">
+    <div className="flex flex-1 flex-col h-full min-h-0 bg-gray-50 overflow-y-auto">
       <PageHeader title="Profile" />
 
       <div className="p-4 md:p-8 lg:p-12 flex-1 w-full max-w-5xl mx-auto">
