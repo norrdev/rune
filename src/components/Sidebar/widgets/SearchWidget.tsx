@@ -36,12 +36,13 @@ export const SearchWidget = observer(({ onClose }: SearchWidgetProps) => {
           onKeyDown={(e) => {
             if (e.key === 'Enter') handleSearch();
           }}
-          className="w-full px-3 py-2 pr-12 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+          className="w-full h-12 px-3 pr-16 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
         />
         <button
+          type="button"
           onClick={handleSearch}
           disabled={searchStore.isLoading}
-          className={`absolute right-2 top-0 bottom-0 justify-center p-1 font-medium ${searchStore.isLoading ? 'opacity-50' : ''}`}
+          className={`absolute right-0 top-0 bottom-0 flex items-center justify-center px-4 font-medium ${searchStore.isLoading ? 'opacity-50' : ''}`}
         >
           {searchStore.isLoading ? (
             <div className="w-4 h-4 border-2 border-gray-300 border-t-black rounded-full animate-spin"></div>
@@ -65,7 +66,8 @@ export const SearchWidget = observer(({ onClose }: SearchWidgetProps) => {
                 {searchStore.searchResults.slice(0, 10).map((runestone) => (
                   <button
                     key={runestone.id}
-                    className="w-full text-left p-2 bg-gray-50 rounded mb-1 hover:bg-gray-100 transition-colors"
+                    type="button"
+                    className="w-full text-left p-3 bg-gray-50 rounded mb-1 hover:bg-gray-100 transition-colors flex flex-col justify-center min-h-[48px]"
                     onClick={() => {
                       if (window.innerWidth < 768 && onClose) {
                         onClose();

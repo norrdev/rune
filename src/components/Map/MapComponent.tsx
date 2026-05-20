@@ -41,7 +41,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
     };
   }, []);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: mapStore.mapInstance and layersAddedRef are handled internally to prevent redundant setup
   const updateMapLayers = useCallback(() => {
     if (!mapStore.mapInstance) return;
 
@@ -68,7 +68,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
   }, [mapStore.geoJsonData, mapStore.runestones]); // Added dependencies for clarity
 
   // Update map layers when geoJsonData changes
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: updateMapLayers is a stable dependency, other mapStore properties are checked inside updateMapLayers
   useEffect(() => {
     if (!mapStore.mapInstance || !mapStore.hasRunestones) return;
 
@@ -123,7 +123,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
           <button
             type="button"
             onClick={() => mapStore.loadRunestones()}
-            className="bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 rounded text-sm font-medium transition-colors"
+            className="bg-red-100 hover:bg-red-200 text-red-700 px-4 py-3 rounded text-sm font-medium transition-colors min-h-[48px]"
           >
             Retry
           </button>

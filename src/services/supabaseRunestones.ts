@@ -5,7 +5,7 @@ import { authStore } from '../stores/authStore';
 class SupabaseRunestonesService {
   private static instance: SupabaseRunestonesService;
 
-  private constructor() { }
+  private constructor() {}
 
   public static getInstance(): SupabaseRunestonesService {
     if (!SupabaseRunestonesService.instance) {
@@ -14,7 +14,12 @@ class SupabaseRunestonesService {
     return SupabaseRunestonesService.instance;
   }
 
-  async getVisibleRunestones(west?: number, south?: number, east?: number, north?: number): Promise<Runestone[]> {
+  async getVisibleRunestones(
+    west?: number,
+    south?: number,
+    east?: number,
+    north?: number,
+  ): Promise<Runestone[]> {
     const { data, error } = await supabase.rpc('get_visible_runestones', {
       p_west: west,
       p_south: south,

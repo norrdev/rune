@@ -1,5 +1,5 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
 // https://vitejs.dev/config/
 export default defineConfig(async () => ({
@@ -15,15 +15,15 @@ export default defineConfig(async () => ({
     strictPort: true,
     watch: {
       // 3. tell vite to ignore watching `src-tauri`
-      ignored: ["**/src-tauri/**"],
+      ignored: ['**/src-tauri/**'],
     },
   },
   resolve: {
     alias: {
-      "@stores": "/src/stores",
-      "@components": "/src/components",
-      "@services": "/src/services",
-      "@utils": "/src/utils",
+      '@stores': '/src/stores',
+      '@components': '/src/components',
+      '@services': '/src/services',
+      '@utils': '/src/utils',
     },
   },
 }));

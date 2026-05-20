@@ -45,7 +45,7 @@ class VisitedRunestonesStore {
           this.clearVisitedRunestones();
         }
       },
-      { fireImmediately: true }
+      { fireImmediately: true },
     );
   }
 
@@ -168,7 +168,9 @@ class VisitedRunestonesStore {
   }
 
   get completionPercentage(): number {
-    return this.totalRunestonesCount > 0 ? Math.round((this.visitedCount / this.totalRunestonesCount) * 100) : 0;
+    return this.totalRunestonesCount > 0
+      ? Math.round((this.visitedCount / this.totalRunestonesCount) * 100)
+      : 0;
   }
 
   // Method to get visited runestone details from cache

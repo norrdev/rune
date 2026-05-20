@@ -20,8 +20,9 @@ export const PageHeader = ({ title }: PageHeaderProps) => {
       <div className="px-4 py-3 pb-3">
         <div className="flex items-center gap-3">
           <button
+            type="button"
             onClick={handleBack}
-            className="p-3 -ml-3 hover:opacity-75 transition-opacity"
+            className="w-12 h-12 -ml-3 hover:opacity-75 transition-opacity flex items-center justify-center"
             aria-label="Go Back"
           >
             <span className="text-primary text-3xl font-light leading-none">‹</span>

@@ -14,7 +14,12 @@ export const RunestoneMedia = ({ runestone }: RunestoneMediaProps) => {
       <div className="font-semibold text-gray-700 mb-2">Media</div>
       <div className="bg-gray-50 p-3 rounded">
         {runestone.link_url ? (
-          <a href={runestone.link_url} target="_blank" rel="noopener noreferrer" className="block w-full">
+          <a
+            href={runestone.link_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block w-full"
+          >
             <img
               src={runestone.direct_url}
               className="w-full h-64 mb-2 object-contain"

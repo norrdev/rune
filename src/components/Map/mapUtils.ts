@@ -1,5 +1,5 @@
 import type { Runestone, RunestoneFeature, RunestoneGeoJSON } from '../../types';
-import type { Map as MapLibreMap, GeoJSONSource } from 'maplibre-gl';
+import type { Map as MapLibreMap, GeoJSONSource, MapLayerMouseEvent } from 'maplibre-gl';
 
 // Initial center (Stockholm area - Jarlabanke bridge)
 export const JARLABANKE_BRIDGE: [number, number] = [18.0686, 59.4293];
@@ -257,9 +257,9 @@ export const addMapSourcesAndLayers = (
   });
 
   // Click event for individual runestones - open modal (both visited and unvisited)
-  const onPointClick = (e: any) => {
+  const onPointClick = (e: MapLayerMouseEvent) => {
     const feature = e.features?.[0];
-    if (!feature || !feature.geometry || feature.geometry.type !== 'Point') return;
+    if (feature?.geometry?.type !== 'Point') return;
 
     const properties = feature.properties!;
 

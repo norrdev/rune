@@ -93,7 +93,10 @@ export const Profile = observer(function ProfilePage() {
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">Error</h2>
           <p className="text-gray-600 mb-6">{errorMessage}</p>
-          <Link to="/" className="bg-primary px-6 py-2 rounded-md hover:bg-primary-dark transition text-white font-medium">
+          <Link
+            to="/"
+            className="bg-primary px-6 py-2 rounded-md hover:bg-primary-dark transition text-white font-medium"
+          >
             Back to Home
           </Link>
         </div>
@@ -114,7 +117,10 @@ export const Profile = observer(function ProfilePage() {
           <p className="text-gray-600 mb-6">
             Please log in to view your profile and visited runestones.
           </p>
-          <Link to="/" className="bg-primary px-6 py-2 rounded-md hover:bg-primary-dark transition text-white font-medium">
+          <Link
+            to="/"
+            className="bg-primary px-6 py-2 rounded-md hover:bg-primary-dark transition text-white font-medium"
+          >
             Back to Home
           </Link>
         </div>
@@ -133,16 +139,18 @@ export const Profile = observer(function ProfilePage() {
               <span className="text-white font-bold">!</span>
             </div>
           </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            Email Confirmation Required
-          </h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Email Confirmation Required</h2>
           <p className="text-gray-600 mb-4">
-            Please check your email (<span className="font-medium">{authStore.user.email}</span>) and click the confirmation link to access your profile.
+            Please check your email (<span className="font-medium">{authStore.user.email}</span>)
+            and click the confirmation link to access your profile.
           </p>
           <p className="text-sm text-gray-500 mb-6">
             Once confirmed, you'll be able to view your visited runestones and track your progress.
           </p>
-          <Link to="/" className="bg-primary px-6 py-2 rounded-md hover:bg-primary-dark transition text-white font-medium">
+          <Link
+            to="/"
+            className="bg-primary px-6 py-2 rounded-md hover:bg-primary-dark transition text-white font-medium"
+          >
             Back to Home
           </Link>
         </div>
@@ -166,25 +174,31 @@ export const Profile = observer(function ProfilePage() {
                   </span>
                 </div>
                 <div className="flex-1 overflow-hidden">
-                  <h2 className="text-2xl font-semibold text-gray-900 truncate" title={authStore.user?.email}>
+                  <h2
+                    className="text-2xl font-semibold text-gray-900 truncate"
+                    title={authStore.user?.email}
+                  >
                     {authStore.user?.email}
                   </h2>
                   <p className="text-base text-gray-500 mt-1">
-                    Member since {authStore.user?.created_at ? formatDate(authStore.user.created_at) : 'Unknown'}
+                    Member since{' '}
+                    {authStore.user?.created_at ? formatDate(authStore.user.created_at) : 'Unknown'}
                   </p>
                 </div>
               </div>
 
               <div className="flex flex-col sm:flex-row mt-8 gap-4">
                 <button
+                  type="button"
                   onClick={handleSignOut}
-                  className="flex-1 bg-white border border-gray-300 py-3 rounded-md flex items-center justify-center hover:bg-gray-50 transition"
+                  className="flex-1 bg-white border border-gray-300 h-12 rounded-md flex items-center justify-center hover:bg-gray-50 transition"
                 >
-                  <span className="text-gray-700 font-medium ml-2">Sign Out</span>
+                  <span className="text-gray-700 font-medium">Sign Out</span>
                 </button>
                 <button
+                  type="button"
                   onClick={handleDeleteAccount}
-                  className="flex-1 bg-red-600 py-3 rounded-md flex items-center justify-center hover:bg-red-700 transition"
+                  className="flex-1 bg-red-600 h-12 rounded-md flex items-center justify-center hover:bg-red-700 transition"
                 >
                   <span className="text-white font-medium">Delete Account</span>
                 </button>
@@ -229,7 +243,8 @@ export const Profile = observer(function ProfilePage() {
               <div className="flex justify-between items-center mb-2">
                 <span className="text-lg font-medium text-gray-900">Progress</span>
                 <span className="text-sm text-gray-500">
-                  {visitedRunestonesStore.visitedCount} of {visitedRunestonesStore.totalRunestonesCount}
+                  {visitedRunestonesStore.visitedCount} of{' '}
+                  {visitedRunestonesStore.totalRunestonesCount}
                 </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
@@ -244,15 +259,17 @@ export const Profile = observer(function ProfilePage() {
             <div className="bg-gray-50 rounded-lg p-6">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-medium text-gray-900">Visited Runestones</h3>
-                <span className="text-sm text-gray-500 font-medium bg-gray-200 px-2 py-1 rounded-full">{visitedRunestoneDetails.length}</span>
+                <span className="text-sm text-gray-500 font-medium bg-gray-200 px-2 py-1 rounded-full">
+                  {visitedRunestoneDetails.length}
+                </span>
               </div>
 
               {visitedRunestoneDetails.length === 0 ? (
                 <div className="flex flex-col items-center py-8">
-                  <p className="text-gray-600 font-medium">You haven't visited any runestones yet.</p>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Start exploring to see them here!
+                  <p className="text-gray-600 font-medium">
+                    You haven't visited any runestones yet.
                   </p>
+                  <p className="text-sm text-gray-500 mt-1">Start exploring to see them here!</p>
                 </div>
               ) : (
                 <div className="flex flex-col gap-3">
@@ -263,14 +280,23 @@ export const Profile = observer(function ProfilePage() {
                     >
                       <div className="flex justify-between items-center gap-4">
                         <div className="flex-1 overflow-hidden">
-                          <h4 className="text-lg font-medium text-gray-900 truncate" title={runestone.signature_text}>
+                          <h4
+                            className="text-lg font-medium text-gray-900 truncate"
+                            title={runestone.signature_text}
+                          >
                             {runestone.signature_text}
                           </h4>
-                          <p className="text-sm text-gray-500 mt-1 truncate" title={runestone.found_location}>
+                          <p
+                            className="text-sm text-gray-500 mt-1 truncate"
+                            title={runestone.found_location}
+                          >
                             {runestone.found_location}
                           </p>
                         </div>
-                        <Link to={`/runestones/${runestone.slug}`} className="bg-white border border-gray-300 px-4 py-2 rounded-md hover:bg-gray-50 transition whitespace-nowrap">
+                        <Link
+                          to={`/runestones/${runestone.slug}`}
+                          className="bg-white border border-gray-300 px-4 py-3 rounded-md hover:bg-gray-50 transition whitespace-nowrap min-h-[48px] flex items-center"
+                        >
                           <span className="text-gray-700 font-medium">View</span>
                         </Link>
                       </div>

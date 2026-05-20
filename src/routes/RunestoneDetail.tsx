@@ -73,8 +73,8 @@ export const RunestoneDetail = observer(function RunestoneDetailPage() {
       <div className="flex flex-col min-h-screen bg-gray-50">
         <PageHeader title="Loading..." />
         <div className="flex-1 flex flex-col items-center justify-center">
-            <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-gray-600 mt-4">Loading runestone...</p>
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-gray-600 mt-4">Loading runestone...</p>
         </div>
       </div>
     );
@@ -88,7 +88,10 @@ export const RunestoneDetail = observer(function RunestoneDetailPage() {
           <div className="text-red-600 text-4xl mb-4">⚠️</div>
           <h2 className="text-2xl font-bold text-gray-800 mb-2">Runestone Not Found</h2>
           <p className="text-gray-600 mb-6">{error}</p>
-          <Link to="/" className="bg-primary px-6 py-2 rounded-lg text-white font-medium hover:bg-primary-dark">
+          <Link
+            to="/"
+            className="bg-primary px-6 py-2 rounded-lg text-white font-medium hover:bg-primary-dark"
+          >
             ← Back to Map
           </Link>
         </div>
@@ -114,10 +117,16 @@ export const RunestoneDetail = observer(function RunestoneDetailPage() {
                   <div className="bg-gray-50 p-4 rounded-lg flex flex-col gap-1">
                     <span className="text-gray-800 font-medium">{runestone.found_location}</span>
                     <span className="text-sm text-gray-600">{runestone.parish}</span>
-                    {!!runestone.district && <span className="text-sm text-gray-600">{runestone.district}</span>}
-                    {!!runestone.municipality && <span className="text-sm text-gray-600">{runestone.municipality}</span>}
+                    {!!runestone.district && (
+                      <span className="text-sm text-gray-600">{runestone.district}</span>
+                    )}
+                    {!!runestone.municipality && (
+                      <span className="text-sm text-gray-600">{runestone.municipality}</span>
+                    )}
                     {!!runestone.current_location && (
-                      <span className="text-sm text-gray-600">Current: {runestone.current_location}</span>
+                      <span className="text-sm text-gray-600">
+                        Current: {runestone.current_location}
+                      </span>
                     )}
                     {runestone.latitude !== null && runestone.longitude !== null && (
                       <span className="text-sm text-gray-600">
@@ -140,8 +149,11 @@ export const RunestoneDetail = observer(function RunestoneDetailPage() {
                             <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
                           ) : (
                             <div
-                              className={`w-5 h-5 rounded-full border-2 ${isVisited ? 'bg-green-500 border-green-500' : 'bg-gray-300 border-gray-300'
-                                }`}
+                              className={`w-5 h-5 rounded-full border-2 ${
+                                isVisited
+                                  ? 'bg-green-500 border-green-500'
+                                  : 'bg-gray-300 border-gray-300'
+                              }`}
                             />
                           )}
                           <span className="text-sm font-medium text-gray-700">
@@ -149,26 +161,34 @@ export const RunestoneDetail = observer(function RunestoneDetailPage() {
                           </span>
                         </div>
                         <button
+                          type="button"
                           onClick={handleMarkAsVisited}
                           disabled={isMarkingVisited || visitedRunestonesStore.loading}
-                          className={`px-4 py-2 rounded-md transition ${isVisited
-                            ? 'bg-red-100 hover:bg-red-200 focus:ring-red-500'
-                            : 'bg-green-100 hover:bg-green-200 focus:ring-green-500'
-                            } ${isMarkingVisited || visitedRunestonesStore.loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                          className={`px-4 h-12 rounded-md transition ${
+                            isVisited
+                              ? 'bg-red-100 hover:bg-red-200 focus:ring-red-500'
+                              : 'bg-green-100 hover:bg-green-200 focus:ring-green-500'
+                          } ${isMarkingVisited || visitedRunestonesStore.loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                         >
                           {isMarkingVisited ? (
                             <div className="flex items-center gap-2">
                               <div className="w-4 h-4 border-2 border-currentColor border-t-transparent rounded-full animate-spin"></div>
-                              <span className={isVisited ? 'text-red-700' : 'text-green-700'}>Updating...</span>
+                              <span className={isVisited ? 'text-red-700' : 'text-green-700'}>
+                                Updating...
+                              </span>
                             </div>
                           ) : (
-                            <span className={`text-sm font-medium ${isVisited ? 'text-red-700' : 'text-green-700'}`}>
+                            <span
+                              className={`text-sm font-medium ${isVisited ? 'text-red-700' : 'text-green-700'}`}
+                            >
                               {isVisited ? 'Mark as not visited' : 'Mark as visited'}
                             </span>
                           )}
                         </button>
                       </div>
-                      {!!visitedError && <span className="text-red-600 text-sm mt-2 block">{visitedError}</span>}
+                      {!!visitedError && (
+                        <span className="text-red-600 text-sm mt-2 block">{visitedError}</span>
+                      )}
                     </div>
                   </div>
                 )}
@@ -178,7 +198,8 @@ export const RunestoneDetail = observer(function RunestoneDetailPage() {
                   <h3 className="font-semibold mb-3 text-lg">Details</h3>
                   <div className="bg-gray-50 p-4 rounded-lg flex flex-col gap-2">
                     <span className="text-sm">
-                      <span className="font-medium">Material:</span> {runestone.material || 'Unknown'}
+                      <span className="font-medium">Material:</span>{' '}
+                      {runestone.material || 'Unknown'}
                     </span>
                     <span className="text-sm">
                       <span className="font-medium">Dating:</span> {runestone.dating || 'Unknown'}
@@ -187,7 +208,8 @@ export const RunestoneDetail = observer(function RunestoneDetailPage() {
                       <span className="font-medium">Type:</span> {runestone.rune_type || 'Unknown'}
                     </span>
                     <span className="text-sm">
-                      <span className="font-medium">Style:</span> {runestone.material_type || 'Unknown'}
+                      <span className="font-medium">Style:</span>{' '}
+                      {runestone.material_type || 'Unknown'}
                     </span>
                     {!!runestone.carver && (
                       <span className="text-sm">
@@ -210,7 +232,8 @@ export const RunestoneDetail = observer(function RunestoneDetailPage() {
                       <span className="font-medium">Lost:</span> {runestone.lost ? 'Yes' : 'No'}
                     </span>
                     <span className="text-sm">
-                      <span className="font-medium">Ornamental:</span> {runestone.ornamental ? 'Yes' : 'No'}
+                      <span className="font-medium">Ornamental:</span>{' '}
+                      {runestone.ornamental ? 'Yes' : 'No'}
                     </span>
                     <span className="text-sm">
                       <span className="font-medium">Recent:</span> {runestone.recent ? 'Yes' : 'No'}
@@ -223,7 +246,9 @@ export const RunestoneDetail = observer(function RunestoneDetailPage() {
                   <div>
                     <h3 className="font-semibold mb-3 text-lg">Norse Text</h3>
                     <div className="bg-gray-50 p-4 rounded-lg">
-                      <p className="text-gray-800 font-mono text-sm m-0 italic">{runestone.norse_text}</p>
+                      <p className="text-gray-800 font-mono text-sm m-0 italic">
+                        {runestone.norse_text}
+                      </p>
                     </div>
                   </div>
                 )}
@@ -232,7 +257,9 @@ export const RunestoneDetail = observer(function RunestoneDetailPage() {
                   <div>
                     <h3 className="font-semibold mb-3 text-lg">Transliteration</h3>
                     <div className="bg-gray-50 p-4 rounded-lg">
-                      <p className="text-gray-800 font-mono text-sm m-0">{runestone.transliteration}</p>
+                      <p className="text-gray-800 font-mono text-sm m-0">
+                        {runestone.transliteration}
+                      </p>
                     </div>
                   </div>
                 )}

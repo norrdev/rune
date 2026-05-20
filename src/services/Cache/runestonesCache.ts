@@ -67,7 +67,10 @@ class RunestonesCache {
     return bounds.join(',');
   }
 
-  private boundsOverlap(bounds1: [number, number, number, number], bounds2: [number, number, number, number]): boolean {
+  private boundsOverlap(
+    bounds1: [number, number, number, number],
+    bounds2: [number, number, number, number],
+  ): boolean {
     const [west1, south1, east1, north1] = bounds1;
     const [west2, south2, east2, north2] = bounds2;
     return !(east1 < west2 || west1 > east2 || north1 < south2 || south1 > north2);
@@ -120,7 +123,7 @@ class RunestonesCache {
       bounds[0], // west
       bounds[1], // south
       bounds[2], // east
-      bounds[3] // north
+      bounds[3], // north
     );
     await this.updateCache(data);
     this.cachedBounds.set(key, bounds);
@@ -128,11 +131,17 @@ class RunestonesCache {
     return data;
   }
 
-  private filterByBounds(stones: Runestone[], bounds: [number, number, number, number]): Runestone[] {
+  private filterByBounds(
+    stones: Runestone[],
+    bounds: [number, number, number, number],
+  ): Runestone[] {
     const [west, south, east, north] = bounds;
     return stones.filter(
       (stone) =>
-        stone.latitude >= south && stone.latitude <= north && stone.longitude >= west && stone.longitude <= east
+        stone.latitude >= south &&
+        stone.latitude <= north &&
+        stone.longitude >= west &&
+        stone.longitude <= east,
     );
   }
 

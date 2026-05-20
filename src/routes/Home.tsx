@@ -18,6 +18,7 @@ export default function Home() {
       {/* Mobile Menu Button */}
       {isMobile && !sidebarOpen && (
         <button
+          type="button"
           className="absolute z-30 bg-white rounded-full w-12 h-12 flex items-center justify-center border border-gray-200 shadow-md hover:bg-gray-50 focus:outline-none"
           style={{
             top: 16,

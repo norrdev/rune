@@ -36,6 +36,7 @@ export const Sidebar = observer(({ visitedCount, visible = false, onClose }: Sid
       {/* Mobile overlay */}
       {visible && isMobile && (
         <button
+          type="button"
           className="absolute inset-0 bg-black/50 z-40 w-full h-full border-none"
           onClick={onClose}
           aria-label="Close Sidebar"
@@ -46,11 +47,13 @@ export const Sidebar = observer(({ visitedCount, visible = false, onClose }: Sid
         className={`bg-white border-r border-gray-200 flex flex-col z-50 relative
           ${isMobile ? 'absolute top-0 left-0 h-full w-80' : 'w-64 max-w-sm h-full'}
         `}
+        style={isMobile ? { paddingTop: 'env(safe-area-inset-top)' } : {}}
       >
         {/* Close button for mobile */}
         {isMobile && (
           <button
-            className="absolute z-50 bg-white rounded-full w-10 h-10 flex items-center justify-center shadow"
+            type="button"
+            className="absolute z-50 bg-white rounded-full w-12 h-12 flex items-center justify-center shadow"
             style={{
               top: 16,
               right: 16,
@@ -68,8 +71,8 @@ export const Sidebar = observer(({ visitedCount, visible = false, onClose }: Sid
             className="px-6 pb-6 border-b border-gray-200"
             style={{ paddingTop: isMobile ? 24 : 24 }}
           >
-            <div className="text-xl font-bold text-primary">Runestone Safari</div>
-            <div className="text-sm text-gray-600 mt-1">Explore Swedish runestones</div>
+            <div className="text-2xl font-bold text-primary">Runestone Safari</div>
+            <div className="text-base text-gray-600 mt-1">Explore Swedish runestones</div>
           </div>
 
           {/* Search Widget */}
@@ -79,8 +82,9 @@ export const Sidebar = observer(({ visitedCount, visible = false, onClose }: Sid
           {authStore.user && (
             <div className="p-4 border-t border-gray-200">
               <div className="flex flex-col items-center">
-                <Link to="/profile" className="text-sm text-gray-600 hover:text-gray-800">
-                  <span className="font-medium text-primary">{visitedCount}</span> visited runestones
+                <Link to="/profile" className="text-base text-gray-600 hover:text-gray-800">
+                  <span className="font-medium text-primary">{visitedCount}</span> visited
+                  runestones
                 </Link>
               </div>
             </div>
@@ -88,27 +92,36 @@ export const Sidebar = observer(({ visitedCount, visible = false, onClose }: Sid
 
           {/* Map Legend */}
           <div className="p-4 border-t border-gray-200">
-            <div className="text-xs font-medium text-gray-700 mb-3">Map Legend:</div>
+            <div className="text-sm font-medium text-gray-700 mb-3">Map Legend:</div>
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: CLUSTER_COLORS.SMALL }} />
-                <span className="text-xs text-gray-600">&lt; 100 stones</span>
+                <div
+                  className="w-3 h-3 rounded-full"
+                  style={{ backgroundColor: CLUSTER_COLORS.SMALL }}
+                />
+                <span className="text-sm text-gray-600">&lt; 100 stones</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: CLUSTER_COLORS.MEDIUM }} />
-                <span className="text-xs text-gray-600">100-750 stones</span>
+                <div
+                  className="w-3 h-3 rounded-full"
+                  style={{ backgroundColor: CLUSTER_COLORS.MEDIUM }}
+                />
+                <span className="text-sm text-gray-600">100-750 stones</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: CLUSTER_COLORS.LARGE }} />
-                <span className="text-xs text-gray-600">&gt; 750 stones</span>
+                <div
+                  className="w-3 h-3 rounded-full"
+                  style={{ backgroundColor: CLUSTER_COLORS.LARGE }}
+                />
+                <span className="text-sm text-gray-600">&gt; 750 stones</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-red-500 border-2 border-white" />
-                <span className="text-xs text-gray-600">Unvisited stone</span>
+                <span className="text-sm text-gray-600">Unvisited stone</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-green-500 border-2 border-white" />
-                <span className="text-xs text-gray-600">Visited stone</span>
+                <span className="text-sm text-gray-600">Visited stone</span>
               </div>
             </div>
           </div>
@@ -116,14 +129,18 @@ export const Sidebar = observer(({ visitedCount, visible = false, onClose }: Sid
           {/* Authentication Section */}
           {authStore.user && authStore.isEmailConfirmed ? (
             <div className="p-4 border-t border-gray-200">
-              <div className="text-sm text-gray-600 mb-2">
+              <div className="text-base text-gray-600 mb-2">
                 Signed in as <span className="font-medium">{authStore.user.email}</span>
               </div>
               <div className="flex flex-col gap-2">
-                <Link to="/profile" className="w-full px-3 py-2 border border-primary rounded hover:bg-primary/10 flex items-center justify-center text-sm text-primary">
+                <Link
+                  to="/profile"
+                  className="w-full px-3 py-2 border border-primary rounded hover:bg-primary/10 flex items-center justify-center text-base text-primary"
+                >
                   View Profile
                 </Link>
                 <button
+                  type="button"
                   onClick={async () => {
                     try {
                       await authStore.signOut();
@@ -131,7 +148,7 @@ export const Sidebar = observer(({ visitedCount, visible = false, onClose }: Sid
                       console.error('Sign out error:', err);
                     }
                   }}
-                  className="w-full px-3 py-2 bg-primary rounded hover:bg-primary-dark flex items-center justify-center text-sm text-white transition-colors"
+                  className="w-full px-3 py-2 bg-primary rounded hover:bg-primary-dark flex items-center justify-center text-base text-white transition-colors"
                 >
                   Sign Out
                 </button>
@@ -139,10 +156,13 @@ export const Sidebar = observer(({ visitedCount, visible = false, onClose }: Sid
             </div>
           ) : (
             <div className="p-4 border-t border-gray-200 flex flex-col items-center">
-              <Link to="/login" className="w-full px-4 py-3 bg-primary rounded-lg flex items-center justify-center hover:bg-primary-dark transition-colors">
-                <span className="text-sm font-medium text-white">Sign In</span>
+              <Link
+                to="/login"
+                className="w-full px-4 py-3 bg-primary rounded-lg flex items-center justify-center hover:bg-primary-dark transition-colors"
+              >
+                <span className="text-base font-medium text-white">Sign In</span>
               </Link>
-              <div className="text-xs text-gray-500 text-center mt-2">
+              <div className="text-sm text-gray-500 text-center mt-2">
                 Sign in to track your runestone visits
               </div>
             </div>
@@ -152,11 +172,17 @@ export const Sidebar = observer(({ visitedCount, visible = false, onClose }: Sid
         {/* Footer */}
         <div className="p-4 border-t border-gray-200 bg-gray-50 mt-auto">
           <div className="flex flex-wrap justify-center gap-1">
-            <Link to="/about" className="text-xs text-gray-500 hover:text-gray-700 underline">About</Link>
+            <Link to="/about" className="text-xs text-gray-500 hover:text-gray-700 underline">
+              About
+            </Link>
             <span className="text-xs text-gray-500">•</span>
-            <Link to="/privacy" className="text-xs text-gray-500 hover:text-gray-700 underline">Privacy Policy</Link>
+            <Link to="/privacy" className="text-xs text-gray-500 hover:text-gray-700 underline">
+              Privacy Policy
+            </Link>
             <span className="text-xs text-gray-500">•</span>
-            <Link to="/license" className="text-xs text-gray-500 hover:text-gray-700 underline">License</Link>
+            <Link to="/license" className="text-xs text-gray-500 hover:text-gray-700 underline">
+              License
+            </Link>
           </div>
           <div className="text-xs text-gray-500 text-center mt-1">© 2025 Denis Filonov</div>
         </div>
