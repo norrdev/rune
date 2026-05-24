@@ -1,7 +1,7 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { MapPin, Compass } from 'lucide-react';
 import '../../styles/map.web.css';
-import { Map as MapLibreMap, type GeoJSONSource } from 'maplibre-gl';
+import { Map as MapLibreMap, Marker as MapLibreMarker, type GeoJSONSource } from 'maplibre-gl';
 import { RunestoneModal } from '../Runestone/RunestoneModal';
 import { observer } from 'mobx-react-lite';
 import { visitedRunestonesStore } from '@stores/visitedRunestonesStore';
@@ -15,6 +15,43 @@ interface MapComponentProps {
 export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProps) => {
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const layersAddedRef = useRef<boolean>(false);
+  const userMarkerRef = useRef<MapLibreMarker | null>(null);
+
+  // User location marker synchronization
+  useEffect(() => {
+    const map = mapStore.mapInstance;
+    if (!map) return;
+
+    if (!mapStore.userLocation) {
+      if (userMarkerRef.current) {
+        userMarkerRef.current.remove();
+        userMarkerRef.current = null;
+      }
+      return;
+    }
+
+    const [lng, lat] = mapStore.userLocation;
+
+    if (!userMarkerRef.current) {
+      const el = document.createElement('div');
+      el.className = 'user-location-marker';
+
+      const marker = new MapLibreMarker({ element: el })
+        .setLngLat([lng, lat])
+        .addTo(map);
+      userMarkerRef.current = marker;
+    } else {
+      userMarkerRef.current.setLngLat([lng, lat]);
+    }
+
+    return () => {
+      if (userMarkerRef.current) {
+        userMarkerRef.current.remove();
+        userMarkerRef.current = null;
+      }
+    };
+  }, [mapStore.userLocation, mapStore.mapInstance]);
+
 
   // Initialize map on mount
   useEffect(() => {

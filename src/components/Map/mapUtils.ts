@@ -9,9 +9,9 @@ export const STYLE_URL = 'https://tiles.openfreemap.org/styles/bright';
 
 // Cluster styling constants
 export const CLUSTER_COLORS = {
-  SMALL: '#8B4513', // Dark brown for clusters with < 100 points
-  MEDIUM: '#A0522D', // Medium brown for clusters with 100-750 points
-  LARGE: '#CD853F', // Light brown for clusters with > 750 points
+  SMALL: '#2dd4bf', // Teal/Cyan for clusters with < 100 points
+  MEDIUM: '#0d9488', // Deep Teal for clusters with 100-750 points
+  LARGE: '#4f46e5', // Indigo for clusters with > 750 points
 } as const;
 
 export const CLUSTER_RADIUSES = {
@@ -36,7 +36,7 @@ export const CAMERA_ANIMATION_DURATION_WEB = 2000;
 export const CLUSTER_RADIUS = 50;
 
 export const UNVISITED_MARKER_COLOR = '#ef4444';
-export const VISITED_MARKER_COLOR = '#22c55e';
+export const VISITED_MARKER_COLOR = '#10b981'; // Modern Emerald color instead of old green
 export const MARKER_RADIUS_NATIVE = 8;
 export const MARKER_RADIUS_WEB = 9;
 export const MARKER_STROKE_WIDTH_NATIVE = 2;
@@ -62,7 +62,8 @@ export const LAYER_IDS = {
 // Native had: unvisited-runestones, visited-runestones.
 // I'll stick to the unified IDs but restore the other properties.
 
-export const LOADING_INDICATOR_COLOR = '#866c53';
+export const LOADING_INDICATOR_COLOR = '#4f46e5';
+
 
 export const MINIMAP_ZOOM = 14;
 export const MARKER_COLOR = UNVISITED_MARKER_COLOR;

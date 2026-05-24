@@ -42,6 +42,10 @@ class MapStore {
   // Camera animation trigger (for native - to trigger useEffect)
   cameraUpdateTrigger: number = 0;
 
+  // User Location
+  userLocation: [number, number] | null = null;
+  private locationWatchId: number | null = null;
+
   constructor() {
     makeObservable(this, {
       // Observables
@@ -57,6 +61,7 @@ class MapStore {
       platform: observable,
       mapInstance: observable,
       cameraUpdateTrigger: observable,
+      userLocation: observable,
 
       // Actions
       setLoading: action,
@@ -156,6 +161,11 @@ class MapStore {
 
   setMapInstance(map: MapLibreMap | null) {
     this.mapInstance = map;
+    if (map === null && this.locationWatchId !== null) {
+      navigator.geolocation.clearWatch(this.locationWatchId);
+      this.locationWatchId = null;
+      this.userLocation = null;
+    }
   }
 
   triggerCameraUpdate() {
@@ -240,6 +250,23 @@ class MapStore {
     this.setIsLocating(true);
 
     try {
+      if (this.locationWatchId === null && 'geolocation' in navigator) {
+        this.locationWatchId = navigator.geolocation.watchPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            runInAction(() => {
+              this.userLocation = [longitude, latitude];
+            });
+          },
+          (error) => {
+            console.error('WatchPosition error:', error);
+          },
+          {
+            enableHighAccuracy: true,
+            maximumAge: 0,
+          }
+        );
+      }
       await this.getCurrentLocationWeb();
     } catch (error) {
       console.error('Error getting location:', error);
@@ -261,6 +288,9 @@ class MapStore {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
+          runInAction(() => {
+            this.userLocation = [longitude, latitude];
+          });
           this.flyToLocation(longitude, latitude, 15);
           resolve();
         },

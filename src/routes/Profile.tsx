@@ -159,29 +159,29 @@ export const Profile = observer(function ProfilePage() {
   }
 
   return (
-    <div className="flex flex-1 flex-col h-full min-h-0 bg-gray-50 overflow-y-auto">
+    <div className="flex flex-1 flex-col h-full min-h-0 bg-gray-50/40 overflow-y-auto">
       <PageHeader title="Profile" />
 
       <div className="p-4 md:p-8 lg:p-12 flex-1 w-full max-w-5xl mx-auto">
-        <div className="w-full bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+        <div className="w-full bg-white rounded-3xl shadow-sm border border-gray-150/80 overflow-hidden">
           <div className="p-4 md:p-6">
             {/* User Info Section */}
-            <div className="bg-gray-50 rounded-lg p-6 md:p-8 mb-8">
-              <div className="flex items-center gap-6">
-                <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-white text-2xl font-semibold">
+            <div className="bg-gradient-to-br from-primary/5 via-accent/5 to-white border border-gray-150 rounded-3xl p-6 md:p-8 mb-8 shadow-sm">
+              <div className="flex items-center gap-6 flex-wrap md:flex-nowrap">
+                <div className="w-20 h-20 bg-gradient-to-br from-primary to-primary-light rounded-2xl flex items-center justify-center flex-shrink-0 shadow-md">
+                  <span className="text-white text-3xl font-extrabold font-display">
                     {authStore.user?.email?.charAt(0).toUpperCase() || 'U'}
                   </span>
                 </div>
-                <div className="flex-1 overflow-hidden">
+                <div className="flex-1 min-w-[200px] overflow-hidden">
                   <h2
-                    className="text-2xl font-semibold text-gray-900 truncate"
+                    className="text-2xl font-extrabold font-display tracking-tight text-gray-850 truncate"
                     title={authStore.user?.email}
                   >
                     {authStore.user?.email}
                   </h2>
-                  <p className="text-base text-gray-500 mt-1">
-                    Member since{' '}
+                  <p className="text-sm font-semibold text-gray-400 mt-1">
+                    Explorer since{' '}
                     {authStore.user?.created_at ? formatDate(authStore.user.created_at) : 'Unknown'}
                   </p>
                 </div>
@@ -191,115 +191,118 @@ export const Profile = observer(function ProfilePage() {
                 <button
                   type="button"
                   onClick={handleSignOut}
-                  className="flex-1 bg-white border border-gray-300 h-12 rounded-md flex items-center justify-center hover:bg-gray-50 transition"
+                  className="flex-1 bg-white border border-gray-250 hover:border-gray-400 hover:bg-gray-50/50 h-11 rounded-xl flex items-center justify-center hover:-translate-y-0.5 shadow-sm hover:shadow transition-all duration-300 cursor-pointer"
                 >
-                  <span className="text-gray-700 font-medium">Sign Out</span>
+                  <span className="text-gray-700 font-semibold text-sm">Sign Out</span>
                 </button>
                 <button
                   type="button"
                   onClick={handleDeleteAccount}
-                  className="flex-1 bg-red-600 h-12 rounded-md flex items-center justify-center hover:bg-red-700 transition"
+                  className="flex-1 bg-red-50 hover:bg-red-100/90 border border-red-150 h-11 rounded-xl flex items-center justify-center hover:-translate-y-0.5 shadow-sm hover:shadow transition-all duration-300 cursor-pointer"
                 >
-                  <span className="text-white font-medium">Delete Account</span>
+                  <span className="text-red-650 font-semibold text-sm">Delete Account</span>
                 </button>
               </div>
             </div>
 
             {/* Stats Section */}
-            <div className="flex flex-wrap justify-between gap-4 mb-8">
-              <div className="flex-1 min-w-[150px] bg-gray-50 rounded-lg p-6">
-                <div className="w-10 h-10 bg-green-100 rounded-md flex items-center justify-center mb-3">
-                  <span className="text-green-600 font-bold text-lg">✓</span>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+              {/* Visited Card */}
+              <div className="bg-white border border-gray-150 p-5 rounded-2xl shadow-sm transition hover:shadow hover:-translate-y-0.5 duration-300">
+                <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center mb-4 border border-emerald-100">
+                  <span className="text-emerald-500 font-bold text-lg">✓</span>
                 </div>
-                <div className="text-sm font-medium text-gray-500 mb-1">Visited</div>
-                <div className="text-3xl font-semibold text-gray-900">
+                <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Visited</div>
+                <div className="text-3xl font-extrabold font-display text-gray-850">
                   {visitedRunestonesStore.visitedCount}
                 </div>
               </div>
 
-              <div className="flex-1 min-w-[150px] bg-gray-50 rounded-lg p-6">
-                <div className="w-10 h-10 bg-primary-light/25 rounded-md flex items-center justify-center mb-3">
-                  <span className="text-primary-dark font-bold text-lg">M</span>
+              {/* Total Card */}
+              <div className="bg-white border border-gray-150 p-5 rounded-2xl shadow-sm transition hover:shadow hover:-translate-y-0.5 duration-300">
+                <div className="w-10 h-10 bg-primary/5 rounded-xl flex items-center justify-center mb-4 border border-primary/10">
+                  <span className="text-primary font-bold text-lg">𖡡</span>
                 </div>
-                <div className="text-sm font-medium text-gray-500 mb-1">Total</div>
-                <div className="text-3xl font-semibold text-gray-900">
+                <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Total Stones</div>
+                <div className="text-3xl font-extrabold font-display text-gray-855">
                   {visitedRunestonesStore.totalRunestonesCount}
                 </div>
               </div>
 
-              <div className="flex-1 min-w-[150px] bg-gray-50 rounded-lg p-6">
-                <div className="w-10 h-10 bg-purple-100 rounded-md flex items-center justify-center mb-3">
-                  <span className="text-purple-600 font-bold text-lg">%</span>
+              {/* Completion Card */}
+              <div className="bg-white border border-gray-150 p-5 rounded-2xl shadow-sm transition hover:shadow hover:-translate-y-0.5 duration-300">
+                <div className="w-10 h-10 bg-accent/5 rounded-xl flex items-center justify-center mb-4 border border-accent/10">
+                  <span className="text-accent font-bold text-lg">%</span>
                 </div>
-                <div className="text-sm font-medium text-gray-500 mb-1">Done</div>
-                <div className="text-3xl font-semibold text-gray-900">
+                <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Completion</div>
+                <div className="text-3xl font-extrabold font-display text-gray-855">
                   {visitedRunestonesStore.completionPercentage}%
                 </div>
               </div>
             </div>
 
             {/* Progress Bar */}
-            <div className="bg-gray-50 rounded-lg p-6 mb-8">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-lg font-medium text-gray-900">Progress</span>
-                <span className="text-sm text-gray-500">
+            <div className="bg-white border border-gray-150 rounded-2xl p-6 mb-8 shadow-sm">
+              <div className="flex justify-between items-center mb-3">
+                <span className="text-sm font-bold text-gray-800 font-display">Adventure Progress</span>
+                <span className="text-xs font-semibold text-gray-450">
                   {visitedRunestonesStore.visitedCount} of{' '}
                   {visitedRunestonesStore.totalRunestonesCount}
                 </span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+              <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden shadow-inner border border-gray-100">
                 <div
-                  className="bg-primary h-full rounded-full transition-all duration-500 ease-out"
+                  className="bg-gradient-to-r from-primary to-accent h-full rounded-full transition-all duration-700 ease-out"
                   style={{ width: `${visitedRunestonesStore.completionPercentage}%` }}
                 />
               </div>
             </div>
 
             {/* Visited Runestones List */}
-            <div className="bg-gray-50 rounded-lg p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-medium text-gray-900">Visited Runestones</h3>
-                <span className="text-sm text-gray-500 font-medium bg-gray-200 px-2 py-1 rounded-full">
+            <div className="bg-white border border-gray-150 rounded-2xl p-6 shadow-sm">
+              <div className="flex justify-between items-center mb-5">
+                <h3 className="text-sm font-bold text-gray-800 font-display">Visited Runestones</h3>
+                <span className="text-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full">
                   {visitedRunestoneDetails.length}
                 </span>
               </div>
 
               {visitedRunestoneDetails.length === 0 ? (
-                <div className="flex flex-col items-center py-8">
-                  <p className="text-gray-600 font-medium">
+                <div className="flex flex-col items-center py-8 text-center bg-gray-50/50 rounded-2xl border border-dashed border-gray-200">
+                  <p className="text-gray-500 font-semibold text-sm">
                     You haven't visited any runestones yet.
                   </p>
-                  <p className="text-sm text-gray-500 mt-1">Start exploring to see them here!</p>
+                  <p className="text-xs text-gray-400 mt-1">Start exploring the map to track your journey!</p>
                 </div>
               ) : (
-                <div className="flex flex-col gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {visitedRunestoneDetails.map((runestone) => (
                     <div
                       key={runestone.id}
-                      className="bg-white rounded-lg border border-gray-200 p-4 transition hover:shadow-md"
+                      className="bg-white rounded-2xl border border-gray-150 p-4 hover:border-primary/20 hover:-translate-y-0.5 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between"
                     >
-                      <div className="flex justify-between items-center gap-4">
-                        <div className="flex-1 overflow-hidden">
+                      <div className="flex justify-between items-start gap-4 mb-3">
+                        <div className="overflow-hidden">
                           <h4
-                            className="text-lg font-medium text-gray-900 truncate"
+                            className="text-sm font-bold text-gray-850 truncate"
                             title={runestone.signature_text}
                           >
                             {runestone.signature_text}
                           </h4>
                           <p
-                            className="text-sm text-gray-500 mt-1 truncate"
+                            className="text-xs text-gray-450 mt-1 truncate"
                             title={runestone.found_location}
                           >
                             {runestone.found_location}
                           </p>
                         </div>
-                        <Link
-                          to={`/runestones/${runestone.slug}`}
-                          className="bg-white border border-gray-300 px-4 py-3 rounded-md hover:bg-gray-50 transition whitespace-nowrap min-h-[48px] flex items-center"
-                        >
-                          <span className="text-gray-700 font-medium">View</span>
-                        </Link>
                       </div>
+                      <Link
+                        to={`/runestones/${runestone.slug}`}
+                        className="w-full h-9 bg-gray-50 hover:bg-primary hover:text-white rounded-xl flex items-center justify-center text-xs font-bold text-gray-650 transition-all duration-300 border border-gray-200/60 hover:border-transparent cursor-pointer"
+                      >
+                        <span>View Details</span>
+                      </Link>
                     </div>
                   ))}
                 </div>

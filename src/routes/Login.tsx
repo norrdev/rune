@@ -80,44 +80,46 @@ export const Login = observer(function LoginPage() {
 
   if (isForgotPassword) {
     return (
-      <div className="flex flex-1 min-h-0 h-full flex-col overflow-y-auto bg-white">
+      <div className="flex flex-1 min-h-0 h-full flex-col overflow-y-auto bg-gray-50/40">
         <PageHeader title="Reset Password" />
-        <div className="flex-1 flex flex-col px-4 py-6 md:px-8 md:py-8 w-full max-w-lg mx-auto justify-center">
-          <p className="text-base text-gray-600 mb-6">
-            Enter your email to receive password reset instructions
-          </p>
+        <div className="flex-1 flex flex-col items-center justify-center p-6">
+          <div className="w-full max-w-md bg-white border border-gray-150 rounded-3xl p-6 md:p-8 shadow-lg">
+            <p className="text-xs font-bold text-gray-400 mb-6 uppercase tracking-wider">
+              Enter your email to receive password reset instructions
+            </p>
 
-          <input
-            type="email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg mb-4"
-          />
+            <input
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full h-12 px-4 text-sm border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-xl mb-4 transition-all duration-300 bg-gray-50/40 focus:bg-white shadow-inner"
+            />
 
-          {error && <p className="text-sm text-red-500 mb-4">{error}</p>}
-          {success && <p className="text-sm text-green-500 mb-4">{success}</p>}
+            {error && <p className="text-xs font-semibold text-red-650 bg-red-50/80 p-3 rounded-xl border border-red-100/50 mb-4">{error}</p>}
+            {success && <p className="text-xs font-semibold text-emerald-650 bg-emerald-50/80 p-3 rounded-xl border border-emerald-100/50 mb-4">{success}</p>}
 
-          <button
-            type="button"
-            onClick={handleResetPassword}
-            disabled={loading}
-            className={`w-full h-12 px-4 bg-primary rounded-lg text-white font-medium mb-6 hover:bg-primary-dark transition ${loading ? 'opacity-50' : ''}`}
-          >
-            {loading ? 'Sending...' : 'Reset Password'}
-          </button>
+            <button
+              type="button"
+              onClick={handleResetPassword}
+              disabled={loading}
+              className={`w-full h-12 px-4 bg-primary hover:bg-primary-dark rounded-xl text-white font-semibold mb-6 hover:-translate-y-0.5 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer border-none ${loading ? 'opacity-50' : ''}`}
+            >
+              {loading ? 'Sending...' : 'Reset Password'}
+            </button>
 
-          <button
-            type="button"
-            onClick={() => {
-              setIsForgotPassword(false);
-              setError(null);
-              setSuccess(null);
-            }}
-            className="w-full py-2 p-2 text-sm text-primary underline hover:text-primary-dark"
-          >
-            Back to Sign In
-          </button>
+            <button
+              type="button"
+              onClick={() => {
+                setIsForgotPassword(false);
+                setError(null);
+                setSuccess(null);
+              }}
+              className="w-full py-2.5 text-xs text-primary font-semibold hover:text-primary-dark transition-colors border-none bg-transparent cursor-pointer"
+            >
+              Back to Sign In
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -125,108 +127,112 @@ export const Login = observer(function LoginPage() {
 
   if (isMagicLink) {
     return (
-      <div className="flex flex-1 min-h-0 h-full flex-col overflow-y-auto bg-white">
-        <PageHeader title="Magic Link Sign In" />
-        <div className="flex-1 flex flex-col px-4 py-6 md:px-8 md:py-8 w-full max-w-lg mx-auto justify-center">
-          <p className="text-base text-gray-600 mb-6">
-            We'll send you a magic link to sign in without a password
-          </p>
+      <div className="flex flex-1 min-h-0 h-full flex-col overflow-y-auto bg-gray-50/40">
+        <PageHeader title="Magic Link" />
+        <div className="flex-1 flex flex-col items-center justify-center p-6">
+          <div className="w-full max-w-md bg-white border border-gray-150 rounded-3xl p-6 md:p-8 shadow-lg">
+            <p className="text-xs font-bold text-gray-400 mb-6 uppercase tracking-wider">
+              We'll send you a magic link to sign in without a password
+            </p>
 
-          <input
-            type="email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg mb-4"
-          />
+            <input
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full h-12 px-4 text-sm border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-xl mb-4 transition-all duration-300 bg-gray-50/40 focus:bg-white shadow-inner"
+            />
 
-          {error && <p className="text-sm text-red-500 mb-4">{error}</p>}
-          {success && <p className="text-sm text-green-500 mb-4">{success}</p>}
+            {error && <p className="text-xs font-semibold text-red-650 bg-red-50/80 p-3 rounded-xl border border-red-100/50 mb-4">{error}</p>}
+            {success && <p className="text-xs font-semibold text-emerald-650 bg-emerald-50/80 p-3 rounded-xl border border-emerald-100/50 mb-4">{success}</p>}
 
-          <button
-            type="button"
-            onClick={handleMagicLink}
-            disabled={loading}
-            className={`w-full h-12 px-4 bg-primary rounded-lg text-white font-medium mb-6 hover:bg-primary-dark transition ${loading ? 'opacity-50' : ''}`}
-          >
-            {loading ? 'Sending...' : 'Send Magic Link'}
-          </button>
+            <button
+              type="button"
+              onClick={handleMagicLink}
+              disabled={loading}
+              className={`w-full h-12 px-4 bg-primary hover:bg-primary-dark rounded-xl text-white font-semibold mb-6 hover:-translate-y-0.5 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer border-none ${loading ? 'opacity-50' : ''}`}
+            >
+              {loading ? 'Sending...' : 'Send Magic Link'}
+            </button>
 
-          <button
-            type="button"
-            onClick={() => {
-              setIsMagicLink(false);
-              setError(null);
-              setSuccess(null);
-            }}
-            className="w-full py-2 p-2 text-sm text-primary underline hover:text-primary-dark"
-          >
-            Back to Sign In
-          </button>
+            <button
+              type="button"
+              onClick={() => {
+                setIsMagicLink(false);
+                setError(null);
+                setSuccess(null);
+              }}
+              className="w-full py-2.5 text-xs text-primary font-semibold hover:text-primary-dark transition-colors border-none bg-transparent cursor-pointer"
+            >
+              Back to Sign In
+            </button>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-1 min-h-0 h-full flex-col overflow-y-auto bg-white">
+    <div className="flex flex-1 min-h-0 h-full flex-col overflow-y-auto bg-gray-50/40">
       <PageHeader title={isSignUp ? 'Create Account' : 'Sign In'} />
-      <div className="flex-1 flex flex-col px-4 py-6 md:px-8 md:py-8 w-full max-w-lg mx-auto justify-center">
-        <p className="text-base text-gray-600 mb-6">
-          {isSignUp ? 'Sign up to track your runestone visits' : 'Welcome back to Runestone Safari'}
-        </p>
+      <div className="flex-1 flex flex-col items-center justify-center p-6">
+        <div className="w-full max-w-md bg-white border border-gray-150 rounded-3xl p-6 md:p-10 shadow-lg">
+          <p className="text-xs font-bold text-gray-400 mb-6 uppercase tracking-wider">
+            {isSignUp ? 'Sign up to track your runestone visits' : 'Welcome back to Runestone Safari'}
+          </p>
 
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg mb-4"
-        />
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full h-12 px-4 text-sm border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-xl mb-4 transition-all duration-300 bg-gray-50/40 focus:bg-white shadow-inner"
+          />
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg mb-4"
-        />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full h-12 px-4 text-sm border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-xl mb-4 transition-all duration-300 bg-gray-50/40 focus:bg-white shadow-inner"
+          />
 
-        {error && <p className="text-sm text-red-500 mb-4">{error}</p>}
-        {success && <p className="text-sm text-green-500 mb-4">{success}</p>}
-
-        <button
-          onClick={handleAuth}
-          disabled={loading}
-          className={`w-full h-12 px-4 bg-primary rounded-lg text-white font-medium mb-6 hover:bg-primary-dark transition ${loading ? 'opacity-50' : ''}`}
-        >
-          {loading ? 'Loading...' : isSignUp ? 'Sign Up' : 'Sign In'}
-        </button>
-
-        <div className="flex flex-col gap-4 items-center">
-          <button
-            type="button"
-            onClick={handleToggleSignUp}
-            className="text-sm p-2 text-primary underline hover:text-primary-dark"
-          >
-            {isSignUp ? 'Already have an account? Sign In' : 'Need an account? Sign Up'}
-          </button>
+          {error && <p className="text-xs font-semibold text-red-650 bg-red-50/80 p-3 rounded-xl border border-red-100/50 mb-4">{error}</p>}
+          {success && <p className="text-xs font-semibold text-emerald-650 bg-emerald-50/80 p-3 rounded-xl border border-emerald-100/50 mb-4">{success}</p>}
 
           <button
-            type="button"
-            onClick={() => setIsForgotPassword(true)}
-            className="text-sm p-2 text-primary underline hover:text-primary-dark"
+            onClick={handleAuth}
+            disabled={loading}
+            className={`w-full h-12 px-4 bg-primary hover:bg-primary-dark rounded-xl text-white font-semibold mb-6 hover:-translate-y-0.5 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer border-none ${loading ? 'opacity-50' : ''}`}
           >
-            Forgot password?
+            {loading ? 'Loading...' : isSignUp ? 'Sign Up' : 'Sign In'}
           </button>
 
-          <button
-            type="button"
-            onClick={() => setIsMagicLink(true)}
-            className="text-sm p-2 text-primary underline hover:text-primary-dark"
-          >
-            Sign in with Magic Link
-          </button>
+          <div className="flex flex-col gap-2 items-center">
+            <button
+              type="button"
+              onClick={handleToggleSignUp}
+              className="text-xs font-semibold p-2 text-primary hover:text-primary-dark transition-colors border-none bg-transparent cursor-pointer"
+            >
+              {isSignUp ? 'Already have an account? Sign In' : 'Need an account? Sign Up'}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setIsForgotPassword(true)}
+              className="text-xs font-semibold p-2 text-primary hover:text-primary-dark transition-colors border-none bg-transparent cursor-pointer"
+            >
+              Forgot password?
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setIsMagicLink(true)}
+              className="text-xs font-semibold p-2 text-primary hover:text-primary-dark transition-colors border-none bg-transparent cursor-pointer"
+            >
+              Sign in with Magic Link
+            </button>
+          </div>
         </div>
       </div>
     </div>
