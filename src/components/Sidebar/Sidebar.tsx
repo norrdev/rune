@@ -191,7 +191,7 @@ export const Sidebar = observer(({ visitedCount, visible = false, onClose }: Sid
               License
             </Link>
           </div>
-          <div className="text-[10px] text-gray-400 text-center mt-1.5 font-medium">© 2025-2026 Denis Filonov</div>
+          <div className="text-[10px] text-gray-400 text-center mt-1.5 font-medium">© 2025-2026 norr.dev</div>
         </div>
       </div>
     </>

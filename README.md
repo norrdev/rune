@@ -34,7 +34,7 @@ Runestone Safari is an interactive map application that allows you to explore Sw
 ## License
 
 ```
-Copyright (C) 2025 Denis Filonov
+Copyright (C) 2025-2026 norr.dev
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
