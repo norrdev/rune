@@ -11,6 +11,7 @@
     "preview": "vite preview",
     "deploy": "wrangler deploy",
     "tauri:icons": "tauri icon src-tauri/icons/icon-manifest.json && node scripts/sync-android-branding.mjs",
+    "android:dev": "tauri android dev",
     "android:release": "node scripts/android-release.mjs"
   },
   "dependencies": {
