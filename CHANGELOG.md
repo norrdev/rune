@@ -20,3 +20,12 @@
 - Refactoring of the codebase, usung Tauri.
 - Bug Fixes.
 
+## 3.1
+- Fixed bug with map centering on location.
+- First android version.
+- Update icon.
+
+## 3.2
+- Added ability to export GPX with visited runestones.
+- Added ability to export GPX with all runestones.
+
