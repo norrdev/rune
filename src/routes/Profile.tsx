@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
+import { Download } from 'lucide-react';
 import { authStore } from '../stores/authStore';
 import { visitedRunestonesStore } from '../stores/visitedRunestonesStore';
+import { runestonesCache } from '../services/Cache/runestonesCache';
 import type { Runestone } from '../types';
 import { PageHeader } from '../components/PageHeader';
 
@@ -11,6 +13,8 @@ export const Profile = observer(function ProfilePage() {
   const [visitedRunestoneDetails, setVisitedRunestoneDetails] = useState<Runestone[]>([]);
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [detailsError, setDetailsError] = useState<string | null>(null);
+  const [downloadAllLoading, setDownloadAllLoading] = useState(false);
+  const [downloadVisitedLoading, setDownloadVisitedLoading] = useState(false);
 
   useEffect(() => {
     const loadVisitedRunestoneDetails = async () => {
@@ -65,6 +69,96 @@ export const Profile = observer(function ProfilePage() {
   const handleDeleteAccount = () => {
     if (window.confirm('Delete your account and all associated data? This cannot be undone.')) {
       authStore.deleteUser();
+    }
+  };
+
+  const downloadGpx = (stones: Runestone[], filename: string) => {
+    const escapeXml = (str: string) => {
+      return str.replace(/[<>&'"]/g, (c) => {
+        switch (c) {
+          case '<': return '&lt;';
+          case '>': return '&gt;';
+          case '&': return '&amp;';
+          case '\'': return '&apos;';
+          case '"': return '&quot;';
+          default: return c;
+        }
+      });
+    };
+
+    const gpxHeader = `<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Runestone Safari" xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+  <metadata>
+    <name>${escapeXml(filename.replace('.gpx', ''))}</name>
+    <desc>Runestones exported from Runestone Safari</desc>
+    <time>${new Date().toISOString()}</time>
+  </metadata>`;
+
+    const waypoints = stones.map((stone) => {
+      const descParts = [
+        stone.found_location ? `Location: ${stone.found_location}` : null,
+        stone.parish ? `Parish: ${stone.parish}` : null,
+        stone.municipality ? `Municipality: ${stone.municipality}` : null,
+        stone.dating ? `Dating: ${stone.dating}` : null,
+        stone.style ? `Style: ${stone.style}` : null,
+        stone.carver ? `Carver: ${stone.carver}` : null,
+      ].filter(Boolean);
+      
+      const detailParts = [];
+      if (stone.english_translation) detailParts.push(`EN: ${stone.english_translation}`);
+      if (stone.swedish_translation) detailParts.push(`SV: ${stone.swedish_translation}`);
+      
+      const desc = [...descParts, ...detailParts].join(' | ');
+      const name = stone.signature_text || `Runestone #${stone.id}`;
+      
+      return `  <wpt lat="${stone.latitude}" lon="${stone.longitude}">
+    <name>${escapeXml(name)}</name>
+    <desc>${escapeXml(desc)}</desc>
+    <sym>Waypoint</sym>
+  </wpt>`;
+    }).join('\n');
+
+    const gpxFooter = '\n</gpx>';
+    const gpxContent = gpxHeader + '\n' + waypoints + gpxFooter;
+
+    const blob = new Blob([gpxContent], { type: 'application/gpx+xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadAll = async () => {
+    setDownloadAllLoading(true);
+    try {
+      const allStones = await runestonesCache.getAllRunestones();
+      downloadGpx(allStones, 'all_runestones.gpx');
+    } catch (err) {
+      console.error('Failed to export all runestones:', err);
+      alert('Failed to export all runestones. Please try again.');
+    } finally {
+      setDownloadAllLoading(false);
+    }
+  };
+
+  const handleDownloadVisited = async () => {
+    if (visitedRunestonesStore.visitedCount === 0) {
+      alert('You have not visited any runestones yet.');
+      return;
+    }
+    setDownloadVisitedLoading(true);
+    try {
+      const visitedStones = await visitedRunestonesStore.getVisitedRunestoneDetails();
+      downloadGpx(visitedStones, 'visited_runestones.gpx');
+    } catch (err) {
+      console.error('Failed to export visited runestones:', err);
+      alert('Failed to export visited runestones. Please try again.');
+    } finally {
+      setDownloadVisitedLoading(false);
     }
   };
 
@@ -255,6 +349,45 @@ export const Profile = observer(function ProfilePage() {
                   className="bg-gradient-to-r from-primary to-accent h-full rounded-full transition-all duration-700 ease-out"
                   style={{ width: `${visitedRunestonesStore.completionPercentage}%` }}
                 />
+              </div>
+            </div>
+
+            {/* GPX Export Section */}
+            <div className="bg-white border border-gray-150 rounded-2xl p-6 mb-8 shadow-sm">
+              <div className="flex items-center gap-3 mb-3">
+                <span className="text-primary font-bold text-lg flex items-center">
+                  <Download className="w-5 h-5 text-primary" />
+                </span>
+                <h3 className="text-sm font-bold text-gray-800 font-display">Export GPX Data</h3>
+              </div>
+              <p className="text-xs text-gray-500 mb-6 leading-relaxed">
+                Download GPX files to import runestone coordinates into your favorite GPS devices or mapping apps (like OsmAnd, Garmin, or Gaia GPS).
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <button
+                  type="button"
+                  onClick={handleDownloadAll}
+                  disabled={downloadAllLoading || downloadVisitedLoading}
+                  className="bg-white border border-gray-250 hover:border-primary/30 hover:bg-primary/5 active:bg-primary/10 h-12 rounded-xl flex items-center justify-center hover:-translate-y-0.5 shadow-sm hover:shadow transition-all duration-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:bg-white"
+                >
+                  {downloadAllLoading ? (
+                    <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <span className="text-gray-700 font-semibold text-sm">Download All Runestones GPX</span>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDownloadVisited}
+                  disabled={downloadAllLoading || downloadVisitedLoading || visitedRunestonesStore.visitedCount === 0}
+                  className="bg-white border border-gray-250 hover:border-emerald-500/30 hover:bg-emerald-50 active:bg-emerald-100 h-12 rounded-xl flex items-center justify-center hover:-translate-y-0.5 shadow-sm hover:shadow transition-all duration-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:bg-white"
+                >
+                  {downloadVisitedLoading ? (
+                    <div className="w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <span className="text-gray-700 font-semibold text-sm">Download Visited GPX</span>
+                  )}
+                </button>
               </div>
             </div>
 
