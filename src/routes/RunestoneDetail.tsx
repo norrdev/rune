@@ -113,15 +113,23 @@ export const RunestoneDetail = observer(function RunestoneDetailPage() {
               <div className="flex flex-col gap-6">
                 {/* Location Details */}
                 <div>
-                  <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2.5">Location Details</h3>
+                  <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2.5">
+                    Location Details
+                  </h3>
                   <div className="bg-gray-50/60 p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col gap-1.5">
-                    <span className="text-gray-800 font-semibold text-sm">{runestone.found_location}</span>
+                    <span className="text-gray-800 font-semibold text-sm">
+                      {runestone.found_location}
+                    </span>
                     <span className="text-xs text-gray-500 font-medium">{runestone.parish}</span>
                     {!!runestone.district && (
-                      <span className="text-xs text-gray-500 font-medium">{runestone.district}</span>
+                      <span className="text-xs text-gray-500 font-medium">
+                        {runestone.district}
+                      </span>
                     )}
                     {!!runestone.municipality && (
-                      <span className="text-xs text-gray-500 font-medium">{runestone.municipality}</span>
+                      <span className="text-xs text-gray-500 font-medium">
+                        {runestone.municipality}
+                      </span>
                     )}
                     {!!runestone.current_location && (
                       <span className="text-xs text-gray-600 font-semibold mt-1 bg-gray-100/60 px-2 py-1 rounded-md w-fit">
@@ -141,7 +149,9 @@ export const RunestoneDetail = observer(function RunestoneDetailPage() {
                 {/* Visit Status */}
                 {authStore.user && (
                   <div>
-                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2.5">Visit Status</h3>
+                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2.5">
+                      Visit Status
+                    </h3>
                     <div className="bg-gray-50/60 p-4 rounded-2xl border border-gray-100 shadow-sm">
                       <div className="flex items-center justify-between flex-wrap gap-4">
                         <div className="flex items-center gap-3">
@@ -155,7 +165,9 @@ export const RunestoneDetail = observer(function RunestoneDetailPage() {
                                   : 'bg-gray-200 border-gray-300'
                               }`}
                             >
-                              {isVisited && <span className="text-white text-[10px] font-bold">✓</span>}
+                              {isVisited && (
+                                <span className="text-white text-[10px] font-bold">✓</span>
+                              )}
                             </div>
                           )}
                           <span className="text-sm font-semibold text-gray-750">
@@ -183,7 +195,9 @@ export const RunestoneDetail = observer(function RunestoneDetailPage() {
                         </button>
                       </div>
                       {!!visitedError && (
-                        <span className="text-xs font-semibold text-red-650 bg-red-50/80 p-2.5 rounded-xl border border-red-100/50 mt-3 block">{visitedError}</span>
+                        <span className="text-xs font-semibold text-red-650 bg-red-50/80 p-2.5 rounded-xl border border-red-100/50 mt-3 block">
+                          {visitedError}
+                        </span>
                       )}
                     </div>
                   </div>
@@ -193,23 +207,33 @@ export const RunestoneDetail = observer(function RunestoneDetailPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Basic Details */}
                   <div>
-                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2.5">Details</h3>
+                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2.5">
+                      Details
+                    </h3>
                     <div className="bg-gray-50/60 p-4 rounded-2xl border border-gray-100 flex flex-col gap-2 shadow-sm h-full">
                       <div className="text-xs text-gray-650 flex items-center justify-between">
                         <span className="font-semibold">Material:</span>
-                        <span className="text-gray-800 font-semibold">{runestone.material || 'Unknown'}</span>
+                        <span className="text-gray-800 font-semibold">
+                          {runestone.material || 'Unknown'}
+                        </span>
                       </div>
                       <div className="text-xs text-gray-650 flex items-center justify-between">
                         <span className="font-semibold">Dating:</span>
-                        <span className="text-gray-800 font-semibold">{runestone.dating || 'Unknown'}</span>
+                        <span className="text-gray-800 font-semibold">
+                          {runestone.dating || 'Unknown'}
+                        </span>
                       </div>
                       <div className="text-xs text-gray-650 flex items-center justify-between">
                         <span className="font-semibold">Type:</span>
-                        <span className="text-gray-800 font-semibold">{runestone.rune_type || 'Unknown'}</span>
+                        <span className="text-gray-800 font-semibold">
+                          {runestone.rune_type || 'Unknown'}
+                        </span>
                       </div>
                       <div className="text-xs text-gray-650 flex items-center justify-between">
                         <span className="font-semibold">Style:</span>
-                        <span className="text-gray-800 font-semibold">{runestone.material_type || 'Unknown'}</span>
+                        <span className="text-gray-800 font-semibold">
+                          {runestone.material_type || 'Unknown'}
+                        </span>
                       </div>
                       {!!runestone.carver && (
                         <div className="text-xs text-gray-655 flex items-center justify-between">
@@ -228,19 +252,33 @@ export const RunestoneDetail = observer(function RunestoneDetailPage() {
 
                   {/* Status */}
                   <div>
-                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2.5">Status</h3>
+                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2.5">
+                      Status
+                    </h3>
                     <div className="bg-gray-50/60 p-4 rounded-2xl border border-gray-100 flex flex-col gap-3 shadow-sm h-full justify-center">
                       <div className="flex items-center justify-between text-xs font-semibold">
                         <span className="text-gray-600">Lost:</span>
-                        <span className={`px-2.5 py-0.5 rounded-full ${runestone.lost ? 'bg-red-50 text-red-650' : 'bg-gray-100 text-gray-600'}`}>{runestone.lost ? 'Yes' : 'No'}</span>
+                        <span
+                          className={`px-2.5 py-0.5 rounded-full ${runestone.lost ? 'bg-red-50 text-red-650' : 'bg-gray-100 text-gray-600'}`}
+                        >
+                          {runestone.lost ? 'Yes' : 'No'}
+                        </span>
                       </div>
                       <div className="flex items-center justify-between text-xs font-semibold">
                         <span className="text-gray-600">Ornamental:</span>
-                        <span className={`px-2.5 py-0.5 rounded-full ${runestone.ornamental ? 'bg-indigo-50 text-indigo-650' : 'bg-gray-100 text-gray-600'}`}>{runestone.ornamental ? 'Yes' : 'No'}</span>
+                        <span
+                          className={`px-2.5 py-0.5 rounded-full ${runestone.ornamental ? 'bg-indigo-50 text-indigo-650' : 'bg-gray-100 text-gray-600'}`}
+                        >
+                          {runestone.ornamental ? 'Yes' : 'No'}
+                        </span>
                       </div>
                       <div className="flex items-center justify-between text-xs font-semibold">
                         <span className="text-gray-600">Recent:</span>
-                        <span className={`px-2.5 py-0.5 rounded-full ${runestone.recent ? 'bg-yellow-50 text-yellow-750' : 'bg-gray-100 text-gray-600'}`}>{runestone.recent ? 'Yes' : 'No'}</span>
+                        <span
+                          className={`px-2.5 py-0.5 rounded-full ${runestone.recent ? 'bg-yellow-50 text-yellow-750' : 'bg-gray-100 text-gray-600'}`}
+                        >
+                          {runestone.recent ? 'Yes' : 'No'}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -250,7 +288,9 @@ export const RunestoneDetail = observer(function RunestoneDetailPage() {
                 <div className="flex flex-col gap-4">
                   {!!runestone.norse_text && (
                     <div>
-                      <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Norse Text</h3>
+                      <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">
+                        Norse Text
+                      </h3>
                       <div className="bg-gray-50/70 p-4 rounded-2xl border border-gray-100 shadow-sm">
                         <p className="text-gray-750 text-sm leading-relaxed italic font-semibold m-0">
                           {runestone.norse_text}
@@ -261,7 +301,9 @@ export const RunestoneDetail = observer(function RunestoneDetailPage() {
 
                   {!!runestone.transliteration && (
                     <div>
-                      <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Transliteration</h3>
+                      <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">
+                        Transliteration
+                      </h3>
                       <div className="bg-gray-50/70 p-4 rounded-2xl border border-gray-100 shadow-sm">
                         <p className="text-gray-700 text-xs leading-relaxed font-mono tracking-wide m-0">
                           {runestone.transliteration}
@@ -272,7 +314,9 @@ export const RunestoneDetail = observer(function RunestoneDetailPage() {
 
                   {!!runestone.swedish_translation && (
                     <div>
-                      <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Swedish Translation</h3>
+                      <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">
+                        Swedish Translation
+                      </h3>
                       <div className="bg-accent/5 p-4 rounded-2xl border-l-4 border-accent/50 shadow-sm">
                         <p className="text-gray-750 text-sm leading-relaxed font-medium m-0">
                           {runestone.swedish_translation}
@@ -283,7 +327,9 @@ export const RunestoneDetail = observer(function RunestoneDetailPage() {
 
                   {!!runestone.english_translation && (
                     <div>
-                      <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">English Translation</h3>
+                      <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">
+                        English Translation
+                      </h3>
                       <div className="bg-primary/5 p-4 rounded-2xl border-l-4 border-primary/50 shadow-sm">
                         <p className="text-gray-755 text-sm leading-relaxed font-medium m-0">
                           {runestone.english_translation}
