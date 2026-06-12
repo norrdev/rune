@@ -96,8 +96,16 @@ export const Login = observer(function LoginPage() {
               className="w-full h-12 px-4 text-sm border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-xl mb-4 transition-all duration-300 bg-gray-50/40 focus:bg-white shadow-inner"
             />
 
-            {error && <p className="text-xs font-semibold text-red-650 bg-red-50/80 p-3 rounded-xl border border-red-100/50 mb-4">{error}</p>}
-            {success && <p className="text-xs font-semibold text-emerald-650 bg-emerald-50/80 p-3 rounded-xl border border-emerald-100/50 mb-4">{success}</p>}
+            {error && (
+              <p className="text-xs font-semibold text-red-650 bg-red-50/80 p-3 rounded-xl border border-red-100/50 mb-4">
+                {error}
+              </p>
+            )}
+            {success && (
+              <p className="text-xs font-semibold text-emerald-650 bg-emerald-50/80 p-3 rounded-xl border border-emerald-100/50 mb-4">
+                {success}
+              </p>
+            )}
 
             <button
               type="button"
@@ -143,8 +151,16 @@ export const Login = observer(function LoginPage() {
               className="w-full h-12 px-4 text-sm border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-xl mb-4 transition-all duration-300 bg-gray-50/40 focus:bg-white shadow-inner"
             />
 
-            {error && <p className="text-xs font-semibold text-red-650 bg-red-50/80 p-3 rounded-xl border border-red-100/50 mb-4">{error}</p>}
-            {success && <p className="text-xs font-semibold text-emerald-650 bg-emerald-50/80 p-3 rounded-xl border border-emerald-100/50 mb-4">{success}</p>}
+            {error && (
+              <p className="text-xs font-semibold text-red-650 bg-red-50/80 p-3 rounded-xl border border-red-100/50 mb-4">
+                {error}
+              </p>
+            )}
+            {success && (
+              <p className="text-xs font-semibold text-emerald-650 bg-emerald-50/80 p-3 rounded-xl border border-emerald-100/50 mb-4">
+                {success}
+              </p>
+            )}
 
             <button
               type="button"
@@ -178,7 +194,9 @@ export const Login = observer(function LoginPage() {
       <div className="flex-1 flex flex-col items-center justify-center p-6">
         <div className="w-full max-w-md bg-white border border-gray-150 rounded-3xl p-6 md:p-10 shadow-lg">
           <p className="text-xs font-bold text-gray-400 mb-6 uppercase tracking-wider">
-            {isSignUp ? 'Sign up to track your runestone visits' : 'Welcome back to Runestone Safari'}
+            {isSignUp
+              ? 'Sign up to track your runestone visits'
+              : 'Welcome back to Runestone Safari'}
           </p>
 
           <input
@@ -197,8 +215,16 @@ export const Login = observer(function LoginPage() {
             className="w-full h-12 px-4 text-sm border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-xl mb-4 transition-all duration-300 bg-gray-50/40 focus:bg-white shadow-inner"
           />
 
-          {error && <p className="text-xs font-semibold text-red-650 bg-red-50/80 p-3 rounded-xl border border-red-100/50 mb-4">{error}</p>}
-          {success && <p className="text-xs font-semibold text-emerald-650 bg-emerald-50/80 p-3 rounded-xl border border-emerald-100/50 mb-4">{success}</p>}
+          {error && (
+            <p className="text-xs font-semibold text-red-650 bg-red-50/80 p-3 rounded-xl border border-red-100/50 mb-4">
+              {error}
+            </p>
+          )}
+          {success && (
+            <p className="text-xs font-semibold text-emerald-650 bg-emerald-50/80 p-3 rounded-xl border border-emerald-100/50 mb-4">
+              {success}
+            </p>
+          )}
 
           <button
             onClick={handleAuth}

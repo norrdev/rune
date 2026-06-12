@@ -27,7 +27,9 @@ export const PageHeader = ({ title }: PageHeaderProps) => {
           >
             <span className="text-primary text-2xl font-medium leading-none -mt-0.5">‹</span>
           </button>
-          <h1 className="text-lg font-extrabold font-display tracking-tight text-gray-800 flex-1 m-0">{title}</h1>
+          <h1 className="text-lg font-extrabold font-display tracking-tight text-gray-800 flex-1 m-0">
+            {title}
+          </h1>
         </div>
       </div>
     </div>

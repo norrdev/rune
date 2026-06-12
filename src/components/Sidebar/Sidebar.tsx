@@ -47,11 +47,7 @@ export const Sidebar = observer(({ visitedCount, visible = false, onClose }: Sid
         className={`bg-white/95 backdrop-blur-md border-r border-gray-100 flex flex-col z-50 relative shadow-xl transition-all duration-300
           ${isMobile ? 'fixed top-0 left-0 h-full w-80' : 'w-72 max-w-sm h-full'}
         `}
-        style={
-          isMobile
-            ? { paddingTop: 'max(env(safe-area-inset-top, 0px), 2.75rem)' }
-            : {}
-        }
+        style={isMobile ? { paddingTop: 'max(env(safe-area-inset-top, 0px), 2.75rem)' } : {}}
       >
         {/* Close button for mobile */}
         {isMobile && (
@@ -67,12 +63,13 @@ export const Sidebar = observer(({ visitedCount, visible = false, onClose }: Sid
         {/* All content except footer */}
         <div className="flex-1 overflow-y-auto pb-5">
           {/* Header */}
-          <div
-            className="px-6 pb-5 border-b border-gray-100"
-            style={{ paddingTop: 24 }}
-          >
-            <div className="text-2xl font-extrabold font-display tracking-tight bg-gradient-to-r from-primary via-primary-light to-accent bg-clip-text text-transparent">Runestone Safari</div>
-            <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Explore Swedish Runestones</div>
+          <div className="px-6 pb-5 border-b border-gray-100" style={{ paddingTop: 24 }}>
+            <div className="text-2xl font-extrabold font-display tracking-tight bg-linear-to-r from-primary via-primary-light to-accent bg-clip-text text-transparent">
+              Runestone Safari
+            </div>
+            <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">
+              Explore Swedish Runestones
+            </div>
           </div>
 
           {/* Search Widget */}
@@ -81,9 +78,11 @@ export const Sidebar = observer(({ visitedCount, visible = false, onClose }: Sid
           {/* Visited Runestone Count */}
           {authStore.user && (
             <div className="px-4 py-1.5">
-              <div className="bg-gradient-to-br from-primary/5 to-accent/5 border border-primary/10 rounded-2xl p-4 transition hover:shadow-sm">
+              <div className="bg-linear-to-br from-primary/5 to-accent/5 border border-primary/10 rounded-2xl p-4 transition hover:shadow-sm">
                 <Link to="/profile" className="flex items-center justify-between group">
-                  <div className="text-xs font-semibold text-gray-500 group-hover:text-primary transition-colors">Your Progress</div>
+                  <div className="text-xs font-semibold text-gray-500 group-hover:text-primary transition-colors">
+                    Your Progress
+                  </div>
                   <div className="flex items-center gap-1.5 bg-primary/10 px-2.5 py-1 rounded-full text-xs font-bold text-primary group-hover:bg-primary group-hover:text-white transition-all">
                     <span>{visitedCount}</span>
                     <span className="text-[10px] font-normal opacity-90">visited</span>
@@ -95,7 +94,9 @@ export const Sidebar = observer(({ visitedCount, visible = false, onClose }: Sid
 
           {/* Map Legend */}
           <div className="px-4 py-4 border-t border-gray-100 mt-2">
-            <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 px-1">Map Legend</div>
+            <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 px-1">
+              Map Legend
+            </div>
             <div className="grid grid-cols-1 gap-2.5 bg-gray-50/50 p-3.5 rounded-2xl border border-gray-100">
               <div className="flex items-center gap-3">
                 <div
@@ -137,7 +138,8 @@ export const Sidebar = observer(({ visitedCount, visible = false, onClose }: Sid
                 Account
               </div>
               <div className="text-xs text-gray-500 truncate block max-w-full mb-3 px-1 font-medium">
-                Signed in as <span className="font-semibold text-gray-700">{authStore.user.email}</span>
+                Signed in as{' '}
+                <span className="font-semibold text-gray-700">{authStore.user.email}</span>
               </div>
               <div className="flex flex-col gap-2">
                 <Link
@@ -179,19 +181,30 @@ export const Sidebar = observer(({ visitedCount, visible = false, onClose }: Sid
         {/* Footer */}
         <div className="p-4 border-t border-gray-100 bg-gray-50/50 mt-auto">
           <div className="flex flex-wrap justify-center gap-1">
-            <Link to="/about" className="text-xs text-gray-400 hover:text-primary transition-colors underline">
+            <Link
+              to="/about"
+              className="text-xs text-gray-400 hover:text-primary transition-colors underline"
+            >
               About
             </Link>
             <span className="text-xs text-gray-300">•</span>
-            <Link to="/privacy" className="text-xs text-gray-400 hover:text-primary transition-colors underline">
+            <Link
+              to="/privacy"
+              className="text-xs text-gray-400 hover:text-primary transition-colors underline"
+            >
               Privacy
             </Link>
             <span className="text-xs text-gray-300">•</span>
-            <Link to="/license" className="text-xs text-gray-400 hover:text-primary transition-colors underline">
+            <Link
+              to="/license"
+              className="text-xs text-gray-400 hover:text-primary transition-colors underline"
+            >
               License
             </Link>
           </div>
-          <div className="text-[10px] text-gray-400 text-center mt-1.5 font-medium">© 2025-2026 norr.dev</div>
+          <div className="text-[10px] text-gray-400 text-center mt-1.5 font-medium">
+            © 2025-2026 norr.dev
+          </div>
         </div>
       </div>
     </>

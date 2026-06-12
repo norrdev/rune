@@ -56,7 +56,9 @@ export const SearchWidget = observer(({ onClose }: SearchWidgetProps) => {
       {searchStore.hasSearched && (
         <div className="mt-4">
           {searchStore.isLoading ? (
-            <div className="text-xs text-gray-400 text-center py-4 font-medium animate-pulse">Searching the archives...</div>
+            <div className="text-xs text-gray-400 text-center py-4 font-medium animate-pulse">
+              Searching the archives...
+            </div>
           ) : searchStore.hasResults ? (
             <div className="flex flex-col gap-2.5">
               <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">
@@ -75,7 +77,9 @@ export const SearchWidget = observer(({ onClose }: SearchWidgetProps) => {
                       searchStore.setSelectedRunestone(runestone);
                     }}
                   >
-                    <div className="font-semibold text-xs text-gray-800 group-hover:text-primary transition-colors">{runestone.signature_text}</div>
+                    <div className="font-semibold text-xs text-gray-800 group-hover:text-primary transition-colors">
+                      {runestone.signature_text}
+                    </div>
                     <div className="text-[10px] font-medium text-gray-400 mt-0.5 truncate">
                       {runestone.found_location}, {runestone.parish}
                     </div>
@@ -89,7 +93,9 @@ export const SearchWidget = observer(({ onClose }: SearchWidgetProps) => {
               </div>
             </div>
           ) : (
-            <div className="text-xs text-gray-400 text-center py-4 font-medium bg-gray-50/30 rounded-xl border border-dashed border-gray-100">No runestones found</div>
+            <div className="text-xs text-gray-400 text-center py-4 font-medium bg-gray-50/30 rounded-xl border border-dashed border-gray-100">
+              No runestones found
+            </div>
           )}
         </div>
       )}

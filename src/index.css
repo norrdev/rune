@@ -1,23 +1,52 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@theme {
+  --color-primary: #4f46e5;
+  --color-primary-dark: #3730a3;
+  --color-primary-light: #818cf8;
+
+  --color-accent: #0d9488;
+  --color-accent-dark: #0f766e;
+  --color-accent-light: #2dd4bf;
+
+  --color-gray-150: #eef0f3;
+  --color-gray-250: #dbe0e7;
+  --color-gray-450: #858da0;
+  --color-gray-650: #414a59;
+  --color-gray-850: #18202c;
+  --color-gray-855: #151c27;
+
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "sans-serif";
+  --font-display: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "sans-serif";
+}
 
 @layer base {
+  *, ::after, ::before, ::backdrop, ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+
   html,
   body {
     height: 100%;
     width: 100%;
     margin: 0;
     padding: 0;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family:
+      "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     /* Avoid whole-page vertical scroll on Android WebView: 100vh + safe padding > visible height */
     overflow: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family:
+      "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     letter-spacing: -0.02em;
   }
 }
@@ -35,4 +64,3 @@
   padding-right: env(safe-area-inset-right);
   box-sizing: border-box;
 }
-

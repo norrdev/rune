@@ -1,6 +1,6 @@
 {
   "name": "runestonesafari",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -15,29 +15,32 @@
     "android:release": "node scripts/android-release.mjs"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.103.3",
-    "@tauri-apps/api": "^2.10.1",
+    "@supabase/supabase-js": "^2.108.1",
+    "@tauri-apps/api": "^2.11.0",
     "@tauri-apps/plugin-shell": "^2.3.5",
     "idb": "^8.0.3",
-    "lucide-react": "^1.8.0",
-    "maplibre-gl": "^5.23.0",
-    "mobx": "^6.15.0",
+    "lucide-react": "^1.18.0",
+    "maplibre-gl": "^5.24.0",
+    "mobx": "^6.16.1",
     "mobx-react-lite": "^4.1.1",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
     "react-markdown": "^10.1.0",
-    "react-router-dom": "^7.14.1"
+    "react-router-dom": "^7.17.0"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^2.10.1",
-    "@types/react": "^18.3.28",
-    "@types/react-dom": "^18.3.7",
-    "@vitejs/plugin-react": "^4.7.0",
+    "@biomejs/biome": "2.5.0",
+    "@tailwindcss/postcss": "^4.3.1",
+    "@tailwindcss/vite": "^4.3.1",
+    "@tauri-apps/cli": "^2.11.2",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.2",
     "autoprefixer": "^10.5.0",
-    "postcss": "^8.5.10",
-    "tailwindcss": "^3.4.19",
-    "typescript": "^5.9.3",
-    "vite": "^5.4.21",
-    "wrangler": "^4.88.0"
+    "postcss": "^8.5.15",
+    "tailwindcss": "^4.3.1",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.16",
+    "wrangler": "^4.100.0"
   }
 }

@@ -15,6 +15,8 @@ export const Profile = observer(function ProfilePage() {
   const [detailsError, setDetailsError] = useState<string | null>(null);
   const [downloadAllLoading, setDownloadAllLoading] = useState(false);
   const [downloadVisitedLoading, setDownloadVisitedLoading] = useState(false);
+  const [splitLimit, setSplitLimit] = useState<string>('none');
+  const [customLimit, setCustomLimit] = useState<number>(500);
 
   useEffect(() => {
     const loadVisitedRunestoneDetails = async () => {
@@ -72,71 +74,114 @@ export const Profile = observer(function ProfilePage() {
     }
   };
 
-  const downloadGpx = (stones: Runestone[], filename: string) => {
+  const downloadGpx = async (stones: Runestone[], filename: string) => {
     const escapeXml = (str: string) => {
       return str.replace(/[<>&'"]/g, (c) => {
         switch (c) {
-          case '<': return '&lt;';
-          case '>': return '&gt;';
-          case '&': return '&amp;';
-          case '\'': return '&apos;';
-          case '"': return '&quot;';
-          default: return c;
+          case '<':
+            return '&lt;';
+          case '>':
+            return '&gt;';
+          case '&':
+            return '&amp;';
+          case "'":
+            return '&apos;';
+          case '"':
+            return '&quot;';
+          default:
+            return c;
         }
       });
     };
 
-    const gpxHeader = `<?xml version="1.0" encoding="UTF-8"?>
+    const limit =
+      splitLimit === 'none'
+        ? undefined
+        : splitLimit === 'custom'
+          ? customLimit
+          : parseInt(splitLimit, 10);
+
+    const generateGpxContent = (chunk: Runestone[], partName: string) => {
+      const gpxHeader = `<?xml version="1.0" encoding="UTF-8"?>
 <gpx version="1.1" creator="Runestone Safari" xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
   <metadata>
-    <name>${escapeXml(filename.replace('.gpx', ''))}</name>
+    <name>${escapeXml(partName)}</name>
     <desc>Runestones exported from Runestone Safari</desc>
     <time>${new Date().toISOString()}</time>
   </metadata>`;
 
-    const waypoints = stones.map((stone) => {
-      const descParts = [
-        stone.found_location ? `Location: ${stone.found_location}` : null,
-        stone.parish ? `Parish: ${stone.parish}` : null,
-        stone.municipality ? `Municipality: ${stone.municipality}` : null,
-        stone.dating ? `Dating: ${stone.dating}` : null,
-        stone.style ? `Style: ${stone.style}` : null,
-        stone.carver ? `Carver: ${stone.carver}` : null,
-      ].filter(Boolean);
-      
-      const detailParts = [];
-      if (stone.english_translation) detailParts.push(`EN: ${stone.english_translation}`);
-      if (stone.swedish_translation) detailParts.push(`SV: ${stone.swedish_translation}`);
-      
-      const desc = [...descParts, ...detailParts].join(' | ');
-      const name = stone.signature_text || `Runestone #${stone.id}`;
-      
-      return `  <wpt lat="${stone.latitude}" lon="${stone.longitude}">
+      const waypoints = chunk
+        .map((stone) => {
+          const descParts = [
+            stone.found_location ? `Location: ${stone.found_location}` : null,
+            stone.parish ? `Parish: ${stone.parish}` : null,
+            stone.municipality ? `Municipality: ${stone.municipality}` : null,
+            stone.dating ? `Dating: ${stone.dating}` : null,
+            stone.style ? `Style: ${stone.style}` : null,
+            stone.carver ? `Carver: ${stone.carver}` : null,
+          ].filter(Boolean);
+
+          const detailParts = [];
+          if (stone.english_translation) detailParts.push(`EN: ${stone.english_translation}`);
+          if (stone.swedish_translation) detailParts.push(`SV: ${stone.swedish_translation}`);
+
+          const desc = [...descParts, ...detailParts].join(' | ');
+          const name = stone.signature_text || `Runestone #${stone.id}`;
+
+          return `  <wpt lat="${stone.latitude}" lon="${stone.longitude}">
     <name>${escapeXml(name)}</name>
     <desc>${escapeXml(desc)}</desc>
     <sym>Waypoint</sym>
   </wpt>`;
-    }).join('\n');
+        })
+        .join('\n');
 
-    const gpxFooter = '\n</gpx>';
-    const gpxContent = gpxHeader + '\n' + waypoints + gpxFooter;
+      const gpxFooter = '\n</gpx>';
+      return gpxHeader + '\n' + waypoints + gpxFooter;
+    };
 
-    const blob = new Blob([gpxContent], { type: 'application/gpx+xml;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    const triggerDownload = (content: string, finalFilename: string) => {
+      const blob = new Blob([content], { type: 'application/gpx+xml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = finalFilename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    };
+
+    if (!limit || stones.length <= limit) {
+      const cleanName = filename.replace('.gpx', '');
+      const content = generateGpxContent(stones, cleanName);
+      triggerDownload(content, filename);
+    } else {
+      const chunks: Runestone[][] = [];
+      for (let i = 0; i < stones.length; i += limit) {
+        chunks.push(stones.slice(i, i + limit));
+      }
+
+      for (let i = 0; i < chunks.length; i++) {
+        const partNumber = i + 1;
+        const cleanBase = filename.replace('.gpx', '');
+        const partFilename = `${cleanBase}_part${partNumber}.gpx`;
+        const partName = `${cleanBase} Part ${partNumber}`;
+        const content = generateGpxContent(chunks[i], partName);
+        triggerDownload(content, partFilename);
+
+        if (i < chunks.length - 1) {
+          await new Promise((resolve) => setTimeout(resolve, 300));
+        }
+      }
+    }
   };
 
   const handleDownloadAll = async () => {
     setDownloadAllLoading(true);
     try {
       const allStones = await runestonesCache.getAllRunestones();
-      downloadGpx(allStones, 'all_runestones.gpx');
+      await downloadGpx(allStones, 'all_runestones.gpx');
     } catch (err) {
       console.error('Failed to export all runestones:', err);
       alert('Failed to export all runestones. Please try again.');
@@ -153,7 +198,7 @@ export const Profile = observer(function ProfilePage() {
     setDownloadVisitedLoading(true);
     try {
       const visitedStones = await visitedRunestonesStore.getVisitedRunestoneDetails();
-      downloadGpx(visitedStones, 'visited_runestones.gpx');
+      await downloadGpx(visitedStones, 'visited_runestones.gpx');
     } catch (err) {
       console.error('Failed to export visited runestones:', err);
       alert('Failed to export visited runestones. Please try again.');
@@ -260,9 +305,9 @@ export const Profile = observer(function ProfilePage() {
         <div className="w-full bg-white rounded-3xl shadow-sm border border-gray-150/80 overflow-hidden">
           <div className="p-4 md:p-6">
             {/* User Info Section */}
-            <div className="bg-gradient-to-br from-primary/5 via-accent/5 to-white border border-gray-150 rounded-3xl p-6 md:p-8 mb-8 shadow-sm">
+            <div className="bg-linear-to-br from-primary/5 via-accent/5 to-white border border-gray-150 rounded-3xl p-6 md:p-8 mb-8 shadow-sm">
               <div className="flex items-center gap-6 flex-wrap md:flex-nowrap">
-                <div className="w-20 h-20 bg-gradient-to-br from-primary to-primary-light rounded-2xl flex items-center justify-center flex-shrink-0 shadow-md">
+                <div className="w-20 h-20 bg-linear-to-br from-primary to-primary-light rounded-2xl flex items-center justify-center shrink-0 shadow-md">
                   <span className="text-white text-3xl font-extrabold font-display">
                     {authStore.user?.email?.charAt(0).toUpperCase() || 'U'}
                   </span>
@@ -306,7 +351,9 @@ export const Profile = observer(function ProfilePage() {
                 <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center mb-4 border border-emerald-100">
                   <span className="text-emerald-500 font-bold text-lg">✓</span>
                 </div>
-                <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Visited</div>
+                <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">
+                  Visited
+                </div>
                 <div className="text-3xl font-extrabold font-display text-gray-850">
                   {visitedRunestonesStore.visitedCount}
                 </div>
@@ -317,7 +364,9 @@ export const Profile = observer(function ProfilePage() {
                 <div className="w-10 h-10 bg-primary/5 rounded-xl flex items-center justify-center mb-4 border border-primary/10">
                   <span className="text-primary font-bold text-lg">𖡡</span>
                 </div>
-                <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Total Stones</div>
+                <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">
+                  Total Stones
+                </div>
                 <div className="text-3xl font-extrabold font-display text-gray-855">
                   {visitedRunestonesStore.totalRunestonesCount}
                 </div>
@@ -328,7 +377,9 @@ export const Profile = observer(function ProfilePage() {
                 <div className="w-10 h-10 bg-accent/5 rounded-xl flex items-center justify-center mb-4 border border-accent/10">
                   <span className="text-accent font-bold text-lg">%</span>
                 </div>
-                <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Completion</div>
+                <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">
+                  Completion
+                </div>
                 <div className="text-3xl font-extrabold font-display text-gray-855">
                   {visitedRunestonesStore.completionPercentage}%
                 </div>
@@ -338,7 +389,9 @@ export const Profile = observer(function ProfilePage() {
             {/* Progress Bar */}
             <div className="bg-white border border-gray-150 rounded-2xl p-6 mb-8 shadow-sm">
               <div className="flex justify-between items-center mb-3">
-                <span className="text-sm font-bold text-gray-800 font-display">Adventure Progress</span>
+                <span className="text-sm font-bold text-gray-800 font-display">
+                  Adventure Progress
+                </span>
                 <span className="text-xs font-semibold text-gray-450">
                   {visitedRunestonesStore.visitedCount} of{' '}
                   {visitedRunestonesStore.totalRunestonesCount}
@@ -346,7 +399,7 @@ export const Profile = observer(function ProfilePage() {
               </div>
               <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden shadow-inner border border-gray-100">
                 <div
-                  className="bg-gradient-to-r from-primary to-accent h-full rounded-full transition-all duration-700 ease-out"
+                  className="bg-linear-to-r from-primary to-accent h-full rounded-full transition-all duration-700 ease-out"
                   style={{ width: `${visitedRunestonesStore.completionPercentage}%` }}
                 />
               </div>
@@ -361,8 +414,54 @@ export const Profile = observer(function ProfilePage() {
                 <h3 className="text-sm font-bold text-gray-800 font-display">Export GPX Data</h3>
               </div>
               <p className="text-xs text-gray-500 mb-6 leading-relaxed">
-                Download GPX files to import runestone coordinates into your favorite GPS devices or mapping apps (like OsmAnd, Garmin, or Gaia GPS).
+                Download GPX files to import runestone coordinates into your favorite GPS devices or
+                mapping apps (like OsmAnd, Garmin, or Gaia GPS).
               </p>
+
+              {/* GPX Split Configuration */}
+              <div className="mb-6 flex flex-col md:flex-row md:items-center gap-4 bg-gray-50/50 p-4 rounded-2xl border border-gray-150/60">
+                <div className="flex-1">
+                  <label
+                    htmlFor="split-limit-select"
+                    className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1"
+                  >
+                    Split GPX Files
+                  </label>
+                  <p className="text-xs text-gray-400">
+                    Older GPS devices or maps might fail to load thousands of stones in a single
+                    file.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <select
+                    id="split-limit-select"
+                    value={splitLimit}
+                    onChange={(e) => setSplitLimit(e.target.value)}
+                    className="bg-white border border-gray-250 text-gray-700 text-sm font-semibold rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all cursor-pointer"
+                  >
+                    <option value="none">Don't split (single file)</option>
+                    <option value="500">Max 500 stones per file</option>
+                    <option value="999">Max 999 stones per file</option>
+                    <option value="2500">Max 2500 stones per file</option>
+                    <option value="custom">Custom limit...</option>
+                  </select>
+                  {splitLimit === 'custom' && (
+                    <input
+                      type="number"
+                      min="10"
+                      max="10000"
+                      value={customLimit}
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value, 10);
+                        setCustomLimit(isNaN(val) ? 500 : Math.max(10, val));
+                      }}
+                      className="w-24 bg-white border border-gray-250 text-gray-700 text-sm font-semibold rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                      placeholder="Limit"
+                    />
+                  )}
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <button
                   type="button"
@@ -373,19 +472,27 @@ export const Profile = observer(function ProfilePage() {
                   {downloadAllLoading ? (
                     <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
                   ) : (
-                    <span className="text-gray-700 font-semibold text-sm">Download All Runestones GPX</span>
+                    <span className="text-gray-700 font-semibold text-sm">
+                      Download All Runestones GPX
+                    </span>
                   )}
                 </button>
                 <button
                   type="button"
                   onClick={handleDownloadVisited}
-                  disabled={downloadAllLoading || downloadVisitedLoading || visitedRunestonesStore.visitedCount === 0}
+                  disabled={
+                    downloadAllLoading ||
+                    downloadVisitedLoading ||
+                    visitedRunestonesStore.visitedCount === 0
+                  }
                   className="bg-white border border-gray-250 hover:border-emerald-500/30 hover:bg-emerald-50 active:bg-emerald-100 h-12 rounded-xl flex items-center justify-center hover:-translate-y-0.5 shadow-sm hover:shadow transition-all duration-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:bg-white"
                 >
                   {downloadVisitedLoading ? (
                     <div className="w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
                   ) : (
-                    <span className="text-gray-700 font-semibold text-sm">Download Visited GPX</span>
+                    <span className="text-gray-700 font-semibold text-sm">
+                      Download Visited GPX
+                    </span>
                   )}
                 </button>
               </div>
@@ -405,7 +512,9 @@ export const Profile = observer(function ProfilePage() {
                   <p className="text-gray-500 font-semibold text-sm">
                     You haven't visited any runestones yet.
                   </p>
-                  <p className="text-xs text-gray-400 mt-1">Start exploring the map to track your journey!</p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    Start exploring the map to track your journey!
+                  </p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

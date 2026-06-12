@@ -64,7 +64,6 @@ export const LAYER_IDS = {
 
 export const LOADING_INDICATOR_COLOR = '#4f46e5';
 
-
 export const MINIMAP_ZOOM = 14;
 export const MARKER_COLOR = UNVISITED_MARKER_COLOR;
 

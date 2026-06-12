@@ -7,7 +7,6 @@ import { Link } from 'react-router-dom';
 import { RunestoneMedia } from './components/RunestoneMedia';
 import { createPortal } from 'react-dom';
 
-
 interface RunestoneModalProps {
   runestone: Runestone | null;
   isOpen: boolean;
@@ -46,7 +45,7 @@ export const RunestoneModal = observer(
     };
 
     return createPortal(
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm overflow-y-auto">
+      <div className="fixed inset-0 z-9999 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm overflow-y-auto">
         <div className="bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden relative border border-gray-100">
           {/* Header */}
           <div className="flex items-center justify-between p-5 border-b border-gray-100">
@@ -78,15 +77,21 @@ export const RunestoneModal = observer(
             <div className="flex flex-col gap-5">
               {/* Location */}
               <div>
-                <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2.5">Location</div>
+                <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2.5">
+                  Location
+                </div>
                 <div className="bg-gray-50/60 p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col gap-1.5">
-                  <div className="text-gray-800 font-semibold text-sm">{runestone.found_location}</div>
+                  <div className="text-gray-800 font-semibold text-sm">
+                    {runestone.found_location}
+                  </div>
                   <div className="text-xs text-gray-500 font-medium">{runestone.parish}</div>
                   {!!runestone.district && (
                     <div className="text-xs text-gray-500 font-medium">{runestone.district}</div>
                   )}
                   {!!runestone.municipality && (
-                    <div className="text-xs text-gray-500 font-medium">{runestone.municipality}</div>
+                    <div className="text-xs text-gray-500 font-medium">
+                      {runestone.municipality}
+                    </div>
                   )}
                   {!!runestone.current_location && (
                     <div className="text-xs text-gray-600 font-semibold mt-1 bg-gray-100/60 px-2 py-1 rounded-md w-fit">
@@ -108,23 +113,33 @@ export const RunestoneModal = observer(
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Basic Details */}
                 <div>
-                  <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2.5">Details</div>
+                  <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2.5">
+                    Details
+                  </div>
                   <div className="bg-gray-50/60 p-4 rounded-2xl border border-gray-100 flex flex-col gap-2 shadow-sm h-full">
                     <div className="text-xs text-gray-600 flex items-center justify-between">
                       <span className="font-semibold">Material:</span>
-                      <span className="text-gray-800 font-semibold">{runestone.material || 'Unknown'}</span>
+                      <span className="text-gray-800 font-semibold">
+                        {runestone.material || 'Unknown'}
+                      </span>
                     </div>
                     <div className="text-xs text-gray-600 flex items-center justify-between">
                       <span className="font-semibold">Dating:</span>
-                      <span className="text-gray-800 font-semibold">{runestone.dating || 'Unknown'}</span>
+                      <span className="text-gray-800 font-semibold">
+                        {runestone.dating || 'Unknown'}
+                      </span>
                     </div>
                     <div className="text-xs text-gray-600 flex items-center justify-between">
                       <span className="font-semibold">Type:</span>
-                      <span className="text-gray-800 font-semibold">{runestone.rune_type || 'Unknown'}</span>
+                      <span className="text-gray-800 font-semibold">
+                        {runestone.rune_type || 'Unknown'}
+                      </span>
                     </div>
                     <div className="text-xs text-gray-600 flex items-center justify-between">
                       <span className="font-semibold">Style:</span>
-                      <span className="text-gray-800 font-semibold">{runestone.material_type || 'Unknown'}</span>
+                      <span className="text-gray-800 font-semibold">
+                        {runestone.material_type || 'Unknown'}
+                      </span>
                     </div>
                     {!!runestone.carver && (
                       <div className="text-xs text-gray-600 flex items-center justify-between">
@@ -143,19 +158,33 @@ export const RunestoneModal = observer(
 
                 {/* Status */}
                 <div>
-                  <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2.5">Status</div>
+                  <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2.5">
+                    Status
+                  </div>
                   <div className="bg-gray-50/60 p-4 rounded-2xl border border-gray-100 flex flex-col gap-3 shadow-sm h-full justify-center">
                     <div className="flex items-center justify-between text-xs font-semibold">
                       <span className="text-gray-600">Lost:</span>
-                      <span className={`px-2.5 py-0.5 rounded-full ${runestone.lost ? 'bg-red-50 text-red-650' : 'bg-gray-100 text-gray-600'}`}>{runestone.lost ? 'Yes' : 'No'}</span>
+                      <span
+                        className={`px-2.5 py-0.5 rounded-full ${runestone.lost ? 'bg-red-50 text-red-650' : 'bg-gray-100 text-gray-600'}`}
+                      >
+                        {runestone.lost ? 'Yes' : 'No'}
+                      </span>
                     </div>
                     <div className="flex items-center justify-between text-xs font-semibold">
                       <span className="text-gray-600">Ornamental:</span>
-                      <span className={`px-2.5 py-0.5 rounded-full ${runestone.ornamental ? 'bg-indigo-50 text-indigo-650' : 'bg-gray-100 text-gray-600'}`}>{runestone.ornamental ? 'Yes' : 'No'}</span>
+                      <span
+                        className={`px-2.5 py-0.5 rounded-full ${runestone.ornamental ? 'bg-indigo-50 text-indigo-650' : 'bg-gray-100 text-gray-600'}`}
+                      >
+                        {runestone.ornamental ? 'Yes' : 'No'}
+                      </span>
                     </div>
                     <div className="flex items-center justify-between text-xs font-semibold">
                       <span className="text-gray-600">Recent:</span>
-                      <span className={`px-2.5 py-0.5 rounded-full ${runestone.recent ? 'bg-yellow-50 text-yellow-750' : 'bg-gray-100 text-gray-600'}`}>{runestone.recent ? 'Yes' : 'No'}</span>
+                      <span
+                        className={`px-2.5 py-0.5 rounded-full ${runestone.recent ? 'bg-yellow-50 text-yellow-750' : 'bg-gray-100 text-gray-600'}`}
+                      >
+                        {runestone.recent ? 'Yes' : 'No'}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -165,7 +194,9 @@ export const RunestoneModal = observer(
               <div className="flex flex-col gap-4">
                 {!!runestone.english_translation && (
                   <div>
-                    <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">English Translation</div>
+                    <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">
+                      English Translation
+                    </div>
                     <div className="bg-primary/5 p-4 rounded-2xl border-l-4 border-primary/50 shadow-sm">
                       <div className="text-gray-700 text-sm leading-relaxed font-medium">
                         {runestone.english_translation}
@@ -175,7 +206,9 @@ export const RunestoneModal = observer(
                 )}
                 {!!runestone.swedish_translation && (
                   <div>
-                    <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Swedish Translation</div>
+                    <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">
+                      Swedish Translation
+                    </div>
                     <div className="bg-accent/5 p-4 rounded-2xl border-l-4 border-accent/50 shadow-sm">
                       <div className="text-gray-700 text-sm leading-relaxed font-medium">
                         {runestone.swedish_translation}
@@ -185,7 +218,9 @@ export const RunestoneModal = observer(
                 )}
                 {!!runestone.norse_text && (
                   <div>
-                    <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Norse Text</div>
+                    <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">
+                      Norse Text
+                    </div>
                     <div className="bg-gray-50/70 p-4 rounded-2xl border border-gray-100 shadow-sm">
                       <div className="text-gray-750 text-sm leading-relaxed italic font-semibold">
                         {runestone.norse_text}
@@ -195,7 +230,9 @@ export const RunestoneModal = observer(
                 )}
                 {!!runestone.transliteration && (
                   <div>
-                    <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Transliteration</div>
+                    <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">
+                      Transliteration
+                    </div>
                     <div className="bg-gray-50/70 p-4 rounded-2xl border border-gray-100 shadow-sm">
                       <div className="text-gray-700 text-xs leading-relaxed font-mono tracking-wide">
                         {runestone.transliteration}
@@ -210,7 +247,9 @@ export const RunestoneModal = observer(
           {/* Error Message */}
           {authStore.user && !!visitedError && (
             <div className="px-6 pb-3">
-              <div className="text-xs font-semibold text-red-650 bg-red-50/80 p-3 rounded-xl border border-red-100/50">{visitedError}</div>
+              <div className="text-xs font-semibold text-red-650 bg-red-50/80 p-3 rounded-xl border border-red-100/50">
+                {visitedError}
+              </div>
             </div>
           )}
 
@@ -246,4 +285,3 @@ export const RunestoneModal = observer(
     );
   },
 );
-

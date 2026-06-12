@@ -10,10 +10,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, '..');
 const keyProps = path.join(root, 'src-tauri/gen/android/key.properties');
-const bundleDir = path.join(
-  root,
-  'src-tauri/gen/android/app/build/outputs/bundle',
-);
+const bundleDir = path.join(root, 'src-tauri/gen/android/app/build/outputs/bundle');
 
 function run(cmd, args) {
   const result = spawnSync(cmd, args, { cwd: root, stdio: 'inherit', shell: false });

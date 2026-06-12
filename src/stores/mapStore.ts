@@ -264,7 +264,7 @@ class MapStore {
           {
             enableHighAccuracy: true,
             maximumAge: 0,
-          }
+          },
         );
       }
       await this.getCurrentLocationWeb();

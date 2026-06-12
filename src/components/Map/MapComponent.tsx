@@ -36,9 +36,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
       const el = document.createElement('div');
       el.className = 'user-location-marker';
 
-      const marker = new MapLibreMarker({ element: el })
-        .setLngLat([lng, lat])
-        .addTo(map);
+      const marker = new MapLibreMarker({ element: el }).setLngLat([lng, lat]).addTo(map);
       userMarkerRef.current = marker;
     } else {
       userMarkerRef.current.setLngLat([lng, lat]);
@@ -51,7 +49,6 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
       }
     };
   }, [mapStore.userLocation, mapStore.mapInstance]);
-
 
   // Initialize map on mount
   useEffect(() => {
@@ -144,7 +141,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
 
       {/* Loading indicator */}
       {mapStore.loading && (
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-sm px-6 py-3 rounded-lg shadow-lg z-[1001]">
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-sm px-6 py-3 rounded-lg shadow-lg z-1001">
           <div className="flex items-center gap-3">
             <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full"></div>
             <span className="text-sm font-medium text-gray-700">Loading runestones...</span>
@@ -154,7 +151,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
 
       {/* Error Message */}
       {mapStore.error && (
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-50/95 backdrop-blur-sm px-6 py-4 rounded-lg shadow-lg z-[1001] border border-red-200 max-w-sm text-center">
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-50/95 backdrop-blur-sm px-6 py-4 rounded-lg shadow-lg z-1001 border border-red-200 max-w-sm text-center">
           <div className="text-red-600 font-medium mb-2">Error</div>
           <p className="text-gray-700 text-sm mb-3">{mapStore.error}</p>
           <button
@@ -169,13 +166,13 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
 
       {/* No Data Message */}
       {!mapStore.loading && !mapStore.error && !mapStore.hasRunestones && (
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-sm px-6 py-4 rounded-lg shadow-lg z-[1001]">
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-sm px-6 py-4 rounded-lg shadow-lg z-1001">
           <p className="text-gray-700 font-medium">No runestones found</p>
         </div>
       )}
 
       {/* Map Control Buttons */}
-      <div className="absolute bottom-24 right-4 flex flex-col gap-3 z-[1000]">
+      <div className="absolute bottom-24 right-4 flex flex-col gap-3 z-1000">
         {/* Location Button */}
         <button
           type="button"
