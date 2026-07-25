@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 import { Download } from 'lucide-react';
@@ -10,46 +10,10 @@ import { PageHeader } from '../components/PageHeader';
 
 export const Profile = observer(function ProfilePage() {
   const navigate = useNavigate();
-  const [visitedRunestoneDetails, setVisitedRunestoneDetails] = useState<Runestone[]>([]);
-  const [detailsLoading, setDetailsLoading] = useState(false);
-  const [detailsError, setDetailsError] = useState<string | null>(null);
   const [downloadAllLoading, setDownloadAllLoading] = useState(false);
   const [downloadVisitedLoading, setDownloadVisitedLoading] = useState(false);
   const [splitLimit, setSplitLimit] = useState<string>('none');
   const [customLimit, setCustomLimit] = useState<number>(500);
-
-  useEffect(() => {
-    const loadVisitedRunestoneDetails = async () => {
-      if (!authStore.isFullyAuthenticated || visitedRunestonesStore.loading) {
-        return;
-      }
-
-      if (visitedRunestonesStore.visitedCount === 0) {
-        setDetailsError(null);
-        setVisitedRunestoneDetails([]);
-        return;
-      }
-
-      setDetailsLoading(true);
-      setDetailsError(null);
-
-      try {
-        const details = await visitedRunestonesStore.getVisitedRunestoneDetails();
-        setVisitedRunestoneDetails(details);
-      } catch (err) {
-        console.error('Error loading visited runestone details:', err);
-        setDetailsError('Failed to load runestone details. Please try again.');
-      } finally {
-        setDetailsLoading(false);
-      }
-    };
-
-    loadVisitedRunestoneDetails();
-  }, [
-    authStore.isFullyAuthenticated,
-    visitedRunestonesStore.loading,
-    visitedRunestonesStore.visitedCount,
-  ]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -137,7 +101,7 @@ export const Profile = observer(function ProfilePage() {
         .join('\n');
 
       const gpxFooter = '\n</gpx>';
-      return gpxHeader + '\n' + waypoints + gpxFooter;
+      return `${gpxHeader}\n${waypoints}${gpxFooter}`;
     };
 
     const triggerDownload = (content: string, finalFilename: string) => {
@@ -208,7 +172,11 @@ export const Profile = observer(function ProfilePage() {
   };
 
   // Loading state
-  if (authStore.loading || visitedRunestonesStore.loading || detailsLoading) {
+  if (
+    authStore.loading ||
+    visitedRunestonesStore.loading ||
+    visitedRunestonesStore.detailsLoading
+  ) {
     return (
       <div className="flex flex-1 flex-col h-full min-h-0 bg-gray-50 overflow-y-auto items-center justify-center p-4">
         <PageHeader title="Profile" />
@@ -219,8 +187,9 @@ export const Profile = observer(function ProfilePage() {
   }
 
   // Error state
-  if (visitedRunestonesStore.error || detailsError) {
-    const errorMessage = visitedRunestonesStore.error || detailsError;
+  if (visitedRunestonesStore.error || visitedRunestonesStore.detailsError) {
+    const errorMessage =
+      visitedRunestonesStore.error || visitedRunestonesStore.detailsError;
     return (
       <div className="flex flex-1 flex-col h-full min-h-0 bg-gray-50 overflow-y-auto">
         <PageHeader title="Error" />
@@ -503,11 +472,11 @@ export const Profile = observer(function ProfilePage() {
               <div className="flex justify-between items-center mb-5">
                 <h3 className="text-sm font-bold text-gray-800 font-display">Visited Runestones</h3>
                 <span className="text-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full">
-                  {visitedRunestoneDetails.length}
+                  {visitedRunestonesStore.visitedRunestoneDetails.length}
                 </span>
               </div>
 
-              {visitedRunestoneDetails.length === 0 ? (
+              {visitedRunestonesStore.visitedRunestoneDetails.length === 0 ? (
                 <div className="flex flex-col items-center py-8 text-center bg-gray-50/50 rounded-2xl border border-dashed border-gray-200">
                   <p className="text-gray-500 font-semibold text-sm">
                     You haven't visited any runestones yet.
@@ -518,7 +487,7 @@ export const Profile = observer(function ProfilePage() {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {visitedRunestoneDetails.map((runestone) => (
+                  {visitedRunestonesStore.visitedRunestoneDetails.map((runestone) => (
                     <div
                       key={runestone.id}
                       className="bg-white rounded-2xl border border-gray-150 p-4 hover:border-primary/20 hover:-translate-y-0.5 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between"

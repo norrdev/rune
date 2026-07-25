@@ -8,6 +8,9 @@ const TOTAL_RUNESTONES = 6815;
 
 class VisitedRunestonesStore {
   visitedRunestoneIds: Set<number> = new Set();
+  visitedRunestoneDetails: Runestone[] = [];
+  detailsLoading: boolean = false;
+  detailsError: string | null = null;
   loading: boolean = false;
   error: string | null = null;
   totalRunestonesCount: number = TOTAL_RUNESTONES;
@@ -15,17 +18,24 @@ class VisitedRunestonesStore {
   constructor() {
     makeObservable(this, {
       visitedRunestoneIds: observable,
+      visitedRunestoneDetails: observable,
+      detailsLoading: observable,
+      detailsError: observable,
       loading: observable,
       error: observable,
       totalRunestonesCount: observable,
       setLoading: action,
       setError: action,
+      setDetailsLoading: action,
+      setDetailsError: action,
+      setVisitedRunestoneDetails: action,
       setVisitedRunestoneIds: action,
       setTotalRunestonesCount: action,
       addVisitedRunestone: action,
       removeVisitedRunestone: action,
       clearVisitedRunestones: action,
       fetchVisitedRunestones: action,
+      fetchVisitedRunestoneDetails: action,
       markAsVisited: action,
       unmarkAsVisited: action,
       isRunestoneVisited: computed,
@@ -47,6 +57,15 @@ class VisitedRunestonesStore {
       },
       { fireImmediately: true },
     );
+
+    // React to changes in visitedRunestoneIds to update details automatically
+    reaction(
+      () => Array.from(this.visitedRunestoneIds).sort((a, b) => a - b).join(','),
+      async () => {
+        await this.fetchVisitedRunestoneDetails();
+      },
+      { fireImmediately: true },
+    );
   }
 
   setLoading(loading: boolean) {
@@ -55,6 +74,18 @@ class VisitedRunestonesStore {
 
   setError(error: string | null) {
     this.error = error;
+  }
+
+  setDetailsLoading(loading: boolean) {
+    this.detailsLoading = loading;
+  }
+
+  setDetailsError(error: string | null) {
+    this.detailsError = error;
+  }
+
+  setVisitedRunestoneDetails(details: Runestone[]) {
+    this.visitedRunestoneDetails = details;
   }
 
   setVisitedRunestoneIds(ids: Set<number>) {
@@ -75,7 +106,41 @@ class VisitedRunestonesStore {
 
   clearVisitedRunestones() {
     this.visitedRunestoneIds.clear();
+    this.visitedRunestoneDetails = [];
+    this.detailsError = null;
     this.error = null;
+  }
+
+  async fetchVisitedRunestoneDetails() {
+    if (this.visitedRunestoneIds.size === 0) {
+      runInAction(() => {
+        this.setVisitedRunestoneDetails([]);
+        this.setDetailsError(null);
+        this.setDetailsLoading(false);
+      });
+      return;
+    }
+
+    runInAction(() => {
+      this.setDetailsLoading(true);
+      this.setDetailsError(null);
+    });
+
+    try {
+      const details = await this.getVisitedRunestoneDetails();
+      runInAction(() => {
+        this.setVisitedRunestoneDetails(details);
+      });
+    } catch (err) {
+      console.error('Error fetching visited runestone details:', err);
+      runInAction(() => {
+        this.setDetailsError('Failed to load runestone details. Please try again.');
+      });
+    } finally {
+      runInAction(() => {
+        this.setDetailsLoading(false);
+      });
+    }
   }
 
   async fetchVisitedRunestones() {
