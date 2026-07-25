@@ -1,6 +1,7 @@
 import { observer } from 'mobx-react-lite';
 import { SearchWidget } from './widgets/SearchWidget';
 import { authStore } from '../../stores/authStore';
+import { visitedRunestonesStore } from '../../stores/visitedRunestonesStore';
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 
@@ -12,12 +13,11 @@ const CLUSTER_COLORS = {
 } as const;
 
 interface SidebarProps {
-  visitedCount: number;
   visible?: boolean;
   onClose?: () => void;
 }
 
-export const Sidebar = observer(({ visitedCount, visible = false, onClose }: SidebarProps) => {
+export const Sidebar = observer(({ visible = false, onClose }: SidebarProps) => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   useEffect(() => {
@@ -84,7 +84,7 @@ export const Sidebar = observer(({ visitedCount, visible = false, onClose }: Sid
                     Your Progress
                   </div>
                   <div className="flex items-center gap-1.5 bg-primary/10 px-2.5 py-1 rounded-full text-xs font-bold text-primary group-hover:bg-primary group-hover:text-white transition-all">
-                    <span>{visitedCount}</span>
+                    <span>{visitedRunestonesStore.visitedCount}</span>
                     <span className="text-[10px] font-normal opacity-90">visited</span>
                   </div>
                 </Link>
@@ -200,6 +200,13 @@ export const Sidebar = observer(({ visitedCount, visible = false, onClose }: Sid
               className="text-xs text-gray-400 hover:text-primary transition-colors underline"
             >
               License
+            </Link>
+            <span className="text-xs text-gray-300">•</span>
+            <Link
+              to="/changelog"
+              className="text-xs text-gray-400 hover:text-primary transition-colors underline"
+            >
+              Changelog
             </Link>
           </div>
           <div className="text-[10px] text-gray-400 text-center mt-1.5 font-medium">

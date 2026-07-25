@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import type { Runestone } from '../types';
+import type { Runestone, RunestoneRow } from '../types';
 import { authStore } from '../stores/authStore';
 
 class SupabaseRunestonesService {
@@ -12,6 +12,41 @@ class SupabaseRunestonesService {
       SupabaseRunestonesService.instance = new SupabaseRunestonesService();
     }
     return SupabaseRunestonesService.instance;
+  }
+
+  private mapRowToRunestone(row: Partial<RunestoneRow>): Runestone {
+    return {
+      id: row.id ?? 0,
+      signature_text: row.signature_text || '',
+      found_location: row.found_location || '',
+      parish: row.parish || '',
+      district: row.district || '',
+      municipality: row.municipality || '',
+      current_location: row.current_location || '',
+      material: row.material || '',
+      material_type: row.material_type || '',
+      rune_type: row.rune_type || '',
+      dating: row.dating || '',
+      style: row.style || '',
+      carver: row.carver || '',
+      latitude: row.latitude ?? 0,
+      longitude: row.longitude ?? 0,
+      english_translation: row.english_translation || '',
+      swedish_translation: row.swedish_translation || '',
+      norse_text: row.norse_text || '',
+      transliteration: row.transliteration || '',
+      lost: Boolean(row.lost),
+      ornamental: Boolean(row.ornamental),
+      recent: Boolean(row.recent),
+      slug: row.slug || '',
+      link_url: row.link_url || '',
+      direct_url: row.direct_url || '',
+    };
+  }
+
+  private mapRowsToRunestones(data: unknown): Runestone[] {
+    if (!Array.isArray(data)) return [];
+    return (data as RunestoneRow[]).map((row) => this.mapRowToRunestone(row));
   }
 
   async getVisibleRunestones(
@@ -32,37 +67,7 @@ class SupabaseRunestonesService {
       throw error;
     }
 
-    if (!data) {
-      return [];
-    }
-
-    return data.map((row: Runestone) => ({
-      id: row.id,
-      signature_text: row.signature_text || '',
-      found_location: row.found_location || '',
-      parish: row.parish || '',
-      district: row.district || '',
-      municipality: row.municipality || '',
-      current_location: row.current_location || '',
-      material: row.material || '',
-      material_type: row.material_type || '',
-      rune_type: row.rune_type || '',
-      dating: row.dating || '',
-      style: row.style || '',
-      carver: row.carver || '',
-      latitude: row.latitude,
-      longitude: row.longitude,
-      english_translation: row.english_translation || '',
-      swedish_translation: row.swedish_translation || '',
-      norse_text: row.norse_text || '',
-      transliteration: row.transliteration || '',
-      lost: Boolean(row.lost),
-      ornamental: Boolean(row.ornamental),
-      recent: Boolean(row.recent),
-      slug: row.slug || '',
-      link_url: row.link_url || '',
-      direct_url: row.direct_url || '',
-    }));
+    return this.mapRowsToRunestones(data);
   }
 
   async getAllRunestones(): Promise<Runestone[]> {
@@ -73,37 +78,7 @@ class SupabaseRunestonesService {
       throw error;
     }
 
-    if (!data) {
-      return [];
-    }
-
-    return data.map((row: Runestone) => ({
-      id: row.id,
-      signature_text: row.signature_text || '',
-      found_location: row.found_location || '',
-      parish: row.parish || '',
-      district: row.district || '',
-      municipality: row.municipality || '',
-      current_location: row.current_location || '',
-      material: row.material || '',
-      material_type: row.material_type || '',
-      rune_type: row.rune_type || '',
-      dating: row.dating || '',
-      style: row.style || '',
-      carver: row.carver || '',
-      latitude: row.latitude,
-      longitude: row.longitude,
-      english_translation: row.english_translation || '',
-      swedish_translation: row.swedish_translation || '',
-      norse_text: row.norse_text || '',
-      transliteration: row.transliteration || '',
-      lost: Boolean(row.lost),
-      ornamental: Boolean(row.ornamental),
-      recent: Boolean(row.recent),
-      slug: row.slug || '',
-      link_url: row.link_url || '',
-      direct_url: row.direct_url || '',
-    }));
+    return this.mapRowsToRunestones(data);
   }
 
   async getAllVisitedRunestones(): Promise<Runestone[]> {
@@ -121,7 +96,7 @@ class SupabaseRunestonesService {
       throw error;
     }
 
-    return data;
+    return Array.isArray(data) ? data : [];
   }
 
   async markAsVisited(runestoneId: number): Promise<boolean> {
@@ -140,7 +115,7 @@ class SupabaseRunestonesService {
       throw error;
     }
 
-    return data;
+    return Boolean(data);
   }
 
   async isVisited(runestoneId: number): Promise<boolean> {
@@ -159,7 +134,7 @@ class SupabaseRunestonesService {
       throw error;
     }
 
-    return data;
+    return Boolean(data);
   }
 
   async deleteVisited(runestoneId: number): Promise<boolean> {
@@ -178,7 +153,7 @@ class SupabaseRunestonesService {
       throw error;
     }
 
-    return data;
+    return Boolean(data);
   }
 }
 

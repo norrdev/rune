@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './routes/Home';
 import { Login } from './routes/Login';
 import { Profile } from './routes/Profile';
-import { About, Privacy, License } from './routes/StaticPages';
+import { About, Privacy, License, Changelog } from './routes/StaticPages';
 import { RunestoneDetail } from './routes/RunestoneDetail';
 
 function App() {
@@ -17,6 +17,7 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/license" element={<License />} />
+          <Route path="/changelog" element={<Changelog />} />
         </Routes>
       </div>
     </Router>

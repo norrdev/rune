@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react';
-import { Map as MapLibre } from 'maplibre-gl';
+import { Map as MapLibre, Marker as MapLibreMarker } from 'maplibre-gl';
 import type { Runestone } from '../../types';
 import '../../styles/map.web.css';
 import { STYLE_URL, MINIMAP_ZOOM, MARKER_COLOR } from '../Map/mapUtils';
@@ -11,19 +11,19 @@ interface MiniMapProps {
 export const MiniMap = ({ runestone }: MiniMapProps) => {
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibre | null>(null);
+  const markerRef = useRef<MapLibreMarker | null>(null);
+
+  const { latitude: lat, longitude: lng } = runestone;
 
   useEffect(() => {
     const container = mapContainer.current;
-
-    const lat = runestone.latitude;
-    const lng = runestone.longitude;
 
     if (!container || typeof lat !== 'number' || typeof lng !== 'number') {
       return;
     }
 
     const map = new MapLibre({
-      container: container,
+      container,
       center: [lng, lat],
       zoom: MINIMAP_ZOOM,
       style: STYLE_URL,
@@ -33,63 +33,25 @@ export const MiniMap = ({ runestone }: MiniMapProps) => {
 
     mapRef.current = map;
 
-    const addMarker = () => {
-      if (!map?.getStyle()) return;
+    const marker = new MapLibreMarker({ color: MARKER_COLOR })
+      .setLngLat([lng, lat])
+      .addTo(map);
 
-      // Check if source already exists to avoid errors on hot reload/re-renders
-      if (map.getSource('stone-marker')) return;
+    markerRef.current = marker;
 
-      map.addSource('stone-marker', {
-        type: 'geojson',
-        data: {
-          type: 'FeatureCollection',
-          features: [
-            {
-              type: 'Feature',
-              geometry: {
-                type: 'Point',
-                coordinates: [lng, lat],
-              },
-              properties: {},
-            },
-          ],
-        },
-      });
-
-      map.addLayer({
-        id: 'stone-marker-circle',
-        type: 'circle',
-        source: 'stone-marker',
-        paint: {
-          'circle-radius': 8,
-          'circle-color': MARKER_COLOR,
-          'circle-stroke-width': 2,
-          'circle-stroke-color': '#ffffff',
-        },
-      });
+    const handleLoad = () => {
+      map.resize();
     };
 
-    if (map.loaded()) {
-      map.resize();
-      addMarker();
-    } else {
-      map.once('load', () => {
-        map?.resize();
-        addMarker();
-      });
-    }
-
-    map.on('error', (e) => {
-      console.error('MiniMap: Map error', e);
-    });
+    map.on('load', handleLoad);
 
     return () => {
-      if (mapRef.current) {
-        mapRef.current.remove();
-        mapRef.current = null;
-      }
+      marker.remove();
+      map.remove();
+      mapRef.current = null;
+      markerRef.current = null;
     };
-  }, [runestone]);
+  }, [lat, lng]);
 
   if (!runestone.latitude || !runestone.longitude) {
     return (

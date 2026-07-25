@@ -36,7 +36,7 @@ class MapStore {
   // Platform
   platform: MapPlatform = 'native';
 
-  // Map instance (for web)
+  // Map instance (for web) - must use ref to prevent MobX Proxy wrapping MapLibre internals
   mapInstance: MapLibreMap | null = null;
 
   // Camera animation trigger (for native - to trigger useEffect)
@@ -59,7 +59,7 @@ class MapStore {
       zoom: observable,
       bearing: observable,
       platform: observable,
-      mapInstance: observable,
+      mapInstance: observable.ref,
       cameraUpdateTrigger: observable,
       userLocation: observable,
 

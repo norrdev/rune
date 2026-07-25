@@ -3,7 +3,6 @@ import { MapComponent } from '../components/Map/MapComponent';
 import { Sidebar } from '../components/Sidebar/Sidebar';
 
 export default function Home() {
-  const [visitedCount, setVisitedCount] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
@@ -30,7 +29,6 @@ export default function Home() {
       {/* Sidebar */}
       {(sidebarOpen || !isMobile) && (
         <Sidebar
-          visitedCount={visitedCount}
           visible={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
         />
@@ -38,7 +36,7 @@ export default function Home() {
 
       {/* Main Content (Map) */}
       <div className="flex-1 relative">
-        <MapComponent onVisitedCountChange={setVisitedCount} />
+        <MapComponent />
       </div>
     </div>
   );

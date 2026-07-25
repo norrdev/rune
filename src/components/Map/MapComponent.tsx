@@ -4,25 +4,32 @@ import '../../styles/map.web.css';
 import { Map as MapLibreMap, Marker as MapLibreMarker, type GeoJSONSource } from 'maplibre-gl';
 import { RunestoneModal } from '../Runestone/RunestoneModal';
 import { observer } from 'mobx-react-lite';
-import { visitedRunestonesStore } from '@stores/visitedRunestonesStore';
 import { mapStore } from '@stores/mapStore';
 import { STYLE_URL, RUNESTONES_SOURCE_ID, addMapSourcesAndLayers } from './mapUtils';
 
-interface MapComponentProps {
-  onVisitedCountChange?: (count: number) => void;
-}
-
-export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProps) => {
+export const MapComponent = observer(function MapComponent() {
   const mapContainer = useRef<HTMLDivElement | null>(null);
-  const layersAddedRef = useRef<boolean>(false);
   const userMarkerRef = useRef<MapLibreMarker | null>(null);
 
-  // User location marker synchronization
-  useEffect(() => {
-    const map = mapStore.mapInstance;
-    if (!map) return;
+  const {
+    userLocation,
+    mapInstance,
+    geoJsonData,
+    runestones,
+    hasRunestones,
+    loading,
+    error,
+    isLocating,
+    selectedRunestone,
+    isModalOpen,
+  } = mapStore;
 
-    if (!mapStore.userLocation) {
+  // User location marker synchronization
+  // biome-ignore lint/correctness/useExhaustiveDependencies: userLocation and mapInstance are MobX store observables
+  useEffect(() => {
+    if (!mapInstance) return;
+
+    if (!userLocation) {
       if (userMarkerRef.current) {
         userMarkerRef.current.remove();
         userMarkerRef.current = null;
@@ -30,13 +37,13 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
       return;
     }
 
-    const [lng, lat] = mapStore.userLocation;
+    const [lng, lat] = userLocation;
 
     if (!userMarkerRef.current) {
       const el = document.createElement('div');
       el.className = 'user-location-marker';
 
-      const marker = new MapLibreMarker({ element: el }).setLngLat([lng, lat]).addTo(map);
+      const marker = new MapLibreMarker({ element: el }).setLngLat([lng, lat]).addTo(mapInstance);
       userMarkerRef.current = marker;
     } else {
       userMarkerRef.current.setLngLat([lng, lat]);
@@ -48,7 +55,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
         userMarkerRef.current = null;
       }
     };
-  }, [mapStore.userLocation, mapStore.mapInstance]);
+  }, [userLocation, mapInstance]);
 
   // Initialize map on mount
   useEffect(() => {
@@ -71,76 +78,60 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
     return () => {
       map.remove();
       mapStore.setMapInstance(null);
-      layersAddedRef.current = false;
     };
   }, []);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: mapStore.mapInstance and layersAddedRef are handled internally to prevent redundant setup
+  // biome-ignore lint/correctness/useExhaustiveDependencies: mapInstance, geoJsonData, and runestones are MobX store observables
   const updateMapLayers = useCallback(() => {
-    if (!mapStore.mapInstance) return;
+    if (!mapInstance) return;
 
-    const map = mapStore.mapInstance;
-    const source = map.getSource(RUNESTONES_SOURCE_ID) as GeoJSONSource;
+    const source = mapInstance.getSource(RUNESTONES_SOURCE_ID) as GeoJSONSource;
 
     if (source) {
-      // Just update data if source exists
-      source.setData(mapStore.geoJsonData);
-    } else if (!layersAddedRef.current) {
-      // Add source and layers (one-time setup)
+      // Source already exists on mapInstance: update data
+      source.setData(geoJsonData);
+    } else {
+      // Source does not exist on mapInstance: add source and layers
       try {
         addMapSourcesAndLayers(
-          map,
-          mapStore.geoJsonData,
+          mapInstance,
+          geoJsonData,
           (runestone) => mapStore.openModal(runestone),
-          mapStore.runestones,
+          runestones,
         );
-        layersAddedRef.current = true;
-      } catch (error) {
-        console.error('Error adding map layers:', error);
+      } catch (err) {
+        console.error('Error adding map layers:', err);
       }
     }
-  }, [mapStore.geoJsonData, mapStore.runestones]); // Added dependencies for clarity
+  }, [mapInstance, geoJsonData, runestones]);
 
-  // Update map layers when geoJsonData changes
-  // biome-ignore lint/correctness/useExhaustiveDependencies: updateMapLayers is a stable dependency, other mapStore properties are checked inside updateMapLayers
+  // Update map layers when geoJsonData or hasRunestones changes
+  // biome-ignore lint/correctness/useExhaustiveDependencies: updateMapLayers, mapInstance, and hasRunestones are MobX store observables
   useEffect(() => {
-    if (!mapStore.mapInstance || !mapStore.hasRunestones) return;
+    if (!mapInstance || !hasRunestones) return;
 
-    const map = mapStore.mapInstance;
-
-    // Wait for style to be loaded
-    if (!map.isStyleLoaded()) {
+    // Wait for style to be loaded if not ready yet
+    if (!mapInstance.isStyleLoaded()) {
       const handler = () => {
-        if (mapStore.hasRunestones) {
+        if (hasRunestones) {
           updateMapLayers();
         }
       };
-      map.once('styledata', handler);
+      mapInstance.once('styledata', handler);
       return () => {
-        map.off('styledata', handler);
+        mapInstance.off('styledata', handler);
       };
     }
 
     updateMapLayers();
-  }, [updateMapLayers, mapStore.mapInstance, mapStore.hasRunestones]);
-
-  // Notify parent of visited count changes
-  const notifyVisitedCount = useCallback(() => {
-    if (onVisitedCountChange) {
-      onVisitedCountChange(visitedRunestonesStore.visitedCount);
-    }
-  }, [onVisitedCountChange]);
-
-  useEffect(() => {
-    notifyVisitedCount();
-  }, [notifyVisitedCount]);
+  }, [updateMapLayers, mapInstance, hasRunestones]);
 
   return (
     <div className="relative w-full h-full">
       <div ref={mapContainer} className="w-full h-full" />
 
       {/* Loading indicator */}
-      {mapStore.loading && (
+      {loading && (
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-sm px-6 py-3 rounded-lg shadow-lg z-1001">
           <div className="flex items-center gap-3">
             <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full"></div>
@@ -150,10 +141,10 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
       )}
 
       {/* Error Message */}
-      {mapStore.error && (
+      {error && (
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-50/95 backdrop-blur-sm px-6 py-4 rounded-lg shadow-lg z-1001 border border-red-200 max-w-sm text-center">
           <div className="text-red-600 font-medium mb-2">Error</div>
-          <p className="text-gray-700 text-sm mb-3">{mapStore.error}</p>
+          <p className="text-gray-700 text-sm mb-3">{error}</p>
           <button
             type="button"
             onClick={() => mapStore.loadRunestones()}
@@ -165,7 +156,7 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
       )}
 
       {/* No Data Message */}
-      {!mapStore.loading && !mapStore.error && !mapStore.hasRunestones && (
+      {!loading && !error && !hasRunestones && (
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-sm px-6 py-4 rounded-lg shadow-lg z-1001">
           <p className="text-gray-700 font-medium">No runestones found</p>
         </div>
@@ -177,11 +168,11 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
         <button
           type="button"
           onClick={() => mapStore.getCurrentLocation()}
-          disabled={mapStore.isLocating}
+          disabled={isLocating}
           className="w-12 h-12 bg-white rounded-full shadow-lg hover:shadow-xl transition-shadow flex items-center justify-center cursor-pointer disabled:opacity-50"
           title="Go to my location"
         >
-          {mapStore.isLocating ? (
+          {isLocating ? (
             <div className="animate-spin h-5 w-5 border-2 border-blue-500 border-t-transparent rounded-full"></div>
           ) : (
             <MapPin size={24} color="#1f2937" />
@@ -201,8 +192,8 @@ export const MapComponent = observer(({ onVisitedCountChange }: MapComponentProp
 
       {/* Runestone Modal */}
       <RunestoneModal
-        runestone={mapStore.selectedRunestone}
-        isOpen={mapStore.isModalOpen}
+        runestone={selectedRunestone}
+        isOpen={isModalOpen}
         onClose={() => mapStore.closeModal()}
         onVisitedStatusChange={() => mapStore.refreshVisitedStatus()}
       />

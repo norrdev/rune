@@ -1,52 +1,25 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
-import type { Runestone } from '../types';
-import { runestonesCache } from '../services/Cache/runestonesCache';
 import { PageHeader } from '../components/PageHeader';
 import { MiniMap } from '../components/MiniMap/MiniMap';
 import { RunestoneMedia } from '../components/Runestone/components/RunestoneMedia';
 import { authStore } from '../stores/authStore';
 import { visitedRunestonesStore } from '../stores/visitedRunestonesStore';
+import { runestoneDetailStore } from '../stores/runestoneDetailStore';
 
 export const RunestoneDetail = observer(function RunestoneDetailPage() {
   const { slug } = useParams<{ slug: string }>();
-  const [runestone, setRunestone] = useState<Runestone | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
+  if (slug !== runestoneDetailStore.currentSlug) {
+    runestoneDetailStore.loadRunestoneBySlug(slug);
+  }
+
+  const { runestone, loading, error } = runestoneDetailStore;
   const [isMarkingVisited, setIsMarkingVisited] = useState(false);
   const [visitedError, setVisitedError] = useState<string | null>(null);
 
   const isVisited = runestone ? visitedRunestonesStore.isRunestoneVisited(runestone.id) : false;
-
-  useEffect(() => {
-    const fetchRunestone = async () => {
-      if (!slug) {
-        setError('No slug provided');
-        setLoading(false);
-        return;
-      }
-
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await runestonesCache.getRunestoneBySlug(slug);
-        setRunestone(data);
-
-        if (!data) {
-          setError('Runestone not found');
-        }
-      } catch (err) {
-        console.error('Error fetching runestone:', err);
-        setError('Failed to load runestone');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchRunestone();
-  }, [slug]);
 
   const handleMarkAsVisited = async () => {
     if (!runestone) return;
