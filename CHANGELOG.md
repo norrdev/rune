@@ -29,3 +29,9 @@
 - Added ability to export GPX with visited runestones.
 - Added ability to export GPX with all runestones.
 
+## 3.3
+- Fixed bug with showing visited runestones.
+
+## 3.4
+- Update maplibre-gl from version 5.x.x to 6.x.x.
+- Update typescript from version 6.x.x to 7.x.x.

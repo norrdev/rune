@@ -281,7 +281,7 @@ export const Profile = observer(function ProfilePage() {
                     {authStore.user?.email?.charAt(0).toUpperCase() || 'U'}
                   </span>
                 </div>
-                <div className="flex-1 min-w-[200px] overflow-hidden">
+                <div className="flex-1 min-w-50 overflow-hidden">
                   <h2
                     className="text-2xl font-extrabold font-display tracking-tight text-gray-850 truncate"
                     title={authStore.user?.email}
@@ -422,7 +422,7 @@ export const Profile = observer(function ProfilePage() {
                       value={customLimit}
                       onChange={(e) => {
                         const val = parseInt(e.target.value, 10);
-                        setCustomLimit(isNaN(val) ? 500 : Math.max(10, val));
+                        setCustomLimit(Number.isNaN(val) ? 500 : Math.max(10, val));
                       }}
                       className="w-24 bg-white border border-gray-250 text-gray-700 text-sm font-semibold rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                       placeholder="Limit"
