@@ -12,7 +12,9 @@
     "deploy": "wrangler deploy",
     "tauri:icons": "tauri icon src-tauri/icons/icon-manifest.json && node scripts/sync-android-branding.mjs",
     "android:dev": "tauri android dev",
-    "android:release": "node scripts/android-release.mjs"
+    "android:release": "node scripts/android-release.mjs",
+    "macos:dev": "tauri macos dev",
+    "macos:release": "tauri macos build --release"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.8",
