@@ -28,10 +28,7 @@ export default function Home() {
 
       {/* Sidebar */}
       {(sidebarOpen || !isMobile) && (
-        <Sidebar
-          visible={sidebarOpen}
-          onClose={() => setSidebarOpen(false)}
-        />
+        <Sidebar visible={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       )}
 
       {/* Main Content (Map) */}

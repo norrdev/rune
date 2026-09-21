@@ -60,7 +60,10 @@ class VisitedRunestonesStore {
 
     // React to changes in visitedRunestoneIds to update details automatically
     reaction(
-      () => Array.from(this.visitedRunestoneIds).sort((a, b) => a - b).join(','),
+      () =>
+        Array.from(this.visitedRunestoneIds)
+          .sort((a, b) => a - b)
+          .join(','),
       async () => {
         await this.fetchVisitedRunestoneDetails();
       },
@@ -155,7 +158,7 @@ class VisitedRunestonesStore {
     try {
       // Fetch visited runestone IDs from Supabase
       const visitedData = await supabaseRunestones.getAllVisitedRunestones();
-      const visitedIds = new Set(visitedData.map((rs: any) => rs.id));
+      const visitedIds = new Set(visitedData.map((rs) => rs.id));
 
       runInAction(() => {
         this.setVisitedRunestoneIds(visitedIds);

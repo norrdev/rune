@@ -188,8 +188,7 @@ export const Profile = observer(function ProfilePage() {
 
   // Error state
   if (visitedRunestonesStore.error || visitedRunestonesStore.detailsError) {
-    const errorMessage =
-      visitedRunestonesStore.error || visitedRunestonesStore.detailsError;
+    const errorMessage = visitedRunestonesStore.error || visitedRunestonesStore.detailsError;
     return (
       <div className="flex flex-1 flex-col h-full min-h-0 bg-gray-50 overflow-y-auto">
         <PageHeader title="Error" />

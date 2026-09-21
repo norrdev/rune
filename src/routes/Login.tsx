@@ -227,6 +227,7 @@ export const Login = observer(function LoginPage() {
           )}
 
           <button
+            type="button"
             onClick={handleAuth}
             disabled={loading}
             className={`w-full h-12 px-4 bg-primary hover:bg-primary-dark rounded-xl text-white font-semibold mb-6 hover:-translate-y-0.5 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer border-none ${loading ? 'opacity-50' : ''}`}

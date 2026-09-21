@@ -33,9 +33,7 @@ export const MiniMap = ({ runestone }: MiniMapProps) => {
 
     mapRef.current = map;
 
-    const marker = new MapLibreMarker({ color: MARKER_COLOR })
-      .setLngLat([lng, lat])
-      .addTo(map);
+    const marker = new MapLibreMarker({ color: MARKER_COLOR }).setLngLat([lng, lat]).addTo(map);
 
     markerRef.current = marker;
 
