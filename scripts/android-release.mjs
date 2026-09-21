@@ -29,6 +29,9 @@ if (!fs.existsSync(keyProps)) {
 console.log('[android-release] Building web assets…');
 run('npm', ['run', 'build']);
 
+console.log('[android-release] Generating Android launcher and splash assets…');
+run('npm', ['run', 'tauri:icons']);
+
 console.log('[android-release] Building signed AAB…');
 run('npx', ['tauri', 'android', 'build', '--aab']);
 

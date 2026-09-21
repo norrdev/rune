@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Splash window color = adaptive icon plate (@color/ic_launcher_background from tauri icon) -->
+    <!-- Android 12+ system splash: generated from src-tauri/icons/icon-manifest.json. -->
     <style name="Theme.app" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:windowSplashScreenBackground">@color/ic_launcher_background</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_foreground</item>
     </style>
 </resources>
