@@ -5,5 +5,5 @@ echo "Building for desktop..."
 npm run tauri build
 
 echo "Building for Android..."
-npm run tauri:icons
+# npm run tauri:icons
 npm run tauri -- android build --apk --target aarch64
