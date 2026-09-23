@@ -1,12 +1,11 @@
-<svg viewBox="0 0 130 130" xmlns="http://www.w3.org/2000/svg">
-  <title>Runestone Safari</title>
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#4f46e5" />
       <stop offset="100%" stop-color="#0d9488" />
     </linearGradient>
   </defs>
-  <g transform="translate(15, 15)">
+  <g transform="translate(50, 50)">
     <path d="M 35,20 L 35,80 A 15,15 0 1,1 20,65 L 80,65 A 15,15 0 1,1 65,80 L 65,20 A 15,15 0 1,1 80,35 L 20,35 A 15,15 0 1,1 35,20 Z" 
           fill="none" stroke="url(#logo-grad)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" />
   </g>
