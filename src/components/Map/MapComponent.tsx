@@ -148,7 +148,7 @@ export const MapComponent = observer(function MapComponent() {
           <button
             type="button"
             onClick={() => mapStore.loadRunestones()}
-            className="bg-red-100 hover:bg-red-200 text-red-700 px-4 py-3 rounded text-sm font-medium transition-colors min-h-[48px]"
+            className="bg-red-100 hover:bg-red-200 text-red-700 px-4 py-3 rounded text-sm font-medium transition-colors min-h-12"
           >
             Retry
           </button>
