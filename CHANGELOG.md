@@ -35,3 +35,9 @@
 ## 3.4
 - Update maplibre-gl from version 5.x.x to 6.x.x.
 - Update typescript from version 6.x.x to 7.x.x.
+
+## 3.5
+- Improved visited runestones list view in Profile.
+- Added loading indicators and visual feedback when marking or unmarking runestones as visited.
+- Updated application icons across all platforms.
+- Added macOS build support and Android APK release build scripts.
