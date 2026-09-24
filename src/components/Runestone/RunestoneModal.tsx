@@ -6,6 +6,7 @@ import { visitedRunestonesStore } from '../../stores/visitedRunestonesStore';
 import { Link } from 'react-router-dom';
 import { RunestoneMedia } from './components/RunestoneMedia';
 import { createPortal } from 'react-dom';
+import { Check, X, Loader2 } from 'lucide-react';
 
 interface RunestoneModalProps {
   runestone: Runestone | null;
@@ -16,31 +17,39 @@ interface RunestoneModalProps {
 
 export const RunestoneModal = observer(
   ({ runestone, isOpen, onClose, onVisitedStatusChange }: RunestoneModalProps) => {
+    const [isMarkingVisited, setIsMarkingVisited] = useState(false);
     const [visitedError, setVisitedError] = useState<string | null>(null);
 
     const isVisited = runestone ? visitedRunestonesStore.isRunestoneVisited(runestone.id) : false;
-    const loading = visitedRunestonesStore.loading;
+    const isStoreUpdating = runestone
+      ? visitedRunestonesStore.isRunestoneUpdating(runestone.id)
+      : false;
+    const isUpdating = isMarkingVisited || isStoreUpdating;
 
     if (!isOpen || !runestone) {
       return null;
     }
 
     const handleMarkAsVisited = async () => {
-      if (!runestone) return;
+      if (!runestone || isUpdating) return;
+      setIsMarkingVisited(true);
       setVisitedError(null);
 
       try {
-        if (isVisited) {
-          await visitedRunestonesStore.unmarkAsVisited(runestone.id);
-        } else {
-          await visitedRunestonesStore.markAsVisited(runestone.id);
-        }
-        if (onVisitedStatusChange) {
+        const success = isVisited
+          ? await visitedRunestonesStore.unmarkAsVisited(runestone.id)
+          : await visitedRunestonesStore.markAsVisited(runestone.id);
+
+        if (!success) {
+          setVisitedError('Failed to update visited status. Please try again.');
+        } else if (onVisitedStatusChange) {
           onVisitedStatusChange();
         }
       } catch (error) {
         console.error('Error updating visited status:', error);
         setVisitedError('Failed to update visited status. Please try again.');
+      } finally {
+        setIsMarkingVisited(false);
       }
     };
 
@@ -49,10 +58,16 @@ export const RunestoneModal = observer(
         <div className="bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden relative border border-gray-100">
           {/* Header */}
           <div className="flex items-center justify-between p-5 border-b border-gray-100">
-            <div className="flex items-center gap-4 overflow-hidden">
+            <div className="flex items-center gap-3 overflow-hidden">
               <h2 className="text-xl font-bold font-display text-gray-850 truncate m-0">
                 {runestone.signature_text}
               </h2>
+              {authStore.user && isVisited && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-emerald-100 text-emerald-800 rounded-full text-xs font-semibold shrink-0 transition-all duration-300">
+                  <Check className="w-3.5 h-3.5 stroke-[2.5] text-emerald-600" />
+                  Visited
+                </span>
+              )}
               <Link
                 to={`/runestones/${runestone.slug}`}
                 className="inline-flex items-center px-3 py-1 bg-primary/10 hover:bg-primary text-primary hover:text-white rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-350"
@@ -162,6 +177,20 @@ export const RunestoneModal = observer(
                     Status
                   </div>
                   <div className="bg-gray-50/60 p-4 rounded-2xl border border-gray-100 flex flex-col gap-3 shadow-sm h-full justify-center">
+                    {authStore.user && (
+                      <div className="flex items-center justify-between text-xs font-semibold">
+                        <span className="text-gray-600">Visited:</span>
+                        <span
+                          className={`px-2.5 py-0.5 rounded-full flex items-center gap-1 font-bold transition-all duration-200 ${
+                            isVisited
+                              ? 'bg-emerald-100 text-emerald-700'
+                              : 'bg-gray-150 text-gray-500'
+                          }`}
+                        >
+                          {isVisited ? '✓ Visited' : 'Not yet'}
+                        </span>
+                      </div>
+                    )}
                     <div className="flex items-center justify-between text-xs font-semibold">
                       <span className="text-gray-600">Lost:</span>
                       <span
@@ -259,22 +288,40 @@ export const RunestoneModal = observer(
               <button
                 type="button"
                 onClick={handleMarkAsVisited}
-                disabled={loading}
-                className={`px-5 h-11 rounded-xl flex items-center gap-2 text-xs font-bold text-white shadow-sm hover:shadow hover:-translate-y-0.5 active:scale-98 transition-all duration-300 cursor-pointer border-none ${isVisited ? 'bg-red-500 hover:bg-red-600' : 'bg-emerald-500 hover:bg-emerald-600'} ${loading ? 'opacity-50' : ''}`}
+                disabled={isUpdating}
+                className={`relative px-5 h-11 rounded-xl flex items-center gap-2.5 text-xs font-bold text-white shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer border-none select-none overflow-hidden ${
+                  isUpdating
+                    ? isVisited
+                      ? 'bg-red-400/90 cursor-wait opacity-90'
+                      : 'bg-emerald-500/90 cursor-wait opacity-90'
+                    : isVisited
+                      ? 'bg-red-500 hover:bg-red-600 active:scale-95 active:bg-red-700 hover:-translate-y-0.5'
+                      : 'bg-emerald-600 hover:bg-emerald-700 active:scale-95 active:bg-emerald-800 hover:-translate-y-0.5'
+                }`}
               >
-                {loading && (
-                  <div className="w-4 h-4 border-2 border-white rounded-full border-t-transparent animate-spin"></div>
+                {isUpdating ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+                    <span>{isVisited ? 'Unmarking...' : 'Marking as visited...'}</span>
+                  </>
+                ) : isVisited ? (
+                  <>
+                    <X className="w-4 h-4 stroke-[2.5] shrink-0" />
+                    <span>Unmark as Visited</span>
+                  </>
+                ) : (
+                  <>
+                    <Check className="w-4 h-4 stroke-[2.5] shrink-0" />
+                    <span>Mark as Visited</span>
+                  </>
                 )}
-                <span>
-                  {loading ? 'Processing...' : isVisited ? 'Unmark as Visited' : 'Mark as Visited'}
-                </span>
               </button>
             )}
 
             <button
               type="button"
               onClick={onClose}
-              className="px-6 h-11 bg-gray-400 hover:bg-gray-500 rounded-xl text-xs font-bold text-white shadow-sm hover:shadow hover:-translate-y-0.5 active:scale-98 transition-all duration-300 ml-auto cursor-pointer border-none"
+              className="px-6 h-11 bg-gray-400 hover:bg-gray-500 active:scale-95 rounded-xl text-xs font-bold text-white shadow-sm hover:shadow hover:-translate-y-0.5 transition-all duration-200 ml-auto cursor-pointer border-none"
             >
               <span>Close</span>
             </button>

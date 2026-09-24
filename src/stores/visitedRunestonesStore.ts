@@ -9,6 +9,7 @@ const TOTAL_RUNESTONES = 6815;
 class VisitedRunestonesStore {
   visitedRunestoneIds: Set<number> = new Set();
   visitedRunestoneDetails: Runestone[] = [];
+  updatingRunestoneIds: Set<number> = new Set();
   detailsLoading: boolean = false;
   detailsError: string | null = null;
   loading: boolean = false;
@@ -19,6 +20,7 @@ class VisitedRunestonesStore {
     makeObservable(this, {
       visitedRunestoneIds: observable,
       visitedRunestoneDetails: observable,
+      updatingRunestoneIds: observable,
       detailsLoading: observable,
       detailsError: observable,
       loading: observable,
@@ -39,6 +41,7 @@ class VisitedRunestonesStore {
       markAsVisited: action,
       unmarkAsVisited: action,
       isRunestoneVisited: computed,
+      isRunestoneUpdating: computed,
       visitedCount: computed,
       completionPercentage: computed,
       isAuthenticated: computed,
@@ -109,6 +112,7 @@ class VisitedRunestonesStore {
 
   clearVisitedRunestones() {
     this.visitedRunestoneIds.clear();
+    this.updatingRunestoneIds.clear();
     this.visitedRunestoneDetails = [];
     this.detailsError = null;
     this.error = null;
@@ -181,6 +185,10 @@ class VisitedRunestonesStore {
       return false;
     }
 
+    runInAction(() => {
+      this.updatingRunestoneIds.add(runestoneId);
+    });
+
     try {
       const success = await supabaseRunestones.markAsVisited(runestoneId);
       if (success) {
@@ -195,6 +203,10 @@ class VisitedRunestonesStore {
         this.setError('Failed to mark runestone as visited');
       });
       return false;
+    } finally {
+      runInAction(() => {
+        this.updatingRunestoneIds.delete(runestoneId);
+      });
     }
   }
 
@@ -203,6 +215,10 @@ class VisitedRunestonesStore {
       console.warn('unmarkAsVisited: User not fully authenticated');
       return false;
     }
+
+    runInAction(() => {
+      this.updatingRunestoneIds.add(runestoneId);
+    });
 
     try {
       const success = await supabaseRunestones.deleteVisited(runestoneId);
@@ -218,6 +234,10 @@ class VisitedRunestonesStore {
         this.setError('Failed to unmark runestone as visited');
       });
       return false;
+    } finally {
+      runInAction(() => {
+        this.updatingRunestoneIds.delete(runestoneId);
+      });
     }
   }
 
@@ -228,6 +248,12 @@ class VisitedRunestonesStore {
   get isRunestoneVisited() {
     return (runestoneId: number): boolean => {
       return this.visitedRunestoneIds.has(runestoneId);
+    };
+  }
+
+  get isRunestoneUpdating() {
+    return (runestoneId: number): boolean => {
+      return this.updatingRunestoneIds.has(runestoneId);
     };
   }
 

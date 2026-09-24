@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
-import { Download } from 'lucide-react';
+import { Download, ChevronRight } from 'lucide-react';
 import { authStore } from '../stores/authStore';
 import { visitedRunestonesStore } from '../stores/visitedRunestonesStore';
 import { runestonesCache } from '../services/Cache/runestonesCache';
@@ -273,7 +273,7 @@ export const Profile = observer(function ProfilePage() {
         <div className="w-full bg-white rounded-3xl shadow-sm border border-gray-150/80 overflow-hidden">
           <div className="p-4 md:p-6">
             {/* User Info Section */}
-            <div className="bg-linear-to-br from-primary/5 via-accent/5 to-white border border-gray-150 rounded-3xl p-6 md:p-8 mb-8 shadow-sm">
+            <div className="bg-linear-to-br from-primary/5 via-accent/5 to-white border border-gray-150 rounded-3xl p-5 sm:p-6 md:p-8 mb-6 sm:mb-8 shadow-sm">
               <div className="flex items-center gap-6 flex-wrap md:flex-nowrap">
                 <div className="w-20 h-20 bg-linear-to-br from-primary to-primary-light rounded-2xl flex items-center justify-center shrink-0 shadow-md">
                   <span className="text-white text-3xl font-extrabold font-display">
@@ -313,7 +313,7 @@ export const Profile = observer(function ProfilePage() {
             </div>
 
             {/* Stats Section */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 sm:mb-8">
               {/* Visited Card */}
               <div className="bg-white border border-gray-150 p-5 rounded-2xl shadow-sm transition hover:shadow hover:-translate-y-0.5 duration-300">
                 <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center mb-4 border border-emerald-100">
@@ -355,7 +355,7 @@ export const Profile = observer(function ProfilePage() {
             </div>
 
             {/* Progress Bar */}
-            <div className="bg-white border border-gray-150 rounded-2xl p-6 mb-8 shadow-sm">
+            <div className="bg-white border border-gray-150 rounded-2xl p-4 sm:p-6 mb-6 sm:mb-8 shadow-sm">
               <div className="flex justify-between items-center mb-3">
                 <span className="text-sm font-bold text-gray-800 font-display">
                   Adventure Progress
@@ -374,7 +374,7 @@ export const Profile = observer(function ProfilePage() {
             </div>
 
             {/* GPX Export Section */}
-            <div className="bg-white border border-gray-150 rounded-2xl p-6 mb-8 shadow-sm">
+            <div className="bg-white border border-gray-150 rounded-2xl p-4 sm:p-6 mb-6 sm:mb-8 shadow-sm">
               <div className="flex items-center gap-3 mb-3">
                 <span className="text-primary font-bold text-lg flex items-center">
                   <Download className="w-5 h-5 text-primary" />
@@ -467,16 +467,16 @@ export const Profile = observer(function ProfilePage() {
             </div>
 
             {/* Visited Runestones List */}
-            <div className="bg-white border border-gray-150 rounded-2xl p-6 shadow-sm">
-              <div className="flex justify-between items-center mb-5">
+            <div className="bg-white border border-gray-150 rounded-2xl shadow-sm overflow-hidden">
+              <div className="flex justify-between items-center px-4 sm:px-6 py-4 border-b border-gray-100">
                 <h3 className="text-sm font-bold text-gray-800 font-display">Visited Runestones</h3>
-                <span className="text-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full">
+                <span className="text-xs font-bold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full">
                   {visitedRunestonesStore.visitedRunestoneDetails.length}
                 </span>
               </div>
 
               {visitedRunestonesStore.visitedRunestoneDetails.length === 0 ? (
-                <div className="flex flex-col items-center py-8 text-center bg-gray-50/50 rounded-2xl border border-dashed border-gray-200">
+                <div className="flex flex-col items-center py-10 px-4 text-center">
                   <p className="text-gray-500 font-semibold text-sm">
                     You haven't visited any runestones yet.
                   </p>
@@ -485,35 +485,38 @@ export const Profile = observer(function ProfilePage() {
                   </p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="divide-y divide-gray-100">
                   {visitedRunestonesStore.visitedRunestoneDetails.map((runestone) => (
-                    <div
+                    <Link
                       key={runestone.id}
-                      className="bg-white rounded-2xl border border-gray-150 p-4 hover:border-primary/20 hover:-translate-y-0.5 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between"
+                      to={`/runestones/${runestone.slug}`}
+                      className="flex items-center justify-between px-4 sm:px-6 py-3 hover:bg-primary/5 active:bg-primary/10 transition-colors group cursor-pointer"
                     >
-                      <div className="flex justify-between items-start gap-4 mb-3">
-                        <div className="overflow-hidden">
-                          <h4
-                            className="text-sm font-bold text-gray-850 truncate"
+                      <div className="min-w-0 flex-1 pr-3">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className="text-sm font-bold text-gray-850 group-hover:text-primary transition-colors truncate"
                             title={runestone.signature_text}
                           >
                             {runestone.signature_text}
-                          </h4>
-                          <p
-                            className="text-xs text-gray-450 mt-1 truncate"
-                            title={runestone.found_location}
-                          >
-                            {runestone.found_location}
-                          </p>
+                          </span>
+                          {runestone.parish && runestone.parish !== runestone.found_location && (
+                            <span className="hidden sm:inline-block text-xs text-gray-400 font-normal truncate">
+                              • {runestone.parish}
+                            </span>
+                          )}
                         </div>
+                        <p
+                          className="text-xs text-gray-400 truncate mt-0.5"
+                          title={runestone.found_location}
+                        >
+                          {runestone.found_location || 'Unknown location'}
+                        </p>
                       </div>
-                      <Link
-                        to={`/runestones/${runestone.slug}`}
-                        className="w-full h-9 bg-gray-50 hover:bg-primary hover:text-white rounded-xl flex items-center justify-center text-xs font-bold text-gray-650 transition-all duration-300 border border-gray-200/60 hover:border-transparent cursor-pointer"
-                      >
-                        <span>View Details</span>
-                      </Link>
-                    </div>
+                      <div className="flex items-center gap-1.5 shrink-0 text-gray-400 group-hover:text-primary transition-colors">
+                        <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                      </div>
+                    </Link>
                   ))}
                 </div>
               )}

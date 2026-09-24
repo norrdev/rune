@@ -1,6 +1,6 @@
 {
   "name": "runestonesafari",
-  "version": "3.4.2",
+  "version": "3.5.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -15,7 +15,7 @@
     "android:release": "node scripts/android-release.mjs",
     "android:release:apk": "node scripts/android-release.mjs --apk",
     "android:release:aab": "node scripts/android-release.mjs --aab",
-    "macos:dev": "tauri macos dev",
+    "macos:dev": "tauri macos run dev",
     "macos:release": "tauri macos build --release"
   },
   "dependencies": {

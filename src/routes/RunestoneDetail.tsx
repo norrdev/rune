@@ -7,6 +7,7 @@ import { RunestoneMedia } from '../components/Runestone/components/RunestoneMedi
 import { authStore } from '../stores/authStore';
 import { visitedRunestonesStore } from '../stores/visitedRunestonesStore';
 import { runestoneDetailStore } from '../stores/runestoneDetailStore';
+import { Check, X, Loader2 } from 'lucide-react';
 
 export const RunestoneDetail = observer(function RunestoneDetailPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -20,18 +21,24 @@ export const RunestoneDetail = observer(function RunestoneDetailPage() {
   const [visitedError, setVisitedError] = useState<string | null>(null);
 
   const isVisited = runestone ? visitedRunestonesStore.isRunestoneVisited(runestone.id) : false;
+  const isStoreUpdating = runestone
+    ? visitedRunestonesStore.isRunestoneUpdating(runestone.id)
+    : false;
+  const isUpdating = isMarkingVisited || isStoreUpdating;
 
   const handleMarkAsVisited = async () => {
-    if (!runestone) return;
+    if (!runestone || isUpdating) return;
 
     setIsMarkingVisited(true);
     setVisitedError(null);
 
     try {
-      if (isVisited) {
-        await visitedRunestonesStore.unmarkAsVisited(runestone.id);
-      } else {
-        await visitedRunestonesStore.markAsVisited(runestone.id);
+      const success = isVisited
+        ? await visitedRunestonesStore.unmarkAsVisited(runestone.id)
+        : await visitedRunestonesStore.markAsVisited(runestone.id);
+
+      if (!success) {
+        setVisitedError('Failed to update visited status. Please try again.');
       }
     } catch (error) {
       console.error('Error marking as visited:', error);
@@ -150,20 +157,30 @@ export const RunestoneDetail = observer(function RunestoneDetailPage() {
                         <button
                           type="button"
                           onClick={handleMarkAsVisited}
-                          disabled={isMarkingVisited || visitedRunestonesStore.loading}
-                          className={`px-4 h-10 rounded-xl font-semibold shadow-sm hover:shadow hover:-translate-y-0.5 active:scale-98 transition-all duration-300 cursor-pointer text-xs ${
-                            isVisited
-                              ? 'bg-red-55/90 hover:bg-red-100 text-red-650 border border-red-100/50'
-                              : 'bg-emerald-55/90 hover:bg-emerald-100 text-emerald-650 border border-emerald-100/50'
-                          } ${isMarkingVisited || visitedRunestonesStore.loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          disabled={isUpdating || visitedRunestonesStore.loading}
+                          className={`relative px-4 h-10 rounded-xl font-semibold shadow-sm hover:shadow transition-all duration-200 cursor-pointer text-xs flex items-center gap-2 select-none border ${
+                            isUpdating
+                              ? 'bg-gray-100 text-gray-500 border-gray-200 cursor-wait opacity-80'
+                              : isVisited
+                                ? 'bg-red-50 hover:bg-red-100 active:bg-red-200 text-red-700 border-red-200/60 active:scale-95 hover:-translate-y-0.5'
+                                : 'bg-emerald-50 hover:bg-emerald-100 active:bg-emerald-200 text-emerald-800 border-emerald-200/60 active:scale-95 hover:-translate-y-0.5'
+                          } ${isUpdating || visitedRunestonesStore.loading ? 'cursor-wait pointer-events-none' : ''}`}
                         >
-                          {isMarkingVisited ? (
-                            <div className="flex items-center gap-2">
-                              <div className="w-3.5 h-3.5 border-2 border-currentColor border-t-transparent rounded-full animate-spin"></div>
-                              <span>Updating...</span>
-                            </div>
+                          {isUpdating ? (
+                            <>
+                              <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
+                              <span>{isVisited ? 'Unmarking...' : 'Marking as visited...'}</span>
+                            </>
+                          ) : isVisited ? (
+                            <>
+                              <X className="w-3.5 h-3.5 stroke-[2.5] shrink-0" />
+                              <span>Mark as not visited</span>
+                            </>
                           ) : (
-                            <span>{isVisited ? 'Mark as not visited' : 'Mark as visited'}</span>
+                            <>
+                              <Check className="w-3.5 h-3.5 stroke-[2.5] shrink-0" />
+                              <span>Mark as visited</span>
+                            </>
                           )}
                         </button>
                       </div>
