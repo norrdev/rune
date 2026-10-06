@@ -8,6 +8,93 @@ import { runestonesCache } from '../services/Cache/runestonesCache';
 import type { Runestone } from '../types';
 import { PageHeader } from '../components/PageHeader';
 
+const DEMO_VISITED_STONES: Runestone[] = [
+  {
+    id: 160,
+    signature_text: 'U 160',
+    found_location: 'Risbyle',
+    parish: 'Täby',
+    district: 'Danderyd',
+    municipality: 'Täby',
+    current_location: 'Risbyle',
+    material: 'Granite',
+    material_type: 'Granite',
+    rune_type: 'Runestone',
+    dating: 'Viking Age (c. 1020-1050)',
+    style: 'Pr2',
+    carver: 'Ulv i Borresta',
+    latitude: 59.4891,
+    longitude: 18.0673,
+    lost: false,
+    ornamental: false,
+    recent: false,
+    slug: 'U_160',
+  },
+  {
+    id: 101,
+    signature_text: 'Sö 101 (Ramsund carving)',
+    found_location: 'Ramsundsberget',
+    parish: 'Jäder',
+    district: 'Österrekarne',
+    municipality: 'Eskilstuna',
+    current_location: 'Ramsundsberget',
+    material: 'Rock',
+    material_type: 'Flat rock surface',
+    rune_type: 'Rock carving',
+    dating: 'Viking Age (c. 1030)',
+    style: 'Pr1 - Pr2',
+    carver: 'Sigurd carver',
+    latitude: 59.4422,
+    longitude: 16.6344,
+    lost: false,
+    ornamental: false,
+    recent: false,
+    slug: 'So_101',
+  },
+  {
+    id: 136,
+    signature_text: 'Ög 136 (Rök runestone)',
+    found_location: 'Rök',
+    parish: 'Rök',
+    district: 'Lysing',
+    municipality: 'Ödeshög',
+    current_location: 'Rök church',
+    material: 'Schist',
+    material_type: 'Schist',
+    rune_type: 'Runestone',
+    dating: 'Viking Age (c. 800)',
+    style: 'Older / Rök',
+    carver: 'Varin',
+    latitude: 58.2952,
+    longitude: 14.7752,
+    lost: false,
+    ornamental: false,
+    recent: false,
+    slug: 'Og_136',
+  },
+  {
+    id: 11,
+    signature_text: 'U 11 (Adelsö / Hovgården)',
+    found_location: 'Hovgården',
+    parish: 'Adelsö',
+    district: 'Färentuna',
+    municipality: 'Ekerö',
+    current_location: 'Hovgården, Adelsö',
+    material: 'Rock',
+    material_type: 'Cliff face',
+    rune_type: 'Rock carving',
+    dating: 'Viking Age (c. 1070)',
+    style: 'Pr4',
+    carver: 'Tolir',
+    latitude: 59.3625,
+    longitude: 17.5342,
+    lost: false,
+    ornamental: false,
+    recent: false,
+    slug: 'U_11',
+  },
+];
+
 export const Profile = observer(function ProfilePage() {
   const navigate = useNavigate();
   const [downloadAllLoading, setDownloadAllLoading] = useState(false);
@@ -171,11 +258,29 @@ export const Profile = observer(function ProfilePage() {
     }
   };
 
+  const isDemo = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('demo') === 'true';
+
+  const demoUser = isDemo
+    ? ({
+        id: 'demo-viking-id',
+        email: 'explorer@runestonesafari.com',
+        created_at: '2025-05-14T10:00:00Z',
+        email_confirmed_at: '2025-05-14T10:00:00Z',
+        app_metadata: {},
+        user_metadata: {},
+        aud: 'authenticated',
+      } as unknown as typeof authStore.user)
+    : null;
+
+  const currentUser = authStore.user || demoUser;
+  const isEmailConfirmed = authStore.isEmailConfirmed || !!demoUser;
+
   // Loading state
   if (
-    authStore.loading ||
-    visitedRunestonesStore.loading ||
-    visitedRunestonesStore.detailsLoading
+    !isDemo &&
+    (authStore.loading ||
+      visitedRunestonesStore.loading ||
+      visitedRunestonesStore.detailsLoading)
   ) {
     return (
       <div className="flex flex-1 flex-col h-full min-h-0 bg-gray-50 overflow-y-auto items-center justify-center p-4">
@@ -187,7 +292,7 @@ export const Profile = observer(function ProfilePage() {
   }
 
   // Error state
-  if (visitedRunestonesStore.error || visitedRunestonesStore.detailsError) {
+  if (!isDemo && (visitedRunestonesStore.error || visitedRunestonesStore.detailsError)) {
     const errorMessage = visitedRunestonesStore.error || visitedRunestonesStore.detailsError;
     return (
       <div className="flex flex-1 flex-col h-full min-h-0 bg-gray-50 overflow-y-auto">
@@ -212,7 +317,7 @@ export const Profile = observer(function ProfilePage() {
   }
 
   // Not Logged In
-  if (!authStore.user) {
+  if (!currentUser) {
     return (
       <div className="flex flex-1 flex-col h-full min-h-0 bg-gray-50 overflow-y-auto">
         <PageHeader title="Not Logged In" />
@@ -236,7 +341,7 @@ export const Profile = observer(function ProfilePage() {
   }
 
   // Email Confirmation Required
-  if (authStore.user && !authStore.isEmailConfirmed) {
+  if (currentUser && !isEmailConfirmed) {
     return (
       <div className="flex flex-1 flex-col h-full min-h-0 bg-gray-50 overflow-y-auto">
         <PageHeader title="Email Required" />
@@ -248,7 +353,7 @@ export const Profile = observer(function ProfilePage() {
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">Email Confirmation Required</h2>
           <p className="text-gray-600 mb-4">
-            Please check your email (<span className="font-medium">{authStore.user.email}</span>)
+            Please check your email (<span className="font-medium">{currentUser.email}</span>)
             and click the confirmation link to access your profile.
           </p>
           <p className="text-sm text-gray-500 mb-6">
@@ -265,6 +370,11 @@ export const Profile = observer(function ProfilePage() {
     );
   }
 
+  const visitedCount = isDemo ? 42 : visitedRunestonesStore.visitedCount;
+  const totalCount = visitedRunestonesStore.totalRunestonesCount;
+  const completionPercentage = isDemo ? '0.6' : visitedRunestonesStore.completionPercentage;
+  const visitedRunestonesList = isDemo ? DEMO_VISITED_STONES : visitedRunestonesStore.visitedRunestoneDetails;
+
   return (
     <div className="flex flex-1 flex-col h-full min-h-0 bg-gray-50/40 overflow-y-auto">
       <PageHeader title="Profile" />
@@ -277,19 +387,19 @@ export const Profile = observer(function ProfilePage() {
               <div className="flex items-center gap-6 flex-wrap md:flex-nowrap">
                 <div className="w-20 h-20 bg-linear-to-br from-primary to-primary-light rounded-2xl flex items-center justify-center shrink-0 shadow-md">
                   <span className="text-white text-3xl font-extrabold font-display">
-                    {authStore.user?.email?.charAt(0).toUpperCase() || 'U'}
+                    {currentUser?.email?.charAt(0).toUpperCase() || 'U'}
                   </span>
                 </div>
                 <div className="flex-1 min-w-50 overflow-hidden">
                   <h2
                     className="text-2xl font-extrabold font-display tracking-tight text-gray-850 truncate"
-                    title={authStore.user?.email}
+                    title={currentUser?.email}
                   >
-                    {authStore.user?.email}
+                    {currentUser?.email}
                   </h2>
                   <p className="text-sm font-semibold text-gray-400 mt-1">
                     Explorer since{' '}
-                    {authStore.user?.created_at ? formatDate(authStore.user.created_at) : 'Unknown'}
+                    {currentUser?.created_at ? formatDate(currentUser.created_at) : 'Unknown'}
                   </p>
                 </div>
               </div>
@@ -323,7 +433,7 @@ export const Profile = observer(function ProfilePage() {
                   Visited
                 </div>
                 <div className="text-3xl font-extrabold font-display text-gray-850">
-                  {visitedRunestonesStore.visitedCount}
+                  {visitedCount}
                 </div>
               </div>
 
@@ -336,7 +446,7 @@ export const Profile = observer(function ProfilePage() {
                   Total Stones
                 </div>
                 <div className="text-3xl font-extrabold font-display text-gray-855">
-                  {visitedRunestonesStore.totalRunestonesCount}
+                  {totalCount}
                 </div>
               </div>
 
@@ -349,7 +459,7 @@ export const Profile = observer(function ProfilePage() {
                   Completion
                 </div>
                 <div className="text-3xl font-extrabold font-display text-gray-855">
-                  {visitedRunestonesStore.completionPercentage}%
+                  {completionPercentage}%
                 </div>
               </div>
             </div>
@@ -361,14 +471,13 @@ export const Profile = observer(function ProfilePage() {
                   Adventure Progress
                 </span>
                 <span className="text-xs font-semibold text-gray-450">
-                  {visitedRunestonesStore.visitedCount} of{' '}
-                  {visitedRunestonesStore.totalRunestonesCount}
+                  {visitedCount} of {totalCount}
                 </span>
               </div>
               <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden shadow-inner border border-gray-100">
                 <div
                   className="bg-linear-to-r from-primary to-accent h-full rounded-full transition-all duration-700 ease-out"
-                  style={{ width: `${visitedRunestonesStore.completionPercentage}%` }}
+                  style={{ width: `${completionPercentage}%` }}
                 />
               </div>
             </div>
@@ -451,7 +560,7 @@ export const Profile = observer(function ProfilePage() {
                   disabled={
                     downloadAllLoading ||
                     downloadVisitedLoading ||
-                    visitedRunestonesStore.visitedCount === 0
+                    visitedCount === 0
                   }
                   className="bg-white border border-gray-250 hover:border-emerald-500/30 hover:bg-emerald-50 active:bg-emerald-100 h-12 rounded-xl flex items-center justify-center hover:-translate-y-0.5 shadow-sm hover:shadow transition-all duration-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:bg-white"
                 >
@@ -471,11 +580,11 @@ export const Profile = observer(function ProfilePage() {
               <div className="flex justify-between items-center px-4 sm:px-6 py-4 border-b border-gray-100">
                 <h3 className="text-sm font-bold text-gray-800 font-display">Visited Runestones</h3>
                 <span className="text-xs font-bold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full">
-                  {visitedRunestonesStore.visitedRunestoneDetails.length}
+                  {visitedRunestonesList.length}
                 </span>
               </div>
 
-              {visitedRunestonesStore.visitedRunestoneDetails.length === 0 ? (
+              {visitedRunestonesList.length === 0 ? (
                 <div className="flex flex-col items-center py-10 px-4 text-center">
                   <p className="text-gray-500 font-semibold text-sm">
                     You haven't visited any runestones yet.
@@ -486,7 +595,7 @@ export const Profile = observer(function ProfilePage() {
                 </div>
               ) : (
                 <div className="divide-y divide-gray-100">
-                  {visitedRunestonesStore.visitedRunestoneDetails.map((runestone) => (
+                  {visitedRunestonesList.map((runestone) => (
                     <Link
                       key={runestone.id}
                       to={`/runestones/${runestone.slug}`}
@@ -527,3 +636,4 @@ export const Profile = observer(function ProfilePage() {
     </div>
   );
 });
+
