@@ -258,7 +258,9 @@ export const Profile = observer(function ProfilePage() {
     }
   };
 
-  const isDemo = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('demo') === 'true';
+  const isDemo =
+    typeof window !== 'undefined' &&
+    new URLSearchParams(window.location.search).get('demo') === 'true';
 
   const demoUser = isDemo
     ? ({
@@ -278,9 +280,7 @@ export const Profile = observer(function ProfilePage() {
   // Loading state
   if (
     !isDemo &&
-    (authStore.loading ||
-      visitedRunestonesStore.loading ||
-      visitedRunestonesStore.detailsLoading)
+    (authStore.loading || visitedRunestonesStore.loading || visitedRunestonesStore.detailsLoading)
   ) {
     return (
       <div className="flex flex-1 flex-col h-full min-h-0 bg-gray-50 overflow-y-auto items-center justify-center p-4">
@@ -353,8 +353,8 @@ export const Profile = observer(function ProfilePage() {
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">Email Confirmation Required</h2>
           <p className="text-gray-600 mb-4">
-            Please check your email (<span className="font-medium">{currentUser.email}</span>)
-            and click the confirmation link to access your profile.
+            Please check your email (<span className="font-medium">{currentUser.email}</span>) and
+            click the confirmation link to access your profile.
           </p>
           <p className="text-sm text-gray-500 mb-6">
             Once confirmed, you'll be able to view your visited runestones and track your progress.
@@ -373,7 +373,9 @@ export const Profile = observer(function ProfilePage() {
   const visitedCount = isDemo ? 42 : visitedRunestonesStore.visitedCount;
   const totalCount = visitedRunestonesStore.totalRunestonesCount;
   const completionPercentage = isDemo ? '0.6' : visitedRunestonesStore.completionPercentage;
-  const visitedRunestonesList = isDemo ? DEMO_VISITED_STONES : visitedRunestonesStore.visitedRunestoneDetails;
+  const visitedRunestonesList = isDemo
+    ? DEMO_VISITED_STONES
+    : visitedRunestonesStore.visitedRunestoneDetails;
 
   return (
     <div className="flex flex-1 flex-col h-full min-h-0 bg-gray-50/40 overflow-y-auto">
@@ -557,11 +559,7 @@ export const Profile = observer(function ProfilePage() {
                 <button
                   type="button"
                   onClick={handleDownloadVisited}
-                  disabled={
-                    downloadAllLoading ||
-                    downloadVisitedLoading ||
-                    visitedCount === 0
-                  }
+                  disabled={downloadAllLoading || downloadVisitedLoading || visitedCount === 0}
                   className="bg-white border border-gray-250 hover:border-emerald-500/30 hover:bg-emerald-50 active:bg-emerald-100 h-12 rounded-xl flex items-center justify-center hover:-translate-y-0.5 shadow-sm hover:shadow transition-all duration-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:bg-white"
                 >
                   {downloadVisitedLoading ? (
@@ -636,4 +634,3 @@ export const Profile = observer(function ProfilePage() {
     </div>
   );
 });
-

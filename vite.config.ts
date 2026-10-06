@@ -25,6 +25,13 @@ export default defineConfig(async () => ({
       '@components': '/src/components',
       '@services': '/src/services',
       '@utils': '/src/utils',
+      '@pages': '/src/routes',
+      '@hooks': '/src/hooks',
+      '@types': '/src/types',
+      '@styles': '/src/styles',
+      '@config': '/src/config',
+      '@contexts': '/src/contexts',
+      '@assets': '/src/assets',
     },
   },
 }));

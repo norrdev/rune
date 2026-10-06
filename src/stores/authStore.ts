@@ -100,6 +100,8 @@ class AuthStore {
   async deleteUser() {
     const { error } = await supabase.rpc('delete_user');
     if (error) throw error;
+    // Session is gone server-side after delete_user; sign out locally to drop tokens.
+    await supabase.auth.signOut().catch(() => {});
     runInAction(() => {
       this.setUser(null);
     });
@@ -110,7 +112,7 @@ class AuthStore {
   }
 
   get isEmailConfirmed() {
-    return this.user?.email_confirmed_at !== undefined;
+    return !!this.user?.email_confirmed_at;
   }
 
   get isFullyAuthenticated() {
@@ -131,7 +133,12 @@ export const authStore = new AuthStore();
 
 // Set up Supabase auth state listener
 supabase.auth.onAuthStateChange((event, session) => {
-  if (event === 'SIGNED_IN') {
+  if (
+    event === 'SIGNED_IN' ||
+    event === 'TOKEN_REFRESHED' ||
+    event === 'USER_UPDATED' ||
+    event === 'INITIAL_SESSION'
+  ) {
     runInAction(() => {
       authStore.setUser(session?.user ?? null);
     });

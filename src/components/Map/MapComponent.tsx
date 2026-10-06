@@ -15,7 +15,6 @@ export const MapComponent = observer(function MapComponent() {
     userLocation,
     mapInstance,
     geoJsonData,
-    runestones,
     hasRunestones,
     loading,
     error,
@@ -24,7 +23,8 @@ export const MapComponent = observer(function MapComponent() {
     isModalOpen,
   } = mapStore;
 
-  // User location marker synchronization
+  // User location marker synchronization (no cleanup on coordinate change:
+  // just move the marker; removal only when location/map goes null or on unmount)
   // biome-ignore lint/correctness/useExhaustiveDependencies: userLocation and mapInstance are MobX store observables
   useEffect(() => {
     if (!mapInstance) return;
@@ -48,14 +48,17 @@ export const MapComponent = observer(function MapComponent() {
     } else {
       userMarkerRef.current.setLngLat([lng, lat]);
     }
+  }, [userLocation, mapInstance]);
 
+  // Remove user marker on unmount
+  useEffect(() => {
     return () => {
       if (userMarkerRef.current) {
         userMarkerRef.current.remove();
         userMarkerRef.current = null;
       }
     };
-  }, [userLocation, mapInstance]);
+  }, []);
 
   // Initialize map on mount
   useEffect(() => {
@@ -63,6 +66,7 @@ export const MapComponent = observer(function MapComponent() {
 
     mapStore.setPlatform('web');
 
+    let mounted = true;
     const map = new MapLibreMap({
       container: mapContainer.current,
       center: mapStore.center,
@@ -70,13 +74,27 @@ export const MapComponent = observer(function MapComponent() {
       style: STYLE_URL,
     });
 
+    const handleLoadError = (e: unknown) => {
+      console.error('Map failed to load:', e);
+      if (mounted) {
+        mapStore.setError('Failed to load map style. Check your connection and retry.');
+      }
+    };
+    map.on('error', handleLoadError);
+
     map.on('load', () => {
+      if (!mounted) return;
       mapStore.setMapInstance(map);
       mapStore.loadRunestones();
     });
 
     return () => {
+      mounted = false;
       map.remove();
+      if (userMarkerRef.current) {
+        userMarkerRef.current.remove();
+        userMarkerRef.current = null;
+      }
       mapStore.setMapInstance(null);
     };
   }, []);
@@ -97,13 +115,13 @@ export const MapComponent = observer(function MapComponent() {
           mapInstance,
           geoJsonData,
           (runestone) => mapStore.openModal(runestone),
-          runestones,
+          () => mapStore.runestones,
         );
       } catch (err) {
         console.error('Error adding map layers:', err);
       }
     }
-  }, [mapInstance, geoJsonData, runestones]);
+  }, [mapInstance, geoJsonData]);
 
   // Update map layers when geoJsonData or hasRunestones changes
   // biome-ignore lint/correctness/useExhaustiveDependencies: updateMapLayers, mapInstance, and hasRunestones are MobX store observables

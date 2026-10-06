@@ -45,6 +45,8 @@ class MapStore {
   // User Location
   userLocation: [number, number] | null = null;
   private locationWatchId: number | null = null;
+  private loadPromise: Promise<void> | null = null;
+  locationError: string | null = null;
 
   constructor() {
     makeObservable(this, {
@@ -62,6 +64,7 @@ class MapStore {
       mapInstance: observable.ref,
       cameraUpdateTrigger: observable,
       userLocation: observable,
+      locationError: observable,
 
       // Actions
       setLoading: action,
@@ -109,7 +112,9 @@ class MapStore {
       (runestone) => {
         if (runestone) {
           this.flyToRunestone(runestone, this.searchZoom);
-          searchStore.setSelectedRunestone(null);
+          // Defer cross-store mutation out of the reaction to avoid
+          // mutating an observed value inside its own reaction.
+          setTimeout(() => searchStore.setSelectedRunestone(null), 0);
         }
       },
     );
@@ -154,8 +159,9 @@ class MapStore {
   }
 
   setPlatform(platform: MapPlatform) {
+    if (this.platform === platform) return;
     this.platform = platform;
-    // Update default zoom based on platform
+    // Apply platform default zoom only on actual platform switch (not on every mount).
     this.zoom = platform === 'native' ? DEFAULT_ZOOM_NATIVE : DEFAULT_ZOOM_WEB;
   }
 
@@ -173,22 +179,36 @@ class MapStore {
   }
 
   async loadRunestones() {
+    if (this.loadPromise) {
+      await this.loadPromise;
+      return;
+    }
     this.setLoading(true);
     this.setError(null);
 
+    this.loadPromise = (async () => {
+      try {
+        const data = await runestonesCache.getAllRunestones();
+        runInAction(() => {
+          this.setRunestones(data);
+        });
+      } catch (error) {
+        console.error('Failed to load runestones:', error);
+        runInAction(() => {
+          this.setError('Failed to load runestones');
+        });
+      } finally {
+        runInAction(() => {
+          this.setLoading(false);
+        });
+      }
+    })();
+
     try {
-      const data = await runestonesCache.getAllRunestones();
-      runInAction(() => {
-        this.setRunestones(data);
-      });
-    } catch (error) {
-      console.error('Failed to load runestones:', error);
-      runInAction(() => {
-        this.setError('Failed to load runestones');
-      });
+      await this.loadPromise;
     } finally {
       runInAction(() => {
-        this.setLoading(false);
+        this.loadPromise = null;
       });
     }
   }
@@ -218,7 +238,9 @@ class MapStore {
     const targetZoom = zoom ?? this.zoom;
 
     if (this.platform === 'web' && this.mapInstance) {
-      // Web: use MapLibre's flyTo
+      // Web: use MapLibre's flyTo, keep store in sync
+      this.setCenter([longitude, latitude]);
+      this.setZoom(targetZoom);
       this.mapInstance.flyTo({
         center: [longitude, latitude],
         zoom: targetZoom,
@@ -248,6 +270,9 @@ class MapStore {
 
   async getCurrentLocation() {
     this.setIsLocating(true);
+    runInAction(() => {
+      this.locationError = null;
+    });
 
     try {
       if (this.locationWatchId === null && 'geolocation' in navigator) {
@@ -260,6 +285,11 @@ class MapStore {
           },
           (error) => {
             console.error('WatchPosition error:', error);
+            // Stop a failing watcher instead of leaking it forever.
+            if (this.locationWatchId !== null) {
+              navigator.geolocation.clearWatch(this.locationWatchId);
+              this.locationWatchId = null;
+            }
           },
           {
             enableHighAccuracy: true,
@@ -270,7 +300,14 @@ class MapStore {
       await this.getCurrentLocationWeb();
     } catch (error) {
       console.error('Error getting location:', error);
-      alert('Unable to get your current location');
+      if (this.locationWatchId !== null) {
+        navigator.geolocation.clearWatch(this.locationWatchId);
+        this.locationWatchId = null;
+      }
+      runInAction(() => {
+        this.locationError =
+          error instanceof Error ? error.message : 'Unable to get your current location';
+      });
     } finally {
       runInAction(() => {
         this.setIsLocating(false);

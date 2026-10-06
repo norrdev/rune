@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 import { PageHeader } from '../components/PageHeader';
@@ -12,13 +12,25 @@ import { Check, X, Loader2 } from 'lucide-react';
 export const RunestoneDetail = observer(function RunestoneDetailPage() {
   const { slug } = useParams<{ slug: string }>();
 
-  if (slug !== runestoneDetailStore.currentSlug) {
-    runestoneDetailStore.loadRunestoneBySlug(slug);
-  }
+  useEffect(() => {
+    if (slug) {
+      runestoneDetailStore.loadRunestoneBySlug(slug);
+    }
+    return () => {
+      runestoneDetailStore.clear();
+    };
+  }, [slug]);
 
   const { runestone, loading, error } = runestoneDetailStore;
   const [isMarkingVisited, setIsMarkingVisited] = useState(false);
   const [visitedError, setVisitedError] = useState<string | null>(null);
+
+  // Reset local transient state when navigating between runestones
+  // biome-ignore lint/correctness/useExhaustiveDependencies: must reset on slug change
+  useEffect(() => {
+    setIsMarkingVisited(false);
+    setVisitedError(null);
+  }, [slug]);
 
   const isVisited = runestone ? visitedRunestonesStore.isRunestoneVisited(runestone.id) : false;
   const isStoreUpdating = runestone

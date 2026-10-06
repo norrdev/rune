@@ -20,6 +20,7 @@ class RunestonesCache {
   private lastUpdate: number = 0;
   private CACHE_DURATION = 365 * 24 * 60 * 60 * 1000; // 1 year
   private isInitialized = false;
+  private initPromise: Promise<void> | null = null;
   private cachedBounds: Map<string, [number, number, number, number]> = new Map();
 
   constructor() {
@@ -28,39 +29,59 @@ class RunestonesCache {
 
   private async initDB() {
     return openDB<RunestonesDB>('runestones-cache', 2, {
-      upgrade(db) {
-        const store = db.createObjectStore('runestones', { keyPath: 'id' });
-        store.createIndex('by-coordinates', ['latitude', 'longitude']);
-        store.createIndex('by-slug', ['slug']);
+      upgrade(db, oldVersion) {
+        if (oldVersion < 2) {
+          try {
+            db.deleteObjectStore('runestones');
+          } catch {
+            // store did not exist
+          }
+        }
+        if (!db.objectStoreNames.contains('runestones')) {
+          const store = db.createObjectStore('runestones', { keyPath: 'id' });
+          store.createIndex('by-coordinates', ['latitude', 'longitude']);
+          store.createIndex('by-slug', 'slug');
+        }
       },
     });
   }
 
   private async initializeCache() {
     if (this.isInitialized) return;
+    if (this.initPromise) {
+      await this.initPromise;
+      return;
+    }
 
-    const db = await this.db;
+    this.initPromise = (async () => {
+      const db = await this.db;
 
-    // Check if we already have data in the cache
-    const existingData = await db.count('runestones');
+      // Check if we already have data in the cache
+      const existingData = await db.count('runestones');
 
-    if (existingData < TOTAL_RUNESTONES) {
-      try {
+      if (existingData < TOTAL_RUNESTONES) {
         // Load all runestones from Supabase without bounds restriction
         const allRunestones = await supabaseRunestones.getAllRunestones();
         await this.updateCache(allRunestones);
 
         // Mark that we have all data cached by setting a special bounds entry
         this.cachedBounds.set('*', [-180, -90, 180, 90]); // Global bounds
-      } catch (error) {
-        console.error('Failed to initialize cache with all runestones:', error);
+      } else {
+        // We already have data, assume it's complete and set global bounds
+        this.cachedBounds.set('*', [-180, -90, 180, 90]);
       }
-    } else {
-      // We already have data, assume it's complete and set global bounds
-      this.cachedBounds.set('*', [-180, -90, 180, 90]);
-    }
 
-    this.isInitialized = true;
+      this.isInitialized = true;
+    })();
+
+    try {
+      await this.initPromise;
+    } catch (error) {
+      // Allow retry on next call
+      this.initPromise = null;
+      console.error('Failed to initialize cache with all runestones:', error);
+      throw error;
+    }
   }
 
   private boundsKey(bounds: [number, number, number, number]): string {
@@ -149,7 +170,8 @@ class RunestonesCache {
     const db = await this.db;
     const tx = db.transaction('runestones', 'readwrite');
 
-    await Promise.all([...runestones.map((stone) => tx.store.put(stone)), tx.done]);
+    await Promise.all(runestones.map((stone) => tx.store.put(stone)));
+    await tx.done;
 
     this.lastUpdate = Date.now();
   }
@@ -159,6 +181,8 @@ class RunestonesCache {
     await db.clear('runestones');
     this.lastUpdate = 0;
     this.cachedBounds.clear();
+    this.isInitialized = false;
+    this.initPromise = null;
   }
 
   async ensureCacheInitialized() {
@@ -169,6 +193,12 @@ class RunestonesCache {
     await this.initializeCache();
 
     const db = await this.db;
+    try {
+      const bySlug = await db.getFromIndex('runestones', 'by-slug', slug);
+      if (bySlug) return bySlug;
+    } catch {
+      // index may not exist in old DBs: fall back to scan
+    }
     const allStones = await db.getAll('runestones');
 
     // Find the runestone with matching slug

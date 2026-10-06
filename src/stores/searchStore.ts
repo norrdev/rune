@@ -8,6 +8,7 @@ class SearchStore {
   isLoading: boolean = false;
   hasSearched: boolean = false;
   selectedRunestone: Runestone | null = null;
+  private searchToken = 0;
 
   constructor() {
     makeObservable(this, {
@@ -50,14 +51,19 @@ class SearchStore {
   }
 
   async performSearch(query: string) {
-    if (!query.trim()) {
+    const trimmed = query.trim();
+    if (!trimmed) {
+      this.searchToken += 1;
       runInAction(() => {
+        this.setSearchQuery('');
         this.setSearchResults([]);
         this.setHasSearched(false);
+        this.setLoading(false);
       });
       return;
     }
 
+    const myToken = ++this.searchToken;
     runInAction(() => {
       this.setSearchQuery(query);
       this.setLoading(true);
@@ -68,16 +74,17 @@ class SearchStore {
       // Use the efficient search function from runestonesCache
       const results = await runestonesCache.searchRunestones(query, 100);
 
+      // Stale response: a newer search started since.
+      if (myToken !== this.searchToken) return;
       runInAction(() => {
         this.setSearchResults(results);
+        this.setLoading(false);
       });
     } catch (error) {
+      if (myToken !== this.searchToken) return;
       console.error('Error performing search:', error);
       runInAction(() => {
         this.setSearchResults([]);
-      });
-    } finally {
-      runInAction(() => {
         this.setLoading(false);
       });
     }

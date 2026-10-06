@@ -18,7 +18,24 @@ export const MiniMap = ({ runestone }: MiniMapProps) => {
   useEffect(() => {
     const container = mapContainer.current;
 
-    if (!container || typeof lat !== 'number' || typeof lng !== 'number') {
+    const invalid = !container || typeof lat !== 'number' || typeof lng !== 'number';
+    if (invalid) {
+      // Clean up a previously created map when props turn invalid
+      if (markerRef.current) {
+        markerRef.current.remove();
+        markerRef.current = null;
+      }
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+      return;
+    }
+
+    // Reuse existing map when possible instead of full recreate
+    if (mapRef.current) {
+      mapRef.current.setCenter([lng, lat]);
+      markerRef.current?.setLngLat([lng, lat]);
       return;
     }
 
@@ -51,7 +68,8 @@ export const MiniMap = ({ runestone }: MiniMapProps) => {
     };
   }, [lat, lng]);
 
-  if (!runestone.latitude || !runestone.longitude) {
+  const hasCoords = typeof lat === 'number' && typeof lng === 'number';
+  if (!hasCoords) {
     return (
       <div className="bg-gray-100 h-48 rounded-lg flex items-center justify-center">
         <span className="text-gray-500 text-sm">Location data not available</span>

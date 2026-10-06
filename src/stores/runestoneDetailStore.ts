@@ -19,7 +19,10 @@ class RunestoneDetailStore {
     });
   }
 
+  private requestId = 0;
+
   clear() {
+    this.requestId += 1;
     this.runestone = null;
     this.loading = true;
     this.error = null;
@@ -38,29 +41,35 @@ class RunestoneDetailStore {
     }
 
     if (this.currentSlug === slug) {
-      return;
+      // Same slug and not in error state: nothing to do.
+      // If previous load failed (error set, runestone null), allow retry.
+      if (!this.error) return;
     }
 
-    this.currentSlug = slug;
-    this.loading = true;
-    this.error = null;
-    this.runestone = null;
+    const myRequest = ++this.requestId;
+    runInAction(() => {
+      this.currentSlug = slug;
+      this.loading = true;
+      this.error = null;
+      this.runestone = null;
+    });
 
     try {
       const data = await runestonesCache.getRunestoneBySlug(slug);
+      // Stale response from a previous navigation: ignore.
+      if (myRequest !== this.requestId || this.currentSlug !== slug) return;
       runInAction(() => {
         this.runestone = data;
         if (!data) {
           this.error = 'Runestone not found';
         }
+        this.loading = false;
       });
     } catch (err) {
+      if (myRequest !== this.requestId || this.currentSlug !== slug) return;
       console.error('Error fetching runestone:', err);
       runInAction(() => {
         this.error = 'Failed to load runestone';
-      });
-    } finally {
-      runInAction(() => {
         this.loading = false;
       });
     }

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 import { authStore } from '../stores/authStore';
 import { useNavigate } from 'react-router-dom';
@@ -72,9 +72,15 @@ export const Login = observer(function LoginPage() {
     setSuccess(null);
   };
 
-  // If already logged in, redirect to profile
-  if (authStore.user && authStore.isEmailConfirmed) {
-    navigate('/profile', { replace: true });
+  // If already logged in with confirmed email, redirect to profile
+  const shouldRedirect = !!authStore.user && authStore.isEmailConfirmed;
+  useEffect(() => {
+    if (shouldRedirect) {
+      navigate('/profile', { replace: true });
+    }
+  }, [shouldRedirect, navigate]);
+
+  if (shouldRedirect) {
     return null;
   }
 

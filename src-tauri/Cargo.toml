@@ -1,6 +1,6 @@
 [package]
 name = "app"
-version = "3.2.0"
+version = "3.5.0"
 description = "Runestone Safari"
 authors = ["Denis Filonov"]
 license = "GPL-3.0"

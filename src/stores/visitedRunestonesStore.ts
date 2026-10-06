@@ -49,6 +49,8 @@ class VisitedRunestonesStore {
     });
 
     // React to auth changes - fetch visited runestones when user logs in and email is confirmed, clear when logs out
+    // No fireImmediately: authStore.initializeAuth() resolves async after construction.
+    // With fireImmediately we'd clear on startup (false) and never refetch (false->false).
     reaction(
       () => authStore.isFullyAuthenticated,
       (isFullyAuthenticated) => {
@@ -58,7 +60,6 @@ class VisitedRunestonesStore {
           this.clearVisitedRunestones();
         }
       },
-      { fireImmediately: true },
     );
 
     // React to changes in visitedRunestoneIds to update details automatically
@@ -184,9 +185,11 @@ class VisitedRunestonesStore {
       console.warn('markAsVisited: User not fully authenticated');
       return false;
     }
+    if (this.updatingRunestoneIds.has(runestoneId)) return false;
 
     runInAction(() => {
       this.updatingRunestoneIds.add(runestoneId);
+      this.setError(null);
     });
 
     try {
@@ -215,9 +218,11 @@ class VisitedRunestonesStore {
       console.warn('unmarkAsVisited: User not fully authenticated');
       return false;
     }
+    if (this.updatingRunestoneIds.has(runestoneId)) return false;
 
     runInAction(() => {
       this.updatingRunestoneIds.add(runestoneId);
+      this.setError(null);
     });
 
     try {

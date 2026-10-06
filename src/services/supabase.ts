@@ -14,10 +14,10 @@ class SupabaseService {
 
     this.client = createClient(supabaseUrl || '', supabaseAnonKey || '', {
       auth: {
-        storage: window.localStorage,
+        storage: typeof window !== 'undefined' ? window.localStorage : undefined,
         autoRefreshToken: true,
         persistSession: true,
-        detectSessionInUrl: true,
+        detectSessionInUrl: typeof window !== 'undefined',
       },
     });
   }

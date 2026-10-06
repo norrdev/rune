@@ -147,7 +147,7 @@ export const addMapSourcesAndLayers = (
   map: MapLibreMap,
   geoJsonData: RunestoneGeoJSON,
   onRunestoneClick: (runestone: Runestone) => void,
-  runestones: Runestone[],
+  getRunestones: () => Runestone[],
 ): void => {
   // Add source with clustering
   map.addSource(RUNESTONES_SOURCE_ID, {
@@ -263,8 +263,8 @@ export const addMapSourcesAndLayers = (
 
     const properties = feature.properties!;
 
-    // Find the full runestone data using the id
-    const runestone = runestones.find((stone) => stone.id === properties.id);
+    // Look up fresh data on every click (no stale closure over initial array)
+    const runestone = getRunestones().find((stone) => stone.id === properties.id);
     if (!runestone) return;
 
     // Open the modal with this runestone
