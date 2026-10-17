@@ -1,0 +1,41 @@
+---
+import Layout from '../layouts/Layout.astro';
+import gplText from '../data/gpl-3.0.txt?raw';
+---
+
+<Layout
+  title="License - Runestone Safari"
+  description="GNU General Public License v3.0 for Runestone Safari."
+>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
+    <div class="bg-white rounded-2xl p-6 sm:p-10 border border-slate-200/80 shadow-xs">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-slate-200">
+        <div>
+          <h1 class="text-3xl sm:text-4xl font-bold text-primary">GNU General Public License</h1>
+          <p class="mt-1 text-sm text-slate-500">Version 3, 29 June 2007</p>
+        </div>
+        <a
+          href="https://www.gnu.org/licenses/gpl-3.0.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary-dark underline underline-offset-4"
+        >
+          <span>View on gnu.org</span>
+          <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path
+              fill-rule="evenodd"
+              d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </a>
+      </div>
+
+      <pre
+        tabindex="0"
+        class="mt-6 bg-slate-50 text-slate-800 p-5 sm:p-6 rounded-xl border border-slate-200 font-mono text-xs sm:text-sm leading-relaxed overflow-y-auto max-h-[600px] whitespace-pre-wrap focus:outline-2 focus:outline-primary"
+      ><code>{gplText}</code></pre>
+    </div>
+  </div>
+</Layout>
+

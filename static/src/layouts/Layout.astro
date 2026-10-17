@@ -1,0 +1,156 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const {
+  title,
+  description = 'Runestone Safari is an interactive map application that allows you to explore over 6,800 Swedish runestones with detailed info and offline support.',
+} = Astro.props;
+
+const currentPath = Astro.url.pathname;
+
+const navItems = [
+  { href: 'index.html', label: 'Home', match: (p: string) => p === '/' || p.endsWith('/index.html') },
+  { href: 'license.html', label: 'License', match: (p: string) => p.includes('license') },
+  { href: 'privacy.html', label: 'Privacy', match: (p: string) => p.includes('privacy') },
+];
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="alternate icon" type="image/png" href="favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans selection:bg-primary/15 selection:text-primary-dark">
+    <header class="sticky top-0 z-50 bg-white/85 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav class="flex items-center justify-between h-16 sm:h-20" aria-label="Main Navigation">
+          <a
+            href="index.html"
+            class="flex items-center gap-3 text-xl sm:text-2xl font-extrabold font-display tracking-tight text-primary hover:text-primary-dark transition-colors"
+          >
+            <img
+              src="icon.svg"
+              alt="Runestone Safari Logo"
+              width="36"
+              height="36"
+              class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg shadow-xs"
+            />
+            <span>Runestone Safari</span>
+          </a>
+
+          <div class="flex items-center gap-2 sm:gap-6">
+            <ul class="flex items-center gap-1 sm:gap-2 list-none">
+              {
+                navItems.map((item) => {
+                  const isActive = item.match(currentPath);
+                  return (
+                    <li>
+                      <a
+                        href={item.href}
+                        aria-current={isActive ? 'page' : undefined}
+                        class:list={[
+                          'px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                          isActive
+                            ? 'bg-primary/10 text-primary font-semibold'
+                            : 'text-slate-600 hover:text-primary hover:bg-slate-100/80',
+                        ]}
+                      >
+                        {item.label}
+                      </a>
+                    </li>
+                  );
+                })
+              }
+            </ul>
+            <a
+              href="https://app.runestonesafari.com/"
+              class="hidden md:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-primary text-white hover:bg-primary-dark shadow-xs hover:shadow transition-all"
+            >
+              <span>Open App</span>
+              <svg
+                class="w-4 h-4"
+                 viewBox="0 0 20 20"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </a>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <main class="flex-1">
+      <slot />
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 border-t border-slate-800 mt-16">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div class="flex flex-col sm:flex-row items-center gap-3 text-center sm:text-left">
+            <a href="index.html" class="flex items-center gap-2.5 text-white font-display font-bold text-lg">
+              <img
+                src="icon.svg"
+                alt=""
+                width="28"
+                height="28"
+                loading="lazy"
+                class="w-7 h-7 rounded-md"
+              />
+              <span>Runestone Safari</span>
+            </a>
+            <span class="hidden sm:inline text-slate-700">&bull;</span>
+            <p class="text-sm text-slate-400">
+              &copy; 2025–2026 norr.dev. GNU GPLv3 Licensed.
+            </p>
+          </div>
+
+          <ul class="flex items-center gap-6 list-none text-sm">
+            {
+              navItems.map((item) => (
+                <li>
+                  <a
+                    href={item.href}
+                    class="text-slate-400 hover:text-white transition-colors"
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              ))
+            }
+            <li>
+              <a
+                href="https://app.runestonesafari.com/"
+                class="text-primary-light hover:text-white font-medium transition-colors"
+              >
+                Launch App
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
+

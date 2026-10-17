@@ -1,0 +1,191 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const features = [
+  {
+    title: 'Interactive Map',
+    description:
+      'Clustering map with 6,815+ runestones across Sweden. Easily find stones near you or search for specific locations.',
+    icon: `<path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z" />`,
+  },
+  {
+    title: 'Offline Access',
+    description:
+      'Offline caching of runestones ensures you can explore even in remote areas without internet connection.',
+    icon: `<path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />`,
+  },
+  {
+    title: 'Rich Information',
+    description:
+      'Detailed data for each runestone, including name, location, transliteration, translations, and historical attributes.',
+    icon: `<path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />`,
+  },
+  {
+    title: 'User Experience',
+    description:
+      'Create an account to track your visited runestones, add personal notes, and build your profile as an explorer.',
+    icon: `<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />`,
+  },
+  {
+    title: 'Open Data',
+    description:
+      'Leveraging data from OpenFreeMap and Samnordisk Runtextdatabas for accurate historical and geographical information.',
+    icon: `<path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418" />`,
+  },
+];
+
+const dataSources = [
+  {
+    title: 'Map Tiles',
+    linkText: 'OpenFreeMap',
+    href: 'https://openfreemap.org/',
+    description: 'provides the beautiful and fast vector map tiles used in our interactive explorer.',
+  },
+  {
+    title: 'Runestone Data',
+    linkText: 'Samnordisk Runtextdatabas',
+    href: 'https://www.uu.se/institution/nordiska/forskning/projekt/samnordisk-runtextdatabas',
+    description: 'is our primary source for accurate runestone inscriptions and historical data.',
+  },
+  {
+    title: 'Database',
+    linkText: 'Rundata-net',
+    href: 'https://www.rundata.info/',
+    description: 'provides the original SQLite database for comprehensive record management.',
+  },
+];
+---
+
+<Layout title="Runestone Safari - Explore Swedish Runestones">
+  <!-- Hero Section -->
+  <section class="relative overflow-hidden bg-gradient-to-b from-white via-indigo-50/40 to-slate-50 border-b border-slate-200/80 py-20 sm:py-28">
+    <div
+      class="absolute inset-0 bg-[radial-gradient(#4f46e5_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.04] pointer-events-none"
+      aria-hidden="true"
+    ></div>
+    <div class="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-semibold mb-6">
+        <span class="w-2 h-2 rounded-full bg-primary animate-pulse" aria-hidden="true"></span>
+        <span>6,815+ Swedish Runestones Mapped</span>
+      </div>
+
+      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight max-w-3xl mx-auto leading-[1.12]">
+        Explore Sweden's <span class="text-primary">Ancient Runestones</span>
+      </h1>
+
+      <p class="mt-6 text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
+        An interactive map application allowing you to discover and explore 6,815+ Swedish runestones
+        with detailed historical information and offline capabilities.
+      </p>
+
+      <div class="mt-10 flex flex-wrap items-center justify-center gap-4">
+        <a
+          href="https://app.runestonesafari.com/"
+          class="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-primary text-white font-semibold text-base shadow-md shadow-primary/20 hover:bg-primary-dark hover:-translate-y-0.5 transition-all"
+        >
+          <span>Open Application</span>
+          <svg
+            class="w-5 h-5"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </a>
+        <a
+          href="#features"
+          class="inline-flex items-center px-6 py-3.5 rounded-xl bg-white text-slate-700 font-semibold text-base border border-slate-200 shadow-xs hover:bg-slate-50 hover:text-primary transition-colors"
+        >
+          Learn More
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="py-16 sm:py-20">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
+        <h2 class="text-3xl sm:text-4xl font-bold text-slate-900">Features</h2>
+        <p class="mt-3 text-slate-600 text-base sm:text-lg">
+          Everything you need to discover, research, and track Viking Age inscriptions in the field.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        {
+          features.map((feature) => (
+            <article class="bg-white rounded-2xl p-7 border border-slate-200/80 shadow-xs hover:shadow-md hover:-translate-y-1 transition-all duration-200">
+              <div class="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-5">
+                <svg
+                  class="w-6 h-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.75"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                  set:html={feature.icon}
+                />
+              </div>
+              <h3 class="text-xl font-bold text-slate-900 mb-2.5">{feature.title}</h3>
+              <p class="text-slate-600 leading-relaxed">{feature.description}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Data Sources Section -->
+  <section id="data-sources" class="py-16 sm:py-20 bg-white border-y border-slate-200/80">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
+        <h2 class="text-3xl sm:text-4xl font-bold text-slate-900">Data Sources</h2>
+        <p class="mt-3 text-slate-600 text-base sm:text-lg">
+          Built on trusted open cartography and academic runological databases.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+        {
+          dataSources.map((source) => (
+            <article class="bg-slate-50/80 rounded-2xl p-7 border border-slate-200/70 hover:border-primary/30 transition-colors">
+              <h3 class="text-xl font-bold text-primary-dark mb-3">{source.title}</h3>
+              <p class="text-slate-600 leading-relaxed">
+                <a
+                  href={source.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="font-semibold text-primary hover:text-primary-dark underline decoration-primary/30 hover:decoration-primary underline-offset-4 transition-colors"
+                >
+                  {source.linkText}
+                </a>{' '}
+                {source.description}
+              </p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Acknowledgments Section -->
+  <section id="acknowledgments" class="py-16 sm:py-20">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="bg-white rounded-2xl p-8 sm:p-12 border border-slate-200/80 shadow-xs text-center">
+        <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-4">Acknowledgments</h2>
+        <p class="text-slate-600 text-lg leading-relaxed max-w-2xl mx-auto">
+          Special thanks to <strong class="font-semibold text-slate-900">Vadim Frolov</strong> and{' '}
+          <strong class="font-semibold text-slate-900">Sofia Pereswetoff-Morath</strong> for their
+          work, which forms the foundation of our data layer.
+        </p>
+      </div>
+    </div>
+  </section>
+</Layout>
+
