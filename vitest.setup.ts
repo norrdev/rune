@@ -4,7 +4,7 @@ import { supabase } from './src/services/supabase';
 
 // Provide default environment variables
 declare const process: { env: Record<string, string | undefined> };
-if (typeof process !== 'undefined' && process.env) {
+if (process?.env) {
   process.env.VITE_SUPABASE_URL = 'https://example.supabase.co';
   process.env.VITE_SUPABASE_ANON_KEY = 'test-anon-key';
 }
@@ -24,7 +24,10 @@ if (typeof globalThis.fetch === 'function') {
 // Mock supabase RPC and Auth by default to avoid unhandled network requests
 vi.spyOn(supabase, 'rpc').mockResolvedValue({ data: [], error: null } as any);
 vi.spyOn(supabase.auth, 'getUser').mockResolvedValue({ data: { user: null }, error: null } as any);
-vi.spyOn(supabase.auth, 'getSession').mockResolvedValue({ data: { session: null }, error: null } as any);
+vi.spyOn(supabase.auth, 'getSession').mockResolvedValue({
+  data: { session: null },
+  error: null,
+} as any);
 
 // Mock maplibre-gl globally for JSDOM
 vi.mock('maplibre-gl', () => {
