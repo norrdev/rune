@@ -28,5 +28,5 @@
       "@stores/*": ["./src/stores/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "vitest.setup.ts"]
 }
