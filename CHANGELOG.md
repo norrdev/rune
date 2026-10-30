@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - New color scheme for the application.
+- Updated site and application icons to match the parchment color palette.
 
 ## 3.5.0 - 2026-09-24
 
