@@ -205,6 +205,38 @@ nav {
   transform: translateY(-1px);
 }
 
+.hero-btns {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.play-badge {
+  display: inline-flex;
+  align-items: center;
+  /* The official badge asset has transparent padding baked in, trim it vertically */
+  margin: -12px 0;
+  transition: transform 0.2s;
+}
+
+.play-badge:hover {
+  transform: translateY(-1px);
+}
+
+.play-badge img {
+  display: block;
+  width: auto;
+  height: 72px;
+}
+
+.play-badge:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 4px;
+  border-radius: 8px;
+}
+
 .section {
   padding: 4rem 0;
 }
