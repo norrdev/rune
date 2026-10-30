@@ -4,14 +4,14 @@ import type { Map as MapLibreMap, GeoJSONSource, MapLayerMouseEvent } from 'mapl
 // Initial center (Stockholm area - Jarlabanke bridge)
 export const JARLABANKE_BRIDGE: [number, number] = [18.0686, 59.4293];
 
-// OpenFreeMap - detailed street maps
-export const STYLE_URL = 'https://tiles.openfreemap.org/styles/bright';
+// OpenFreeMap - muted basemap so the parchment UI and markers lead the palette
+export const STYLE_URL = 'https://tiles.openfreemap.org/styles/positron';
 
-// Cluster styling constants
+// Cluster styling constants (aged map inks: bronze -> umber -> oxblood)
 export const CLUSTER_COLORS = {
-  SMALL: '#2dd4bf', // Teal/Cyan for clusters with < 100 points
-  MEDIUM: '#0d9488', // Deep Teal for clusters with 100-750 points
-  LARGE: '#4f46e5', // Indigo for clusters with > 750 points
+  SMALL: '#8c6a2e', // Old gold for clusters with < 100 points
+  MEDIUM: '#6b5124', // Umber for clusters with 100-750 points
+  LARGE: '#8a3b2e', // Oxblood for clusters with > 750 points
 } as const;
 
 export const CLUSTER_RADIUSES = {
@@ -35,16 +35,16 @@ export const CAMERA_ANIMATION_DURATION_NATIVE = 1000;
 export const CAMERA_ANIMATION_DURATION_WEB = 2000;
 export const CLUSTER_RADIUS = 50;
 
-export const UNVISITED_MARKER_COLOR = '#ef4444';
-export const VISITED_MARKER_COLOR = '#10b981'; // Modern Emerald color instead of old green
+export const UNVISITED_MARKER_COLOR = '#a34632'; // Red ochre
+export const VISITED_MARKER_COLOR = '#3f6f63'; // Verdigris
 export const MARKER_RADIUS_NATIVE = 8;
 export const MARKER_RADIUS_WEB = 9;
 export const MARKER_STROKE_WIDTH_NATIVE = 2;
 export const MARKER_STROKE_WIDTH_WEB = 3;
-export const MARKER_STROKE_COLOR = '#ffffff';
+export const MARKER_STROKE_COLOR = '#fffcf3';
 
 export const CLUSTER_COUNT_TEXT_SIZE = 12;
-export const CLUSTER_COUNT_TEXT_COLOR = '#ffffff';
+export const CLUSTER_COUNT_TEXT_COLOR = '#fffcf3';
 export const CLUSTER_COUNT_FONT_NATIVE = ['Noto Sans Regular'];
 export const CLUSTER_COUNT_FONT_WEB = ['Noto Sans Regular', 'Arial Unicode MS Regular'];
 
@@ -62,7 +62,7 @@ export const LAYER_IDS = {
 // Native had: unvisited-runestones, visited-runestones.
 // I'll stick to the unified IDs but restore the other properties.
 
-export const LOADING_INDICATOR_COLOR = '#4f46e5';
+export const LOADING_INDICATOR_COLOR = '#8a3b2e';
 
 export const MINIMAP_ZOOM = 14;
 export const MARKER_COLOR = UNVISITED_MARKER_COLOR;
