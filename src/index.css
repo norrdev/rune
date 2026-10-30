@@ -1,24 +1,96 @@
 @import "tailwindcss";
 
+/*
+ * Self-hosted fonts (SIL OFL 1.1, see src/assets/fonts/OFL-*.txt).
+ * Variable files: one per family/subset, so the app works fully offline.
+ */
+@font-face {
+  font-family: "EB Garamond";
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("./assets/fonts/eb-garamond-latin-ext.woff2") format("woff2");
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+@font-face {
+  font-family: "EB Garamond";
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("./assets/fonts/eb-garamond-latin.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url("./assets/fonts/inter-latin-ext.woff2") format("woff2");
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url("./assets/fonts/inter-latin.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/*
+ * "Parchment & iron gall" palette.
+ * Base surfaces are warm parchment, text is iron-gall ink, the primary is
+ * wax-seal oxblood, the accent is verdigris (aged copper), and gold is used
+ * for small highlights. The whole gray scale is re-tinted warm so every
+ * existing gray-* utility reads as paper/ink instead of cold slate.
+ */
 @theme {
-  --color-primary: #4f46e5;
-  --color-primary-dark: #3730a3;
-  --color-primary-light: #818cf8;
+  --color-primary: #8a3b2e;
+  --color-primary-dark: #6b2a20;
+  --color-primary-light: #b45f4c;
 
-  --color-accent: #0d9488;
-  --color-accent-dark: #0f766e;
-  --color-accent-light: #2dd4bf;
+  --color-accent: #3f6f63;
+  --color-accent-dark: #2e544b;
+  --color-accent-light: #6e9a8c;
 
-  --color-gray-150: #eef0f3;
-  --color-gray-250: #dbe0e7;
-  --color-gray-450: #858da0;
-  --color-gray-650: #414a59;
-  --color-gray-850: #18202c;
-  --color-gray-855: #151c27;
+  --color-gold: #b08a45;
+  --color-gold-dark: #8c6a2e;
+  --color-gold-light: #d4b26a;
+
+  /* Warm paper instead of pure white */
+  --color-white: #fffcf3;
+
+  /* Warm sepia-tinted neutral scale (paper -> ink) */
+  --color-gray-50: #faf4e6;
+  --color-gray-100: #f4ead5;
+  --color-gray-150: #ede0c6;
+  --color-gray-200: #e3d3b4;
+  --color-gray-250: #d8c4a1;
+  --color-gray-300: #c9b28c;
+  --color-gray-400: #a58d6c;
+  --color-gray-450: #927a59;
+  --color-gray-500: #7c674c;
+  --color-gray-600: #675440;
+  --color-gray-650: #574733;
+  --color-gray-700: #463a2a;
+  --color-gray-800: #342a1e;
+  --color-gray-850: #2a2217;
+  --color-gray-855: #241d13;
+  --color-gray-900: #1f1911;
+  --color-gray-950: #14100b;
 
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "sans-serif";
-  --font-display:
-    "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "sans-serif";
+  --font-display: "EB Garamond", Georgia, "Times New Roman", serif;
 }
 
 @layer base {
@@ -42,6 +114,26 @@
     overflow: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    background-color: var(--color-gray-50);
+    color: var(--color-gray-800);
+  }
+
+  ::selection {
+    background-color: rgba(138, 59, 46, 0.22);
+    color: var(--color-gray-900);
+  }
+
+  /* Faint laid-paper grain over the whole app. Pointer-events stay off so the
+     map, modals and controls are unaffected. */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    pointer-events: none;
+    opacity: 0.55;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+    background-repeat: repeat;
   }
 
   h1,
@@ -50,9 +142,8 @@
   h4,
   h5,
   h6 {
-    font-family:
-      "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    letter-spacing: -0.02em;
+    font-family: "EB Garamond", Georgia, "Times New Roman", serif;
+    letter-spacing: -0.01em;
   }
 }
 

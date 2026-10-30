@@ -4,13 +4,11 @@ import { authStore } from '../../stores/authStore';
 import { visitedRunestonesStore } from '../../stores/visitedRunestonesStore';
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-
-// Cluster styling constants (matching MapComponent)
-const CLUSTER_COLORS = {
-  SMALL: '#2dd4bf', // Teal/Cyan for clusters with < 100 points
-  MEDIUM: '#0d9488', // Deep Teal for clusters with 100-750 points
-  LARGE: '#4f46e5', // Indigo for clusters with > 750 points
-} as const;
+import {
+  CLUSTER_COLORS,
+  UNVISITED_MARKER_COLOR,
+  VISITED_MARKER_COLOR,
+} from '../Map/mapUtils';
 
 interface SidebarProps {
   visible?: boolean;
@@ -121,11 +119,17 @@ export const Sidebar = observer(({ visible = false, onClose }: SidebarProps) => 
               </div>
               <div className="h-px bg-gray-200/50 my-1" />
               <div className="flex items-center gap-3">
-                <div className="w-3.5 h-3.5 rounded-full bg-red-500 border border-white shadow-sm animate-pulse" />
+                <div
+                  className="w-3.5 h-3.5 rounded-full border border-white shadow-sm animate-pulse"
+                  style={{ backgroundColor: UNVISITED_MARKER_COLOR }}
+                />
                 <span className="text-xs font-medium text-gray-600">Unvisited stone</span>
               </div>
               <div className="flex items-center gap-3">
-                <div className="w-3.5 h-3.5 rounded-full bg-emerald-500 border border-white shadow-sm" />
+                <div
+                  className="w-3.5 h-3.5 rounded-full border border-white shadow-sm"
+                  style={{ backgroundColor: VISITED_MARKER_COLOR }}
+                />
                 <span className="text-xs font-medium text-gray-600">Visited stone</span>
               </div>
             </div>

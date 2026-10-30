@@ -191,9 +191,9 @@ export const MapComponent = observer(function MapComponent() {
           title="Go to my location"
         >
           {isLocating ? (
-            <div className="animate-spin h-5 w-5 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+            <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full"></div>
           ) : (
-            <MapPin size={24} color="#1f2937" />
+            <MapPin size={24} color="#2a2217" />
           )}
         </button>
 
@@ -204,7 +204,7 @@ export const MapComponent = observer(function MapComponent() {
           className="w-12 h-12 bg-white rounded-full shadow-lg hover:shadow-xl transition-shadow flex items-center justify-center cursor-pointer"
           title="Reset map orientation"
         >
-          <Compass size={24} color="#1f2937" />
+          <Compass size={24} color="#2a2217" />
         </button>
       </div>
 

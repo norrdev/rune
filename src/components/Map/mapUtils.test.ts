@@ -43,7 +43,7 @@ describe('mapUtils', () => {
   it('exports expected constants', () => {
     expect(JARLABANKE_BRIDGE).toEqual([18.0686, 59.4293]);
     expect(STYLE_URL).toContain('openfreemap');
-    expect(CLUSTER_COLORS.SMALL).toBe('#2dd4bf');
+    expect(CLUSTER_COLORS.SMALL).toBe('#8c6a2e');
     expect(CLUSTER_RADIUSES.SMALL).toBe(20);
     expect(CLUSTER_THRESHOLDS.MEDIUM).toBe(100);
     expect(LAYER_IDS.CLUSTERS).toBe('clusters');

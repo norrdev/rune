@@ -50,3 +50,10 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 ```
 
+## Fonts
+
+The app bundles self-hosted copies of [EB Garamond](https://github.com/octaviopardo/EBGaramond12)
+and [Inter](https://github.com/rsms/inter). Both are licensed under the SIL Open Font
+License 1.1. The full license texts ship alongside the fonts in
+`src/assets/fonts/OFL-*.txt` and `public/fonts/`.
+
