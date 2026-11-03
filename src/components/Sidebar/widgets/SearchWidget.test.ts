@@ -46,7 +46,11 @@ describe('SearchWidget', () => {
     const input = screen.getByPlaceholderText('Search runestones...');
 
     fireEvent.change(input, { target: { value: 'Risbyle' } });
-    expect(searchSpy).toHaveBeenCalledWith('Risbyle');
+    // Typing is debounced
+    expect(searchSpy).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(searchSpy).toHaveBeenCalledWith('Risbyle');
+    });
 
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'Search' })).toBeInTheDocument();
@@ -55,6 +59,29 @@ describe('SearchWidget', () => {
     const button = screen.getByRole('button', { name: 'Search' });
     fireEvent.click(button);
     expect(searchSpy).toHaveBeenCalledWith('Risbyle');
+  });
+
+  it('debounces typing into a single search', async () => {
+    vi.spyOn(runestonesCache, 'searchRunestones').mockResolvedValue([]);
+    const searchSpy = vi.spyOn(searchStore, 'performSearch');
+
+    render(React.createElement(SearchWidget));
+    const input = screen.getByPlaceholderText('Search runestones...');
+
+    fireEvent.change(input, { target: { value: 'R' } });
+    fireEvent.change(input, { target: { value: 'Ri' } });
+    fireEvent.change(input, { target: { value: 'Ris' } });
+
+    await waitFor(() => {
+      expect(searchSpy).toHaveBeenCalledWith('Ris');
+    });
+    expect(searchSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('restores the query from the store when remounted', () => {
+    searchStore.setSearchQuery('Rök');
+    render(React.createElement(SearchWidget));
+    expect(screen.getByPlaceholderText('Search runestones...')).toHaveValue('Rök');
   });
 
   it('clears search when input is emptied', () => {

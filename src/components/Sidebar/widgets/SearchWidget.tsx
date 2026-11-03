@@ -1,25 +1,46 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 import { searchStore } from '../../../stores/searchStore';
+
+const SEARCH_DEBOUNCE_MS = 250;
 
 interface SearchWidgetProps {
   onClose?: () => void;
 }
 
 export const SearchWidget = observer(({ onClose }: SearchWidgetProps) => {
-  const [searchQuery, setSearchQuery] = useState('');
+  // Start from the store's query: on mobile the sidebar unmounts when closed,
+  // and its previous results are still shown when it reopens.
+  const [searchQuery, setSearchQuery] = useState(searchStore.searchQuery);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const cancelPendingSearch = () => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+      debounceRef.current = null;
+    }
+  };
+
+  // Drop a pending debounced search on unmount
+  // biome-ignore lint/correctness/useExhaustiveDependencies: cleanup only reads a ref
+  useEffect(() => cancelPendingSearch, []);
 
   const handleSearch = () => {
+    cancelPendingSearch();
     searchStore.performSearch(searchQuery);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const text = e.target.value;
     setSearchQuery(text);
+    cancelPendingSearch();
 
-    // Perform search as user types
+    // Perform search as user types (debounced: each search scans the whole cache)
     if (text.trim()) {
-      searchStore.performSearch(text);
+      debounceRef.current = setTimeout(() => {
+        debounceRef.current = null;
+        searchStore.performSearch(text);
+      }, SEARCH_DEBOUNCE_MS);
     } else {
       searchStore.clearSearch();
     }

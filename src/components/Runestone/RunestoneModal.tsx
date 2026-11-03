@@ -1,5 +1,5 @@
 import type { Runestone } from '../../types';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 import { authStore } from '../../stores/authStore';
 import { visitedRunestonesStore } from '../../stores/visitedRunestonesStore';
@@ -19,6 +19,13 @@ export const RunestoneModal = observer(
   ({ runestone, isOpen, onClose, onVisitedStatusChange }: RunestoneModalProps) => {
     const [isMarkingVisited, setIsMarkingVisited] = useState(false);
     const [visitedError, setVisitedError] = useState<string | null>(null);
+    const runestoneId = runestone?.id;
+
+    // Don't carry an error over to a different runestone
+    // biome-ignore lint/correctness/useExhaustiveDependencies: must reset on runestone change
+    useEffect(() => {
+      setVisitedError(null);
+    }, [runestoneId]);
 
     const isVisited = runestone ? visitedRunestonesStore.isRunestoneVisited(runestone.id) : false;
     const isStoreUpdating = runestone
@@ -62,7 +69,7 @@ export const RunestoneModal = observer(
               <h2 className="text-xl font-bold font-display text-gray-850 truncate m-0">
                 {runestone.signature_text}
               </h2>
-              {authStore.user && isVisited && (
+              {authStore.isFullyAuthenticated && isVisited && (
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-emerald-100 text-emerald-800 rounded-full text-xs font-semibold shrink-0 transition-all duration-300">
                   <Check className="w-3.5 h-3.5 stroke-[2.5] text-emerald-600" />
                   Visited
@@ -151,7 +158,7 @@ export const RunestoneModal = observer(
                       </span>
                     </div>
                     <div className="text-xs text-gray-600 flex items-center justify-between">
-                      <span className="font-semibold">Style:</span>
+                      <span className="font-semibold">Material type:</span>
                       <span className="text-gray-800 font-semibold">
                         {runestone.material_type || 'Unknown'}
                       </span>
@@ -164,7 +171,7 @@ export const RunestoneModal = observer(
                     )}
                     {!!runestone.style && (
                       <div className="text-xs text-gray-600 flex items-center justify-between">
-                        <span className="font-semibold">Style ID:</span>
+                        <span className="font-semibold">Style:</span>
                         <span className="text-gray-800 font-semibold">{runestone.style}</span>
                       </div>
                     )}
@@ -177,7 +184,7 @@ export const RunestoneModal = observer(
                     Status
                   </div>
                   <div className="bg-gray-50/60 p-4 rounded-2xl border border-gray-100 flex flex-col gap-3 shadow-sm h-full justify-center">
-                    {authStore.user && (
+                    {authStore.isFullyAuthenticated && (
                       <div className="flex items-center justify-between text-xs font-semibold">
                         <span className="text-gray-600">Visited:</span>
                         <span
@@ -274,7 +281,7 @@ export const RunestoneModal = observer(
           </div>
 
           {/* Error Message */}
-          {authStore.user && !!visitedError && (
+          {authStore.isFullyAuthenticated && !!visitedError && (
             <div className="px-6 pb-3">
               <div className="text-xs font-semibold text-red-650 bg-red-50/80 p-3 rounded-xl border border-red-100/50">
                 {visitedError}
@@ -284,7 +291,12 @@ export const RunestoneModal = observer(
 
           {/* Footer */}
           <div className="flex justify-between items-center p-5 border-t border-gray-100 mt-auto bg-gray-50/40">
-            {authStore.user && (
+            {authStore.user && !authStore.isEmailConfirmed && (
+              <span className="text-xs font-medium text-gray-500">
+                Confirm your email to track visits
+              </span>
+            )}
+            {authStore.isFullyAuthenticated && (
               <button
                 type="button"
                 onClick={handleMarkAsVisited}

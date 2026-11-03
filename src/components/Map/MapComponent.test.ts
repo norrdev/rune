@@ -70,16 +70,28 @@ describe('MapComponent', () => {
     expect(loadSpy).toHaveBeenCalled();
   });
 
-  it('displays no runestones message when empty and not loading', () => {
-    mapStore.setLoading(false);
-    mapStore.setError(null);
+  it('does not claim there are no runestones before the map has loaded', () => {
     mapStore.setRunestones([]);
 
     render(
       React.createElement(MemoryRouter, null, React.createElement(MapComponent)),
     );
 
+    expect(screen.queryByText('No runestones found')).not.toBeInTheDocument();
+  });
+
+  it('displays no runestones message when empty and not loading', () => {
+    mapStore.setLoading(false);
+    mapStore.setError(null);
+    mapStore.setRunestones([]);
+    mapStore.setMapInstance({} as any);
+
+    render(
+      React.createElement(MemoryRouter, null, React.createElement(MapComponent)),
+    );
+
     expect(screen.getByText('No runestones found')).toBeInTheDocument();
+    mapStore.setMapInstance(null);
   });
 });
 

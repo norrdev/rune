@@ -2,9 +2,21 @@ import { makeObservable, observable, computed, action, runInAction } from 'mobx'
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '../services/supabase';
 
+const PUBLIC_SITE_URL = 'https://runestonesafari.com';
+
+// Auth emails must link to the web app: in Tauri builds the origin is the app's
+// internal scheme (tauri://localhost, http://tauri.localhost), unreachable from a mail client.
+export const getAuthRedirectBase = (): string => {
+  const { protocol, hostname, origin } = window.location;
+  const isWebOrigin =
+    (protocol === 'http:' || protocol === 'https:') && !hostname.endsWith('tauri.localhost');
+  return isWebOrigin ? origin : PUBLIC_SITE_URL;
+};
+
 class AuthStore {
   user: User | null = null;
-  loading: boolean = false;
+  // True until the initial session check resolves, so pages don't flash a logged-out state.
+  loading: boolean = true;
 
   constructor() {
     makeObservable(this, {
@@ -17,6 +29,7 @@ class AuthStore {
       signInWithMagicLink: action,
       signOut: action,
       resetPassword: action,
+      updatePassword: action,
       deleteUser: action,
       isAuthenticated: computed,
       isEmailConfirmed: computed,
@@ -37,6 +50,10 @@ class AuthStore {
       });
     } catch (error) {
       console.error('Error initializing auth:', error);
+    } finally {
+      runInAction(() => {
+        this.setLoading(false);
+      });
     }
   }
 
@@ -76,7 +93,7 @@ class AuthStore {
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        emailRedirectTo: `${getAuthRedirectBase()}/auth/callback`,
       },
     });
     if (error) throw error;
@@ -92,9 +109,17 @@ class AuthStore {
 
   async resetPassword(email: string) {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo: `${getAuthRedirectBase()}/reset-password`,
     });
     if (error) throw error;
+  }
+
+  async updatePassword(password: string) {
+    const { data, error } = await supabase.auth.updateUser({ password });
+    if (error) throw error;
+    runInAction(() => {
+      this.setUser(data.user);
+    });
   }
 
   async deleteUser() {
@@ -137,6 +162,7 @@ supabase.auth.onAuthStateChange((event, session) => {
     event === 'SIGNED_IN' ||
     event === 'TOKEN_REFRESHED' ||
     event === 'USER_UPDATED' ||
+    event === 'PASSWORD_RECOVERY' ||
     event === 'INITIAL_SESSION'
   ) {
     runInAction(() => {

@@ -180,6 +180,8 @@ class VisitedRunestonesStore {
     }
   }
 
+  // Mark/unmark failures are reported through the return value: callers show their own
+  // inline error. `error` is reserved for fetch failures (the profile shows it full-page).
   async markAsVisited(runestoneId: number): Promise<boolean> {
     if (!authStore.isFullyAuthenticated) {
       console.warn('markAsVisited: User not fully authenticated');
@@ -189,7 +191,6 @@ class VisitedRunestonesStore {
 
     runInAction(() => {
       this.updatingRunestoneIds.add(runestoneId);
-      this.setError(null);
     });
 
     try {
@@ -202,9 +203,6 @@ class VisitedRunestonesStore {
       return success;
     } catch (error) {
       console.error('Error marking runestone as visited:', error);
-      runInAction(() => {
-        this.setError('Failed to mark runestone as visited');
-      });
       return false;
     } finally {
       runInAction(() => {
@@ -222,7 +220,6 @@ class VisitedRunestonesStore {
 
     runInAction(() => {
       this.updatingRunestoneIds.add(runestoneId);
-      this.setError(null);
     });
 
     try {
@@ -235,9 +232,6 @@ class VisitedRunestonesStore {
       return success;
     } catch (error) {
       console.error('Error unmarking runestone as visited:', error);
-      runInAction(() => {
-        this.setError('Failed to unmark runestone as visited');
-      });
       return false;
     } finally {
       runInAction(() => {

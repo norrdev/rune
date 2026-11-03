@@ -49,27 +49,6 @@ class SupabaseRunestonesService {
     return (data as RunestoneRow[]).map((row) => this.mapRowToRunestone(row));
   }
 
-  async getVisibleRunestones(
-    west?: number,
-    south?: number,
-    east?: number,
-    north?: number,
-  ): Promise<Runestone[]> {
-    const { data, error } = await supabase.rpc('get_visible_runestones', {
-      p_west: west,
-      p_south: south,
-      p_east: east,
-      p_north: north,
-    });
-
-    if (error) {
-      console.error('Error fetching runestones:', error);
-      throw error;
-    }
-
-    return this.mapRowsToRunestones(data);
-  }
-
   async getAllRunestones(): Promise<Runestone[]> {
     const { data, error } = await supabase.rpc('get_all_runestones');
 
@@ -112,25 +91,6 @@ class SupabaseRunestonesService {
 
     if (error) {
       console.error('Error marking runestone as visited:', error);
-      throw error;
-    }
-
-    return Boolean(data);
-  }
-
-  async isVisited(runestoneId: number): Promise<boolean> {
-    const user = authStore.user;
-    if (!user) {
-      console.warn('isVisited: User not logged in');
-      return false;
-    }
-    const { data, error } = await supabase.rpc('is_runestone_visited', {
-      p_signature_id: runestoneId,
-      p_user_id: user.id,
-    });
-
-    if (error) {
-      console.error('Error checking if runestone is visited:', error);
       throw error;
     }
 

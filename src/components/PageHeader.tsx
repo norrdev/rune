@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface PageHeaderProps {
   title: string;
@@ -6,9 +6,12 @@ interface PageHeaderProps {
 
 export const PageHeader = ({ title }: PageHeaderProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleBack = () => {
-    if (window.history.length > 1) {
+    // 'default' key = first entry of this app's history (opened directly or from another
+    // site); window.history.length also counts other sites, so going back would leave the app.
+    if (location.key !== 'default') {
       navigate(-1);
     } else {
       navigate('/');

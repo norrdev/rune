@@ -108,6 +108,25 @@ describe('RunestoneModal', () => {
     expect(onClose).toHaveBeenCalled();
   });
 
+  it('hides visit tracking until the email is confirmed', () => {
+    authStore.setUser({ id: 'u1', email: 'new@example.com' } as any);
+
+    render(
+      React.createElement(
+        MemoryRouter,
+        null,
+        React.createElement(RunestoneModal, {
+          isOpen: true,
+          runestone: sampleStone,
+          onClose: vi.fn(),
+        }),
+      ),
+    );
+
+    expect(screen.queryByText('Mark as Visited')).not.toBeInTheDocument();
+    expect(screen.getByText('Confirm your email to track visits')).toBeInTheDocument();
+  });
+
   it('shows mark as visited button and handles visit toggle when user is logged in', async () => {
     authStore.setUser({ id: 'u1', email_confirmed_at: '2026-01-01' } as any);
     const onVisitedChange = vi.fn();

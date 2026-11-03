@@ -67,25 +67,28 @@ export const LOADING_INDICATOR_COLOR = '#8a3b2e';
 export const MINIMAP_ZOOM = 14;
 export const MARKER_COLOR = UNVISITED_MARKER_COLOR;
 
+export const hasValidCoordinates = (stone: Pick<Runestone, 'latitude' | 'longitude'>): boolean =>
+  Number.isFinite(stone.latitude) &&
+  Number.isFinite(stone.longitude) &&
+  !(stone.latitude === 0 && stone.longitude === 0);
+
 /**
  * Creates GeoJSON features from an array of runestones, handling duplicates
  * and overlapping coordinates with small offsets.
  */
 export const createGeoJSONData = (stones: Runestone[]): RunestoneGeoJSON => {
-  // Check for and remove duplicates based on id
-  const uniqueStones = stones.filter(
-    (stone, index, arr) => arr.findIndex((s) => s.id === stone.id) === index,
-  );
+  // Remove duplicates by id and stones without usable coordinates
+  // (missing coordinates come through as 0,0 and would land in the Gulf of Guinea)
+  const seenIds = new Set<number>();
+  const uniqueStones = stones.filter((stone) => {
+    if (seenIds.has(stone.id) || !hasValidCoordinates(stone)) return false;
+    seenIds.add(stone.id);
+    return true;
+  });
 
   // Group stones by coordinates to handle overlapping locations
   const coordinateGroups = uniqueStones.reduce((acc: Record<string, Runestone[]>, stone) => {
-    // Robustly handle missing or invalid coordinates
-    const lng =
-      typeof stone.longitude === 'number' && !Number.isNaN(stone.longitude) ? stone.longitude : 0;
-    const lat =
-      typeof stone.latitude === 'number' && !Number.isNaN(stone.latitude) ? stone.latitude : 0;
-
-    const coordKey = `${lng.toFixed(6)},${lat.toFixed(6)}`;
+    const coordKey = `${stone.longitude.toFixed(6)},${stone.latitude.toFixed(6)}`;
     acc[coordKey] = acc[coordKey] || [];
     acc[coordKey].push(stone);
     return acc;
@@ -95,11 +98,8 @@ export const createGeoJSONData = (stones: Runestone[]): RunestoneGeoJSON => {
   const features: RunestoneFeature[] = [];
   Object.values(coordinateGroups).forEach((stonesAtLocation) => {
     stonesAtLocation.forEach((stone, index) => {
-      // Robustly handle missing or invalid coordinates
-      const baseLng =
-        typeof stone.longitude === 'number' && !Number.isNaN(stone.longitude) ? stone.longitude : 0;
-      const baseLat =
-        typeof stone.latitude === 'number' && !Number.isNaN(stone.latitude) ? stone.latitude : 0;
+      const baseLng = stone.longitude;
+      const baseLat = stone.latitude;
 
       // Add small offset for overlapping stones (except the first one)
       const offset = index * 0.00005; // Very small offset (~5.5 meters)

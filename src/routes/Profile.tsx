@@ -99,6 +99,7 @@ export const Profile = observer(function ProfilePage() {
   const navigate = useNavigate();
   const [downloadAllLoading, setDownloadAllLoading] = useState(false);
   const [downloadVisitedLoading, setDownloadVisitedLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [splitLimit, setSplitLimit] = useState<string>('none');
   const [customLimit, setCustomLimit] = useState<number>(500);
 
@@ -119,9 +120,19 @@ export const Profile = observer(function ProfilePage() {
     }
   };
 
-  const handleDeleteAccount = () => {
-    if (window.confirm('Delete your account and all associated data? This cannot be undone.')) {
-      authStore.deleteUser();
+  const handleDeleteAccount = async () => {
+    if (!window.confirm('Delete your account and all associated data? This cannot be undone.')) {
+      return;
+    }
+    setDeleteLoading(true);
+    try {
+      await authStore.deleteUser();
+      navigate('/', { replace: true });
+    } catch (err) {
+      console.error('Failed to delete account:', err);
+      alert('Failed to delete account. Please try again.');
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -417,9 +428,12 @@ export const Profile = observer(function ProfilePage() {
                 <button
                   type="button"
                   onClick={handleDeleteAccount}
-                  className="flex-1 bg-red-50 hover:bg-red-100/90 border border-red-150 h-11 rounded-xl flex items-center justify-center hover:-translate-y-0.5 shadow-sm hover:shadow transition-all duration-300 cursor-pointer"
+                  disabled={deleteLoading}
+                  className={`flex-1 bg-red-50 hover:bg-red-100/90 border border-red-150 h-11 rounded-xl flex items-center justify-center hover:-translate-y-0.5 shadow-sm hover:shadow transition-all duration-300 cursor-pointer ${deleteLoading ? 'opacity-50 cursor-wait' : ''}`}
                 >
-                  <span className="text-red-650 font-semibold text-sm">Delete Account</span>
+                  <span className="text-red-650 font-semibold text-sm">
+                    {deleteLoading ? 'Deleting...' : 'Delete Account'}
+                  </span>
                 </button>
               </div>
             </div>

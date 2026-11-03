@@ -5,6 +5,8 @@ import { Login } from './routes/Login';
 import { Profile } from './routes/Profile';
 import { About, Privacy, License, Changelog } from './routes/StaticPages';
 import { RunestoneDetail } from './routes/RunestoneDetail';
+import { AuthCallback } from './routes/AuthCallback';
+import { ResetPassword } from './routes/ResetPassword';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -25,6 +27,8 @@ function App() {
           <Route path="/runestones/:slug" element={<RunestoneDetail />} />
           <Route path="/login" element={<Login />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/about" element={<About />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/license" element={<License />} />

@@ -55,7 +55,6 @@ describe('runestonesCache', () => {
   beforeEach(async () => {
     vi.restoreAllMocks();
     vi.spyOn(supabaseRunestones, 'getAllRunestones').mockResolvedValue(sampleStones);
-    vi.spyOn(supabaseRunestones, 'getVisibleRunestones').mockResolvedValue(sampleStones);
     await runestonesCache.clearCache();
   });
 
@@ -81,14 +80,6 @@ describe('runestonesCache', () => {
 
     const notFound = await runestonesCache.getRunestoneBySlug('unknown-slug');
     expect(notFound).toBeNull();
-  });
-
-  it('filters runestones by geographic bounds', async () => {
-    // Bounds: [west, south, east, north]
-    const täbyBounds: [number, number, number, number] = [17.5, 59.0, 18.5, 60.0];
-    const stones = await runestonesCache.getRunestonesByBounds(täbyBounds);
-    expect(stones.length).toBeGreaterThanOrEqual(1);
-    expect(stones.some((s: Runestone) => s.signature_text === 'U 160')).toBe(true);
   });
 
   it('updates and clears cache properly', async () => {

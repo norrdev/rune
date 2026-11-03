@@ -26,13 +26,11 @@ describe('PageHeader', () => {
     expect(screen.getByText('Explore Runestones')).toBeInTheDocument();
   });
 
-  it('navigates back when back button is clicked', () => {
-    Object.defineProperty(window.history, 'length', { value: 3, configurable: true });
-
+  it('navigates back when there is in-app history', () => {
     render(
       React.createElement(
         MemoryRouter,
-        null,
+        { initialEntries: ['/', { pathname: '/about', key: 'prev-entry' }], initialIndex: 1 },
         React.createElement(PageHeader, { title: 'Title' }),
       ),
     );
@@ -43,8 +41,9 @@ describe('PageHeader', () => {
     expect(mockNavigate).toHaveBeenCalledWith(-1);
   });
 
-  it('navigates to root when history length is 1 or less', () => {
-    Object.defineProperty(window.history, 'length', { value: 1, configurable: true });
+  it('navigates to root when the page is the first entry of the app history', () => {
+    // Browser history may still contain other sites; going back would leave the app
+    Object.defineProperty(window.history, 'length', { value: 3, configurable: true });
 
     render(
       React.createElement(

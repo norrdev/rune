@@ -74,7 +74,7 @@ export const Sidebar = observer(({ visible = false, onClose }: SidebarProps) => 
           <SearchWidget onClose={onClose} />
 
           {/* Visited Runestone Count */}
-          {authStore.user && (
+          {authStore.isFullyAuthenticated && (
             <div className="px-4 py-1.5">
               <div className="bg-linear-to-br from-primary/5 to-accent/5 border border-primary/10 rounded-2xl p-4 transition hover:shadow-sm">
                 <Link to="/profile" className="flex items-center justify-between group">

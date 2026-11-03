@@ -104,6 +104,37 @@ describe('Profile route', () => {
 
     expect(window.confirm).toHaveBeenCalled();
     expect(authStore.deleteUser).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith('/', { replace: true });
+    });
+  });
+
+  it('reports a failed account deletion instead of failing silently', async () => {
+    authStore.setUser({
+      id: 'u1',
+      email: 'dennis@example.com',
+      email_confirmed_at: '2026-01-01T00:00:00Z',
+    } as any);
+    mockNavigate.mockClear();
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    vi.spyOn(window, 'alert').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(authStore, 'deleteUser').mockRejectedValue(new Error('rpc failed'));
+
+    render(React.createElement(MemoryRouter, null, React.createElement(Profile)));
+    fireEvent.click(await screen.findByRole('button', { name: 'Delete Account' }));
+
+    await waitFor(() => {
+      expect(window.alert).toHaveBeenCalledWith('Failed to delete account. Please try again.');
+    });
+    expect(mockNavigate).not.toHaveBeenCalled();
+  });
+
+  it('shows a loader instead of Not Logged In while the session is being restored', () => {
+    authStore.setLoading(true);
+    render(React.createElement(MemoryRouter, null, React.createElement(Profile)));
+    expect(screen.getByText('Loading profile...')).toBeInTheDocument();
+    expect(screen.queryByText('Not Logged In')).not.toBeInTheDocument();
   });
 
   it('handles GPX export of all runestones', async () => {

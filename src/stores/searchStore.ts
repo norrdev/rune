@@ -91,6 +91,9 @@ class SearchStore {
   }
 
   clearSearch() {
+    // Invalidate any in-flight search so its results don't land after clearing
+    this.searchToken += 1;
+    this.setLoading(false);
     this.setSearchQuery('');
     this.setSearchResults([]);
     this.setHasSearched(false);

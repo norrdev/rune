@@ -96,7 +96,8 @@ describe('visitedRunestonesStore', () => {
 
       const success = await visitedRunestonesStore.markAsVisited(42);
       expect(success).toBe(false);
-      expect(visitedRunestonesStore.error).toBe('Failed to mark runestone as visited');
+      // Reported via the return value only: the store error would break the profile page
+      expect(visitedRunestonesStore.error).toBeNull();
     });
   });
 

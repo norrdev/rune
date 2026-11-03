@@ -80,7 +80,6 @@ class MapStore {
       setMapInstance: action,
       triggerCameraUpdate: action,
       loadRunestones: action,
-      refreshVisitedStatus: action,
       openModal: action,
       closeModal: action,
       flyToRunestone: action,
@@ -97,14 +96,6 @@ class MapStore {
       searchZoom: computed,
       animationDuration: computed,
     });
-
-    // React to visited status changes
-    reaction(
-      () => visitedRunestonesStore.visitedCount,
-      () => {
-        this.refreshVisitedStatus();
-      },
-    );
 
     // React to search selection
     reaction(
@@ -211,11 +202,6 @@ class MapStore {
         this.loadPromise = null;
       });
     }
-  }
-
-  refreshVisitedStatus() {
-    // Force re-computation of geoJsonData by updating runestones reference
-    this.setRunestones([...this.runestones]);
   }
 
   openModal(runestone: Runestone) {
@@ -349,6 +335,8 @@ class MapStore {
     return createGeoJSONData(this.runestonesWithVisitedStatus);
   }
 
+  // Tracks visitedRunestonesStore.visitedRunestoneIds, so geoJsonData recomputes on its own
+  // whenever visited status changes.
   get runestonesWithVisitedStatus(): Runestone[] {
     return visitedRunestonesStore.applyVisitedStatus(this.runestones);
   }

@@ -139,7 +139,12 @@ export const RunestoneDetail = observer(function RunestoneDetailPage() {
                 <RunestoneMedia runestone={runestone} />
 
                 {/* Visit Status */}
-                {authStore.user && (
+                {authStore.user && !authStore.isEmailConfirmed && (
+                  <div className="text-xs font-medium text-gray-500 bg-gray-50/60 p-4 rounded-2xl border border-gray-100">
+                    Confirm your email to track visits
+                  </div>
+                )}
+                {authStore.isFullyAuthenticated && (
                   <div>
                     <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2.5">
                       Visit Status
@@ -232,7 +237,7 @@ export const RunestoneDetail = observer(function RunestoneDetailPage() {
                         </span>
                       </div>
                       <div className="text-xs text-gray-650 flex items-center justify-between">
-                        <span className="font-semibold">Style:</span>
+                        <span className="font-semibold">Material type:</span>
                         <span className="text-gray-800 font-semibold">
                           {runestone.material_type || 'Unknown'}
                         </span>
@@ -245,7 +250,7 @@ export const RunestoneDetail = observer(function RunestoneDetailPage() {
                       )}
                       {!!runestone.style && (
                         <div className="text-xs text-gray-655 flex items-center justify-between">
-                          <span className="font-semibold">Style ID:</span>
+                          <span className="font-semibold">Style:</span>
                           <span className="text-gray-800 font-semibold">{runestone.style}</span>
                         </div>
                       )}

@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { authStore } from './authStore';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { authStore, getAuthRedirectBase } from './authStore';
 import { supabase } from '../services/supabase';
 
 describe('authStore', () => {
@@ -104,6 +104,56 @@ describe('authStore', () => {
     await authStore.resetPassword('reset@example.com');
     expect(resetSpy).toHaveBeenCalledWith('reset@example.com', {
       redirectTo: `${window.location.origin}/reset-password`,
+    });
+  });
+
+  it('handles updatePassword', async () => {
+    const updatedUser = { id: 'u', email: 'u@example.com' } as any;
+    const updateSpy = vi.spyOn(supabase.auth, 'updateUser').mockResolvedValueOnce({
+      data: { user: updatedUser },
+      error: null,
+    } as any);
+
+    await authStore.updatePassword('new-secret');
+    expect(updateSpy).toHaveBeenCalledWith({ password: 'new-secret' });
+    expect(authStore.user).toEqual(updatedUser);
+  });
+
+  it('throws on updatePassword error', async () => {
+    vi.spyOn(supabase.auth, 'updateUser').mockResolvedValueOnce({
+      data: { user: null },
+      error: new Error('Weak password'),
+    } as any);
+
+    await expect(authStore.updatePassword('x')).rejects.toThrow('Weak password');
+  });
+
+  describe('getAuthRedirectBase', () => {
+    const originalLocation = window.location;
+    const setLocation = (url: string) => {
+      const parsed = new URL(url);
+      Object.defineProperty(window, 'location', {
+        value: { protocol: parsed.protocol, hostname: parsed.hostname, origin: parsed.origin },
+        configurable: true,
+      });
+    };
+
+    afterEach(() => {
+      Object.defineProperty(window, 'location', { value: originalLocation, configurable: true });
+    });
+
+    it('uses the current origin on the web', () => {
+      setLocation('https://runestonesafari.com/login');
+      expect(getAuthRedirectBase()).toBe('https://runestonesafari.com');
+      setLocation('http://localhost:1420/login');
+      expect(getAuthRedirectBase()).toBe('http://localhost:1420');
+    });
+
+    it('falls back to the public site inside Tauri apps', () => {
+      setLocation('http://tauri.localhost/login');
+      expect(getAuthRedirectBase()).toBe('https://runestonesafari.com');
+      setLocation('tauri://localhost/login');
+      expect(getAuthRedirectBase()).toBe('https://runestonesafari.com');
     });
   });
 

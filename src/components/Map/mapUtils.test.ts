@@ -94,17 +94,18 @@ describe('mapUtils', () => {
       expect(geojson.features[1].geometry.coordinates[1]).not.toBe(59.4);
     });
 
-    it('handles missing or NaN coordinates gracefully', () => {
+    it('skips stones with missing or NaN coordinates', () => {
       const stoneWithNaN: Runestone = {
         ...sampleStone,
         id: 3,
         latitude: Number.NaN,
         longitude: Number.NaN,
       };
+      // Missing coordinates are mapped to 0,0 when loading rows
+      const stoneAtNullIsland: Runestone = { ...sampleStone, id: 4, latitude: 0, longitude: 0 };
 
-      const geojson = createGeoJSONData([stoneWithNaN]);
-      expect(geojson.features.length).toBe(1);
-      expect(geojson.features[0].geometry.coordinates).toEqual([0, 0]);
+      const geojson = createGeoJSONData([stoneWithNaN, stoneAtNullIsland, sampleStone]);
+      expect(geojson.features.map((f) => f.properties.id)).toEqual([sampleStone.id]);
     });
   });
 

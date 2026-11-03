@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import { MapPin, Compass } from 'lucide-react';
 import '../../styles/map.web.css';
 import { Map as MapLibreMap, Marker as MapLibreMarker, type GeoJSONSource } from 'maplibre-gl';
@@ -10,6 +10,9 @@ import { STYLE_URL, RUNESTONES_SOURCE_ID, addMapSourcesAndLayers } from './mapUt
 export const MapComponent = observer(function MapComponent() {
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const userMarkerRef = useRef<MapLibreMarker | null>(null);
+  const [styleError, setStyleError] = useState<string | null>(null);
+  // Bumped by Retry after a style failure to recreate the map from scratch
+  const [mapAttempt, setMapAttempt] = useState(0);
 
   const {
     userLocation,
@@ -60,13 +63,15 @@ export const MapComponent = observer(function MapComponent() {
     };
   }, []);
 
-  // Initialize map on mount
+  // Initialize map on mount (and again when retrying after a style failure)
+  // biome-ignore lint/correctness/useExhaustiveDependencies: mapAttempt is a deliberate re-init trigger
   useEffect(() => {
     if (!mapContainer.current) return;
 
     mapStore.setPlatform('web');
 
     let mounted = true;
+    let loaded = false;
     const map = new MapLibreMap({
       container: mapContainer.current,
       center: mapStore.center,
@@ -74,16 +79,18 @@ export const MapComponent = observer(function MapComponent() {
       style: STYLE_URL,
     });
 
-    const handleLoadError = (e: unknown) => {
-      console.error('Map failed to load:', e);
-      if (mounted) {
-        mapStore.setError('Failed to load map style. Check your connection and retry.');
-      }
+    const handleLoadError = (e: { error?: Error; sourceId?: string; tile?: unknown }) => {
+      console.error('Map error:', e.error ?? e);
+      // Failed tiles, glyphs etc. after load (or tagged with a source) are transient:
+      // MapLibre keeps the map usable, so only a failure before 'load' is fatal.
+      if (!mounted || loaded || e.sourceId || e.tile) return;
+      setStyleError('Failed to load map style. Check your connection and retry.');
     };
     map.on('error', handleLoadError);
 
     map.on('load', () => {
       if (!mounted) return;
+      loaded = true;
       mapStore.setMapInstance(map);
       mapStore.loadRunestones();
     });
@@ -97,7 +104,17 @@ export const MapComponent = observer(function MapComponent() {
       }
       mapStore.setMapInstance(null);
     };
-  }, []);
+  }, [mapAttempt]);
+
+  const handleRetry = () => {
+    if (styleError) {
+      setStyleError(null);
+      setMapAttempt((n) => n + 1);
+    } else {
+      mapStore.loadRunestones();
+    }
+  };
+  const displayedError = styleError || error;
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: mapInstance, geoJsonData, and runestones are MobX store observables
   const updateMapLayers = useCallback(() => {
@@ -159,13 +176,13 @@ export const MapComponent = observer(function MapComponent() {
       )}
 
       {/* Error Message */}
-      {error && (
+      {displayedError && (
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-50/95 backdrop-blur-sm px-6 py-4 rounded-lg shadow-lg z-1001 border border-red-200 max-w-sm text-center">
           <div className="text-red-600 font-medium mb-2">Error</div>
-          <p className="text-gray-700 text-sm mb-3">{error}</p>
+          <p className="text-gray-700 text-sm mb-3">{displayedError}</p>
           <button
             type="button"
-            onClick={() => mapStore.loadRunestones()}
+            onClick={handleRetry}
             className="bg-red-100 hover:bg-red-200 text-red-700 px-4 py-3 rounded text-sm font-medium transition-colors min-h-12"
           >
             Retry
@@ -174,7 +191,7 @@ export const MapComponent = observer(function MapComponent() {
       )}
 
       {/* No Data Message */}
-      {!loading && !error && !hasRunestones && (
+      {!loading && !displayedError && mapInstance && !hasRunestones && (
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-sm px-6 py-4 rounded-lg shadow-lg z-1001">
           <p className="text-gray-700 font-medium">No runestones found</p>
         </div>
@@ -213,7 +230,6 @@ export const MapComponent = observer(function MapComponent() {
         runestone={selectedRunestone}
         isOpen={isModalOpen}
         onClose={() => mapStore.closeModal()}
-        onVisitedStatusChange={() => mapStore.refreshVisitedStatus()}
       />
     </div>
   );

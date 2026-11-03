@@ -18,7 +18,12 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | 
         <div style={{ padding: 32, fontFamily: 'monospace', color: '#c0392b' }}>
           <h2>App crashed</h2>
           <pre style={{ whiteSpace: 'pre-wrap' }}>{err.message}</pre>
-          <pre style={{ whiteSpace: 'pre-wrap', fontSize: 12, color: '#555' }}>{err.stack}</pre>
+          {import.meta.env.DEV && (
+            <pre style={{ whiteSpace: 'pre-wrap', fontSize: 12, color: '#555' }}>{err.stack}</pre>
+          )}
+          <button type="button" onClick={() => window.location.reload()}>
+            Reload
+          </button>
         </div>
       );
     }

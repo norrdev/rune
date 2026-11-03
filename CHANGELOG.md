@@ -6,6 +6,32 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## 3.6.1 - 2026-11-03
+
+### Added
+- Page for setting a new password after following a password reset link.
+- Sign-in page for magic links.
+
+### Fixed
+- Password reset and magic links led to the map instead of completing sign-in.
+- Password reset and magic link emails sent from the mobile and desktop apps contained unreachable links.
+- Users with an unconfirmed email could press "Mark as Visited", which always failed.
+- Profile briefly showed "Not Logged In" after a page reload.
+- A failed attempt to mark a runestone as visited broke the Profile page.
+- Account deletion gave no feedback on failure and kept the user on the Profile page on success.
+- A single failed map tile showed a "Failed to load map style" error over a working map.
+- Retry did not reload the map after the map style failed to load.
+- "No runestones found" flashed while the map was loading.
+- The back button could leave the site when a page was opened from an external link.
+- Lag when marking runestones as visited.
+- Search ran on every keystroke and could show stale results after clearing the query.
+- Search query disappeared when reopening the sidebar on mobile.
+- Runestones without coordinates were shown off the coast of Africa.
+- Mislabeled "Style" and "Material type" fields in runestone details.
+
+### Removed
+- Unused code.
+
 ## 3.6.0 - 2026-10-05
 
 ### Removed
