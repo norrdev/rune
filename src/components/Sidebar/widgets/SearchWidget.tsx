@@ -90,7 +90,7 @@ export const SearchWidget = observer(({ onClose }: SearchWidgetProps) => {
                   <button
                     key={runestone.id}
                     type="button"
-                    className="w-full text-left p-3 bg-white border border-gray-100 rounded-xl hover:bg-primary/5 hover:border-primary/20 hover:-translate-y-0.5 shadow-sm hover:shadow transition-all duration-300 flex flex-col justify-center min-h-[48px] cursor-pointer group"
+                    className="w-full text-left p-3 bg-white border border-gray-100 rounded-xl hover:bg-primary/5 hover:border-primary/20 hover:-translate-y-0.5 shadow-sm hover:shadow transition-all duration-300 flex flex-col justify-center min-h-[48px] shrink-0 cursor-pointer group"
                     onClick={() => {
                       if (window.innerWidth < 768 && onClose) {
                         onClose();

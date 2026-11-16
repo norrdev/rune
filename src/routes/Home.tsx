@@ -32,7 +32,8 @@ export default function Home() {
       )}
 
       {/* Main Content (Map) */}
-      <div className="flex-1 relative">
+      {/* z-0 isolates the map's stacking context so its z-1000 controls stay below the mobile sidebar and its overlay */}
+      <div className="flex-1 relative z-0">
         <MapComponent />
       </div>
     </div>
