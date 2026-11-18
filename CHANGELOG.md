@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## 3.6.2 - 2026-11-18
+
+### Fixed
+- Map control buttons appeared above the mobile sidebar and its overlay.
+- Search results clipped their location line.
+
+### Changed
+- Updated Google Play screenshots to the current design.
+
 ## 3.6.1 - 2026-11-03
 
 ### Added
