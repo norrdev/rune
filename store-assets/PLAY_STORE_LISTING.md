@@ -75,11 +75,14 @@ Start your expedition today and uncover the messages carved by the Vikings over 
 | :--- | :--- | :--- |
 | `icon-512x512.png` | 512 x 512 px, 32-bit PNG | ✅ Ready (High-res Swedish heritage logo) |
 | `feature-graphic-1024x500.jpg` | 1024 x 500 px, JPG or 24-bit PNG (no alpha) | ✅ Ready (Viking runestone in Nordic nature with map overlays) |
-| `screenshot-1-interactive-map.png` | Min 320px, Max 3840px, 16:9 / 2:1 ratio | ✅ Ready (Clustered map of 6,800+ runestones) |
-| `screenshot-2-runestone-preview.png` | Phone screenshot | ✅ Ready (Täby runestone quick preview card) |
-| `screenshot-3-runestone-details.png` | Phone screenshot | ✅ Ready (Full Norse text, English & Swedish translations) |
-| `screenshot-4-search-and-filters.png` | Phone screenshot | ✅ Ready (Search by signum, carver, region) |
-| `screenshot-5-profile-and-gpx-export.png` | Phone screenshot | ✅ Ready (Visited log & GPX hiking export) |
+| `screenshot-1-interactive-map.png` | Phone screenshot, 1080 x 1920 px (9:16) | ✅ Ready (Clustered map north of Stockholm) |
+| `screenshot-2-runestone-preview.png` | Phone screenshot, 1080 x 1920 px (9:16) | ✅ Ready (U 135 Broby quick preview card with photo) |
+| `screenshot-3-runestone-details.png` | Phone screenshot, 1080 x 1920 px (9:16) | ✅ Ready (Norse text, transliteration, Swedish & English translations) |
+| `screenshot-4-search-and-filters.png` | Phone screenshot, 1080 x 1920 px (9:16) | ✅ Ready (Search results for "Täby") |
+| `screenshot-5-profile-and-gpx-export.png` | Phone screenshot, 1080 x 1920 px (9:16) | ✅ Ready (Adventure progress & GPX export) |
+| `screenshot-6-scandinavia-overview.png` | Phone screenshot, 1080 x 1920 px (9:16) | ✅ Ready (Cluster overview of Scandinavia) |
+
+Screenshots are regenerated from the running app with `node scripts/store-screenshots.cjs` (see the header of that script).
 
 ---
 
