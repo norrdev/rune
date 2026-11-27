@@ -38,7 +38,6 @@ describe('searchStore', () => {
     expect(searchStore.hasSearched).toBe(false);
     expect(searchStore.hasResults).toBe(false);
     expect(searchStore.resultCount).toBe(0);
-    expect(searchStore.isEmptySearch).toBe(false);
   });
 
   it('performs search and updates results', async () => {
@@ -52,7 +51,6 @@ describe('searchStore', () => {
     expect(searchStore.hasSearched).toBe(true);
     expect(searchStore.hasResults).toBe(true);
     expect(searchStore.resultCount).toBe(1);
-    expect(searchStore.isEmptySearch).toBe(false);
   });
 
   it('handles empty query by resetting search results', async () => {
@@ -63,14 +61,13 @@ describe('searchStore', () => {
     expect(searchStore.hasSearched).toBe(false);
   });
 
-  it('computes isEmptySearch when no results match', async () => {
+  it('ends with no results when nothing matches', async () => {
     vi.spyOn(runestonesCache, 'searchRunestones').mockResolvedValueOnce([]);
 
     await searchStore.performSearch('nonexistent');
     expect(searchStore.hasSearched).toBe(true);
     expect(searchStore.isLoading).toBe(false);
     expect(searchStore.searchResults).toHaveLength(0);
-    expect(searchStore.isEmptySearch).toBe(true);
   });
 
   it('handles search errors gracefully', async () => {

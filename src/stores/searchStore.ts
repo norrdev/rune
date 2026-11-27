@@ -26,7 +26,6 @@ class SearchStore {
       clearSearch: action,
       hasResults: computed,
       resultCount: computed,
-      isEmptySearch: computed,
     });
   }
 
@@ -106,10 +105,6 @@ class SearchStore {
 
   get resultCount() {
     return this.searchResults.length;
-  }
-
-  get isEmptySearch() {
-    return this.hasSearched && !this.isLoading && this.searchResults.length === 0;
   }
 }
 

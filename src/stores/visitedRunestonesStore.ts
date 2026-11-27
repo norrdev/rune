@@ -4,6 +4,7 @@ import { runestonesCache } from '../services/Cache/runestonesCache';
 import { authStore } from './authStore';
 import type { Runestone } from '../types';
 
+// Matches the row count of get_all_runestones.
 const TOTAL_RUNESTONES = 6815;
 
 class VisitedRunestonesStore {
@@ -14,7 +15,8 @@ class VisitedRunestonesStore {
   detailsError: string | null = null;
   loading: boolean = false;
   error: string | null = null;
-  totalRunestonesCount: number = TOTAL_RUNESTONES;
+  readonly totalRunestonesCount = TOTAL_RUNESTONES;
+  private fetchToken = 0;
 
   constructor() {
     makeObservable(this, {
@@ -25,14 +27,12 @@ class VisitedRunestonesStore {
       detailsError: observable,
       loading: observable,
       error: observable,
-      totalRunestonesCount: observable,
       setLoading: action,
       setError: action,
       setDetailsLoading: action,
       setDetailsError: action,
       setVisitedRunestoneDetails: action,
       setVisitedRunestoneIds: action,
-      setTotalRunestonesCount: action,
       addVisitedRunestone: action,
       removeVisitedRunestone: action,
       clearVisitedRunestones: action,
@@ -44,7 +44,6 @@ class VisitedRunestonesStore {
       isRunestoneUpdating: computed,
       visitedCount: computed,
       completionPercentage: computed,
-      isAuthenticated: computed,
       applyVisitedStatus: computed,
     });
 
@@ -99,10 +98,6 @@ class VisitedRunestonesStore {
     this.visitedRunestoneIds = ids;
   }
 
-  setTotalRunestonesCount(count: number) {
-    this.totalRunestonesCount = count;
-  }
-
   addVisitedRunestone(id: number) {
     this.visitedRunestoneIds.add(id);
   }
@@ -112,6 +107,8 @@ class VisitedRunestonesStore {
   }
 
   clearVisitedRunestones() {
+    this.fetchToken += 1; // a fetch still in flight belongs to the previous user
+    this.loading = false;
     this.visitedRunestoneIds.clear();
     this.updatingRunestoneIds.clear();
     this.visitedRunestoneDetails = [];
@@ -157,31 +154,35 @@ class VisitedRunestonesStore {
       return;
     }
 
+    const myToken = ++this.fetchToken;
     this.setLoading(true);
     this.setError(null);
 
     try {
-      // Fetch visited runestone IDs from Supabase
       const visitedData = await supabaseRunestones.getAllVisitedRunestones();
-      const visitedIds = new Set(visitedData.map((rs) => rs.id));
-
+      if (myToken !== this.fetchToken) return;
       runInAction(() => {
-        this.setVisitedRunestoneIds(visitedIds);
+        this.setVisitedRunestoneIds(new Set(visitedData.map((rs) => rs.id)));
       });
     } catch (error) {
+      if (myToken !== this.fetchToken) return;
       console.error('Error fetching visited runestones:', error);
       runInAction(() => {
         this.setError('Failed to fetch visited runestones');
       });
     } finally {
-      runInAction(() => {
-        this.setLoading(false);
-      });
+      if (myToken === this.fetchToken) {
+        runInAction(() => {
+          this.setLoading(false);
+        });
+      }
     }
   }
 
   // Mark/unmark failures are reported through the return value: callers show their own
   // inline error. `error` is reserved for fetch failures (the profile shows it full-page).
+  // Any reply without an error counts as success: older database functions return false
+  // when the stone was already in the requested state (e.g. changed on another device).
   async markAsVisited(runestoneId: number): Promise<boolean> {
     if (!authStore.isFullyAuthenticated) {
       console.warn('markAsVisited: User not fully authenticated');
@@ -194,13 +195,11 @@ class VisitedRunestonesStore {
     });
 
     try {
-      const success = await supabaseRunestones.markAsVisited(runestoneId);
-      if (success) {
-        runInAction(() => {
-          this.addVisitedRunestone(runestoneId);
-        });
-      }
-      return success;
+      await supabaseRunestones.markAsVisited(runestoneId);
+      runInAction(() => {
+        this.addVisitedRunestone(runestoneId);
+      });
+      return true;
     } catch (error) {
       console.error('Error marking runestone as visited:', error);
       return false;
@@ -223,13 +222,11 @@ class VisitedRunestonesStore {
     });
 
     try {
-      const success = await supabaseRunestones.deleteVisited(runestoneId);
-      if (success) {
-        runInAction(() => {
-          this.removeVisitedRunestone(runestoneId);
-        });
-      }
-      return success;
+      await supabaseRunestones.deleteVisited(runestoneId);
+      runInAction(() => {
+        this.removeVisitedRunestone(runestoneId);
+      });
+      return true;
     } catch (error) {
       console.error('Error unmarking runestone as visited:', error);
       return false;
@@ -238,10 +235,6 @@ class VisitedRunestonesStore {
         this.updatingRunestoneIds.delete(runestoneId);
       });
     }
-  }
-
-  isVisited(runestoneId: number): boolean {
-    return this.visitedRunestoneIds.has(runestoneId);
   }
 
   get isRunestoneVisited() {
@@ -261,9 +254,8 @@ class VisitedRunestonesStore {
   }
 
   get completionPercentage(): number {
-    return this.totalRunestonesCount > 0
-      ? Math.round((this.visitedCount / this.totalRunestonesCount) * 100)
-      : 0;
+    // One decimal: with ~6800 stones, whole percents read 0% until 34 visits.
+    return Math.round((this.visitedCount / this.totalRunestonesCount) * 1000) / 10;
   }
 
   // Method to get visited runestone details from cache
@@ -279,10 +271,6 @@ class VisitedRunestonesStore {
       console.error('Error getting visited runestone details from cache:', error);
       throw error;
     }
-  }
-
-  get isAuthenticated(): boolean {
-    return authStore.isFullyAuthenticated;
   }
 
   // Helper method to apply visited status to runestones array

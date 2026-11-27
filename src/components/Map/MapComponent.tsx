@@ -22,6 +22,7 @@ export const MapComponent = observer(function MapComponent() {
     loading,
     error,
     isLocating,
+    locationError,
     selectedRunestone,
     isModalOpen,
   } = mapStore;
@@ -67,8 +68,6 @@ export const MapComponent = observer(function MapComponent() {
   // biome-ignore lint/correctness/useExhaustiveDependencies: mapAttempt is a deliberate re-init trigger
   useEffect(() => {
     if (!mapContainer.current) return;
-
-    mapStore.setPlatform('web');
 
     let mounted = true;
     let loaded = false;
@@ -194,6 +193,23 @@ export const MapComponent = observer(function MapComponent() {
       {!loading && !displayedError && mapInstance && !hasRunestones && (
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-sm px-6 py-4 rounded-lg shadow-lg z-1001">
           <p className="text-gray-700 font-medium">No runestones found</p>
+        </div>
+      )}
+
+      {locationError && (
+        <div
+          role="alert"
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 z-1000 flex items-center gap-3 bg-red-50/95 border border-red-200 px-4 py-2 rounded-lg shadow-lg max-w-[calc(100%-2rem)]"
+        >
+          <span className="text-sm text-gray-700">{locationError}</span>
+          <button
+            type="button"
+            onClick={() => mapStore.setLocationError(null)}
+            className="text-red-700 text-lg leading-none cursor-pointer"
+            aria-label="Dismiss"
+          >
+            ✕
+          </button>
         </div>
       )}
 

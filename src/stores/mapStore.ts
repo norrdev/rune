@@ -7,15 +7,10 @@ import type { Runestone, RunestoneGeoJSON } from '../types';
 import {
   JARLABANKE_BRIDGE,
   createGeoJSONData,
-  DEFAULT_ZOOM_NATIVE,
-  DEFAULT_ZOOM_WEB,
-  SEARCH_ZOOM_NATIVE,
-  SEARCH_ZOOM_WEB,
-  CAMERA_ANIMATION_DURATION_NATIVE,
-  CAMERA_ANIMATION_DURATION_WEB,
+  DEFAULT_ZOOM,
+  SEARCH_ZOOM,
+  CAMERA_ANIMATION_DURATION,
 } from '../components/Map/mapUtils';
-
-type MapPlatform = 'native' | 'web';
 
 class MapStore {
   // Data
@@ -28,19 +23,12 @@ class MapStore {
   isModalOpen: boolean = false;
   isLocating: boolean = false;
 
-  // Camera/Map State
+  // Camera to use when the map is (re)created
   center: [number, number] = JARLABANKE_BRIDGE;
-  zoom: number = DEFAULT_ZOOM_NATIVE;
-  bearing: number = 0;
+  zoom: number = DEFAULT_ZOOM;
 
-  // Platform
-  platform: MapPlatform = 'native';
-
-  // Map instance (for web) - must use ref to prevent MobX Proxy wrapping MapLibre internals
+  // Must use ref to prevent MobX Proxy wrapping MapLibre internals
   mapInstance: MapLibreMap | null = null;
-
-  // Camera animation trigger (for native - to trigger useEffect)
-  cameraUpdateTrigger: number = 0;
 
   // User Location
   userLocation: [number, number] | null = null;
@@ -59,10 +47,7 @@ class MapStore {
       isLocating: observable,
       center: observable,
       zoom: observable,
-      bearing: observable,
-      platform: observable,
       mapInstance: observable.ref,
-      cameraUpdateTrigger: observable,
       userLocation: observable,
       locationError: observable,
 
@@ -73,12 +58,10 @@ class MapStore {
       setSelectedRunestone: action,
       setIsModalOpen: action,
       setIsLocating: action,
+      setLocationError: action,
       setCenter: action,
       setZoom: action,
-      setBearing: action,
-      setPlatform: action,
       setMapInstance: action,
-      triggerCameraUpdate: action,
       loadRunestones: action,
       openModal: action,
       closeModal: action,
@@ -91,10 +74,6 @@ class MapStore {
       geoJsonData: computed,
       runestonesWithVisitedStatus: computed,
       hasRunestones: computed,
-      isReady: computed,
-      defaultZoom: computed,
-      searchZoom: computed,
-      animationDuration: computed,
     });
 
     // React to search selection
@@ -102,7 +81,7 @@ class MapStore {
       () => searchStore.selectedRunestone,
       (runestone) => {
         if (runestone) {
-          this.flyToRunestone(runestone, this.searchZoom);
+          this.flyToRunestone(runestone, SEARCH_ZOOM);
           // Defer cross-store mutation out of the reaction to avoid
           // mutating an observed value inside its own reaction.
           setTimeout(() => searchStore.setSelectedRunestone(null), 0);
@@ -137,23 +116,16 @@ class MapStore {
     this.isLocating = isLocating;
   }
 
+  setLocationError(message: string | null) {
+    this.locationError = message;
+  }
+
   setCenter(center: [number, number]) {
     this.center = center;
   }
 
   setZoom(zoom: number) {
     this.zoom = zoom;
-  }
-
-  setBearing(bearing: number) {
-    this.bearing = bearing;
-  }
-
-  setPlatform(platform: MapPlatform) {
-    if (this.platform === platform) return;
-    this.platform = platform;
-    // Apply platform default zoom only on actual platform switch (not on every mount).
-    this.zoom = platform === 'native' ? DEFAULT_ZOOM_NATIVE : DEFAULT_ZOOM_WEB;
   }
 
   setMapInstance(map: MapLibreMap | null) {
@@ -163,10 +135,6 @@ class MapStore {
       this.locationWatchId = null;
       this.userLocation = null;
     }
-  }
-
-  triggerCameraUpdate() {
-    this.cameraUpdateTrigger += 1;
   }
 
   async loadRunestones() {
@@ -214,51 +182,29 @@ class MapStore {
     this.setSelectedRunestone(null);
   }
 
-  flyToRunestone(runestone: Runestone, zoom?: number) {
-    const targetZoom = zoom ?? this.defaultZoom;
-    this.flyToLocation(runestone.longitude, runestone.latitude, targetZoom);
+  flyToRunestone(runestone: Runestone, zoom = DEFAULT_ZOOM) {
+    this.flyToLocation(runestone.longitude, runestone.latitude, zoom);
     this.openModal(runestone);
   }
 
-  flyToLocation(longitude: number, latitude: number, zoom?: number) {
-    const targetZoom = zoom ?? this.zoom;
-
-    if (this.platform === 'web' && this.mapInstance) {
-      // Web: use MapLibre's flyTo, keep store in sync
-      this.setCenter([longitude, latitude]);
-      this.setZoom(targetZoom);
-      this.mapInstance.flyTo({
-        center: [longitude, latitude],
-        zoom: targetZoom,
-        duration: this.animationDuration,
-      });
-    } else {
-      // Native: update observables and trigger camera update
-      this.setCenter([longitude, latitude]);
-      this.setZoom(targetZoom);
-      this.triggerCameraUpdate();
-    }
+  // Without a map yet, the stored camera is used when the map is created.
+  flyToLocation(longitude: number, latitude: number, zoom = this.zoom) {
+    this.setCenter([longitude, latitude]);
+    this.setZoom(zoom);
+    this.mapInstance?.flyTo({
+      center: [longitude, latitude],
+      zoom,
+      duration: CAMERA_ANIMATION_DURATION,
+    });
   }
 
   resetBearing() {
-    if (this.platform === 'web' && this.mapInstance) {
-      // Web: use MapLibre's easeTo
-      this.mapInstance.easeTo({
-        bearing: 0,
-        duration: this.animationDuration,
-      });
-    } else {
-      // Native: update observable and trigger camera update
-      this.setBearing(0);
-      this.triggerCameraUpdate();
-    }
+    this.mapInstance?.easeTo({ bearing: 0, duration: CAMERA_ANIMATION_DURATION });
   }
 
   async getCurrentLocation() {
     this.setIsLocating(true);
-    runInAction(() => {
-      this.locationError = null;
-    });
+    this.setLocationError(null);
 
     try {
       if (this.locationWatchId === null && 'geolocation' in navigator) {
@@ -291,8 +237,9 @@ class MapStore {
         this.locationWatchId = null;
       }
       runInAction(() => {
-        this.locationError =
-          error instanceof Error ? error.message : 'Unable to get your current location';
+        this.setLocationError(
+          error instanceof Error ? error.message : 'Unable to get your current location',
+        );
       });
     } finally {
       runInAction(() => {
@@ -345,23 +292,6 @@ class MapStore {
     return this.runestones.length > 0;
   }
 
-  get isReady(): boolean {
-    return !this.loading && !this.error && this.hasRunestones;
-  }
-
-  get defaultZoom(): number {
-    return this.platform === 'native' ? DEFAULT_ZOOM_NATIVE : DEFAULT_ZOOM_WEB;
-  }
-
-  get searchZoom(): number {
-    return this.platform === 'native' ? SEARCH_ZOOM_NATIVE : SEARCH_ZOOM_WEB;
-  }
-
-  get animationDuration(): number {
-    return this.platform === 'native'
-      ? CAMERA_ANIMATION_DURATION_NATIVE
-      : CAMERA_ANIMATION_DURATION_WEB;
-  }
 }
 
 // Create and export a singleton instance

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { Runestone } from '../../types';
-import { runestonesCache } from './runestonesCache';
+import { RunestonesCache } from './runestonesCache';
 import { supabaseRunestones } from '../supabaseRunestones';
 
 const sampleStones: Runestone[] = [
@@ -52,23 +52,43 @@ const sampleStones: Runestone[] = [
 ];
 
 describe('runestonesCache', () => {
-  beforeEach(async () => {
+  let runestonesCache: RunestonesCache;
+
+  beforeEach(() => {
     vi.restoreAllMocks();
     vi.spyOn(supabaseRunestones, 'getAllRunestones').mockResolvedValue(sampleStones);
-    await runestonesCache.clearCache();
+    localStorage.clear();
+    runestonesCache = new RunestonesCache();
   });
 
-  it('retrieves all runestones from cache or supabase if count is less than total', async () => {
-    const allStones = await runestonesCache.getAllRunestones();
-    expect(allStones).toEqual(sampleStones);
-    expect(supabaseRunestones.getAllRunestones).toHaveBeenCalled();
+  it('loads from supabase once, then serves from the cache', async () => {
+    expect(await runestonesCache.getAllRunestones()).toEqual(sampleStones);
+    expect(await runestonesCache.getAllRunestones()).toEqual(sampleStones);
+    expect(supabaseRunestones.getAllRunestones).toHaveBeenCalledTimes(1);
+
+    // A fresh start with the same app version reuses the cache
+    await new RunestonesCache().getAllRunestones();
+    expect(supabaseRunestones.getAllRunestones).toHaveBeenCalledTimes(1);
+  });
+
+  it('replaces the cache when the app version changes, dropping removed stones', async () => {
+    await runestonesCache.getAllRunestones();
+    localStorage.setItem('runestones-cache-version', '0.0.0');
+    vi.mocked(supabaseRunestones.getAllRunestones).mockResolvedValue([sampleStones[1]]);
+
+    expect(await new RunestonesCache().getAllRunestones()).toEqual([sampleStones[1]]);
+  });
+
+  it('retries after a failed load', async () => {
+    vi.mocked(supabaseRunestones.getAllRunestones).mockRejectedValueOnce(new Error('offline'));
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    await expect(runestonesCache.getAllRunestones()).rejects.toThrow('offline');
+    expect(await runestonesCache.getAllRunestones()).toEqual(sampleStones);
   });
 
   it('searches runestones by matching text', async () => {
-    const emptyResults = await runestonesCache.searchRunestones('   ');
-    expect(emptyResults).toEqual([]);
+    expect(await runestonesCache.searchRunestones('   ')).toEqual([]);
 
-    await runestonesCache.getAllRunestones();
     const results = await runestonesCache.searchRunestones('Risbyle');
     expect(results).toHaveLength(1);
     expect(results[0].signature_text).toBe('U 160');
@@ -77,14 +97,6 @@ describe('runestonesCache', () => {
   it('fetches runestone by slug', async () => {
     const stone = await runestonesCache.getRunestoneBySlug('U_160');
     expect(stone?.signature_text).toBe('U 160');
-
-    const notFound = await runestonesCache.getRunestoneBySlug('unknown-slug');
-    expect(notFound).toBeNull();
-  });
-
-  it('updates and clears cache properly', async () => {
-    await runestonesCache.updateCache([sampleStones[0]]);
-    await runestonesCache.clearCache();
+    expect(await runestonesCache.getRunestoneBySlug('unknown-slug')).toBeNull();
   });
 });
-

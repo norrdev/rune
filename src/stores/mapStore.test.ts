@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { mapStore } from './mapStore';
 import { runestonesCache } from '../services/Cache/runestonesCache';
 import type { Runestone } from '../types';
+import { DEFAULT_ZOOM } from '../components/Map/mapUtils';
 
 describe('mapStore', () => {
   const sampleStone: Runestone = {
@@ -30,7 +31,6 @@ describe('mapStore', () => {
     mapStore.setLoading(false);
     mapStore.setError(null);
     mapStore.closeModal();
-    mapStore.setPlatform('web');
   });
 
   it('manages modal open and close actions', () => {
@@ -46,27 +46,12 @@ describe('mapStore', () => {
     expect(mapStore.selectedRunestone).toBeNull();
   });
 
-  it('computes platform zoom and animation durations', () => {
-    mapStore.setPlatform('native');
-    expect(mapStore.platform).toBe('native');
-    expect(mapStore.defaultZoom).toBe(10);
-    expect(mapStore.searchZoom).toBe(14);
-    expect(mapStore.animationDuration).toBe(1000);
-
-    mapStore.setPlatform('web');
-    expect(mapStore.platform).toBe('web');
-    expect(mapStore.defaultZoom).toBe(13);
-    expect(mapStore.searchZoom).toBe(16);
-    expect(mapStore.animationDuration).toBe(2000);
-  });
-
   it('loads runestones from cache successfully', async () => {
     vi.spyOn(runestonesCache, 'getAllRunestones').mockResolvedValueOnce([sampleStone]);
 
     await mapStore.loadRunestones();
     expect(mapStore.runestones).toEqual([sampleStone]);
     expect(mapStore.hasRunestones).toBe(true);
-    expect(mapStore.isReady).toBe(true);
     expect(mapStore.loading).toBe(false);
     expect(mapStore.error).toBeNull();
   });
@@ -77,23 +62,23 @@ describe('mapStore', () => {
     await mapStore.loadRunestones();
     expect(mapStore.error).toBe('Failed to load runestones');
     expect(mapStore.loading).toBe(false);
-    expect(mapStore.isReady).toBe(false);
   });
 
   it('flies to runestone and opens modal', () => {
     const flySpy = vi.spyOn(mapStore, 'flyToLocation');
     mapStore.flyToRunestone(sampleStone);
 
-    expect(flySpy).toHaveBeenCalledWith(18.0, 59.4, mapStore.defaultZoom);
+    expect(flySpy).toHaveBeenCalledWith(18.0, 59.4, DEFAULT_ZOOM);
     expect(mapStore.isModalOpen).toBe(true);
     expect(mapStore.selectedRunestone).toEqual(sampleStone);
   });
 
-  it('resets bearing', () => {
-    mapStore.setPlatform('native');
-    mapStore.setBearing(45);
+  it('resets bearing on the map', () => {
+    const easeTo = vi.fn();
+    mapStore.setMapInstance({ easeTo } as any);
     mapStore.resetBearing();
-    expect(mapStore.bearing).toBe(0);
+    expect(easeTo).toHaveBeenCalledWith(expect.objectContaining({ bearing: 0 }));
+    mapStore.setMapInstance(null);
   });
 
   it('handles geolocation lookup', async () => {

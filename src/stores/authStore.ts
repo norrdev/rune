@@ -34,8 +34,6 @@ class AuthStore {
       isAuthenticated: computed,
       isEmailConfirmed: computed,
       isFullyAuthenticated: computed,
-      userId: computed,
-      userEmail: computed,
     });
     this.initializeAuth();
   }
@@ -142,14 +140,6 @@ class AuthStore {
 
   get isFullyAuthenticated() {
     return this.isAuthenticated && this.isEmailConfirmed;
-  }
-
-  get userId() {
-    return this.user?.id;
-  }
-
-  get userEmail() {
-    return this.user?.email;
   }
 }
 

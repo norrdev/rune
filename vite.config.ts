@@ -22,16 +22,6 @@ export default defineConfig(async () => ({
   resolve: {
     alias: {
       '@stores': '/src/stores',
-      '@components': '/src/components',
-      '@services': '/src/services',
-      '@utils': '/src/utils',
-      '@pages': '/src/routes',
-      '@hooks': '/src/hooks',
-      '@types': '/src/types',
-      '@styles': '/src/styles',
-      '@config': '/src/config',
-      '@contexts': '/src/contexts',
-      '@assets': '/src/assets',
     },
   },
 }));

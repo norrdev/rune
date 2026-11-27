@@ -129,7 +129,6 @@ describe('RunestoneModal', () => {
 
   it('shows mark as visited button and handles visit toggle when user is logged in', async () => {
     authStore.setUser({ id: 'u1', email_confirmed_at: '2026-01-01' } as any);
-    const onVisitedChange = vi.fn();
     vi.spyOn(visitedRunestonesStore, 'markAsVisited').mockResolvedValue(true);
 
     render(
@@ -140,7 +139,6 @@ describe('RunestoneModal', () => {
           isOpen: true,
           runestone: sampleStone,
           onClose: vi.fn(),
-          onVisitedStatusChange: onVisitedChange,
         }),
       ),
     );
@@ -152,7 +150,6 @@ describe('RunestoneModal', () => {
 
     await waitFor(() => {
       expect(visitedRunestonesStore.markAsVisited).toHaveBeenCalledWith(sampleStone.id);
-      expect(onVisitedChange).toHaveBeenCalled();
     });
   });
 });

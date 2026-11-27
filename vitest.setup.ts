@@ -63,11 +63,12 @@ vi.mock('idb/build/index.js', () => {
     count: vi.fn().mockImplementation(async () => store.size),
     getAll: vi.fn().mockImplementation(async () => Array.from(store.values())),
     getFromIndex: vi.fn().mockImplementation(async (_s: string, _idx: string, val: string) => {
-      return Array.from(store.values()).find((item: any) => item?.slug === val) || null;
+      return Array.from(store.values()).find((item: any) => item?.slug === val);
     }),
     clear: vi.fn().mockImplementation(async () => store.clear()),
     transaction: vi.fn().mockImplementation(() => {
       const storeObj = {
+        clear: vi.fn().mockImplementation(async () => store.clear()),
         put: vi.fn().mockImplementation(async (item: any) => {
           store.set(item.id, item);
         }),

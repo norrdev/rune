@@ -33,16 +33,19 @@ describe('visitedRunestonesStore', () => {
   });
 
   it('calculates counts and completion percentage correctly', () => {
-    visitedRunestonesStore.setTotalRunestonesCount(100);
     expect(visitedRunestonesStore.visitedCount).toBe(0);
     expect(visitedRunestonesStore.completionPercentage).toBe(0);
 
     visitedRunestonesStore.addVisitedRunestone(42);
     expect(visitedRunestonesStore.visitedCount).toBe(1);
-    expect(visitedRunestonesStore.isVisited(42)).toBe(true);
     expect(visitedRunestonesStore.isRunestoneVisited(42)).toBe(true);
-    expect(visitedRunestonesStore.isVisited(99)).toBe(false);
-    expect(visitedRunestonesStore.completionPercentage).toBe(1);
+    expect(visitedRunestonesStore.isRunestoneVisited(42)).toBe(true);
+    expect(visitedRunestonesStore.isRunestoneVisited(99)).toBe(false);
+    // 1 of 6815 rounds to 0.0; 30 of 6815 shows 0.4 instead of 0
+    expect(visitedRunestonesStore.completionPercentage).toBe(0);
+    for (let id = 1; id < 30; id++) visitedRunestonesStore.addVisitedRunestone(id);
+    expect(visitedRunestonesStore.completionPercentage).toBe(0.4);
+    for (let id = 1; id < 30; id++) visitedRunestonesStore.removeVisitedRunestone(id);
 
     visitedRunestonesStore.removeVisitedRunestone(42);
     expect(visitedRunestonesStore.visitedCount).toBe(0);
@@ -76,7 +79,7 @@ describe('visitedRunestonesStore', () => {
 
       const success = await visitedRunestonesStore.markAsVisited(42);
       expect(success).toBe(true);
-      expect(visitedRunestonesStore.isVisited(42)).toBe(true);
+      expect(visitedRunestonesStore.isRunestoneVisited(42)).toBe(true);
     });
 
     it('unmarks runestone as visited when user is authenticated', async () => {
@@ -87,7 +90,15 @@ describe('visitedRunestonesStore', () => {
 
       const success = await visitedRunestonesStore.unmarkAsVisited(42);
       expect(success).toBe(true);
-      expect(visitedRunestonesStore.isVisited(42)).toBe(false);
+      expect(visitedRunestonesStore.isRunestoneVisited(42)).toBe(false);
+    });
+
+    it('treats false from the database (already visited elsewhere) as success', async () => {
+      authStore.setUser({ id: 'u1', email_confirmed_at: '2026-01-01' } as any);
+      vi.spyOn(supabaseRunestones, 'markAsVisited').mockResolvedValueOnce(false);
+
+      expect(await visitedRunestonesStore.markAsVisited(42)).toBe(true);
+      expect(visitedRunestonesStore.isRunestoneVisited(42)).toBe(true);
     });
 
     it('handles markAsVisited failure', async () => {
@@ -117,8 +128,24 @@ describe('visitedRunestonesStore', () => {
       ]);
 
       await visitedRunestonesStore.fetchVisitedRunestones();
-      expect(visitedRunestonesStore.isVisited(101)).toBe(true);
+      expect(visitedRunestonesStore.isRunestoneVisited(101)).toBe(true);
     });
+  });
+
+  it('drops a visited list that arrives after sign-out', async () => {
+    authStore.setUser({ id: 'u1', email_confirmed_at: '2026-01-01' } as any);
+    let resolve!: (v: Runestone[]) => void;
+    vi.spyOn(supabaseRunestones, 'getAllVisitedRunestones').mockReturnValueOnce(
+      new Promise((r) => {
+        resolve = r;
+      }),
+    );
+
+    const pending = visitedRunestonesStore.fetchVisitedRunestones();
+    visitedRunestonesStore.clearVisitedRunestones();
+    resolve([{ ...sampleStone, id: 101 }]);
+    await pending;
+    expect(visitedRunestonesStore.visitedCount).toBe(0);
   });
 
   describe('fetchVisitedRunestoneDetails', () => {

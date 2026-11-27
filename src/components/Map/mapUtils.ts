@@ -25,28 +25,22 @@ export const CLUSTER_THRESHOLDS = {
   LARGE: 750, // Threshold for large clusters
 } as const;
 
-export const DEFAULT_ZOOM_NATIVE = 10;
-export const DEFAULT_ZOOM_WEB = 13;
-export const SEARCH_ZOOM_NATIVE = 14;
-export const SEARCH_ZOOM_WEB = 16;
+export const DEFAULT_ZOOM = 13;
+export const SEARCH_ZOOM = 16;
 
 export const CLUSTER_MAX_ZOOM = 13;
-export const CAMERA_ANIMATION_DURATION_NATIVE = 1000;
-export const CAMERA_ANIMATION_DURATION_WEB = 2000;
+export const CAMERA_ANIMATION_DURATION = 2000;
 export const CLUSTER_RADIUS = 50;
 
 export const UNVISITED_MARKER_COLOR = '#a34632'; // Red ochre
 export const VISITED_MARKER_COLOR = '#3f6f63'; // Verdigris
-export const MARKER_RADIUS_NATIVE = 8;
-export const MARKER_RADIUS_WEB = 9;
-export const MARKER_STROKE_WIDTH_NATIVE = 2;
-export const MARKER_STROKE_WIDTH_WEB = 3;
+export const MARKER_RADIUS = 9;
+export const MARKER_STROKE_WIDTH = 3;
 export const MARKER_STROKE_COLOR = '#fffcf3';
 
 export const CLUSTER_COUNT_TEXT_SIZE = 12;
 export const CLUSTER_COUNT_TEXT_COLOR = '#fffcf3';
-export const CLUSTER_COUNT_FONT_NATIVE = ['Noto Sans Regular'];
-export const CLUSTER_COUNT_FONT_WEB = ['Noto Sans Regular', 'Arial Unicode MS Regular'];
+export const CLUSTER_COUNT_FONT = ['Noto Sans Regular', 'Arial Unicode MS Regular'];
 
 export const RUNESTONES_SOURCE_ID = 'runestones';
 
@@ -56,13 +50,6 @@ export const LAYER_IDS = {
   UNVISITED: 'unvisited-runestones',
   VISITED: 'visited-runestones',
 } as const;
-
-// For web, we used different IDs previously, let's keep them if needed, but the constants above should work if updated everywhere.
-// Web originally had: unclustered-point-unvisited, unclustered-point-visited.
-// Native had: unvisited-runestones, visited-runestones.
-// I'll stick to the unified IDs but restore the other properties.
-
-export const LOADING_INDICATOR_COLOR = '#8a3b2e';
 
 export const MINIMAP_ZOOM = 14;
 export const MARKER_COLOR = UNVISITED_MARKER_COLOR;
@@ -140,8 +127,7 @@ export const createGeoJSONData = (stones: Runestone[]): RunestoneGeoJSON => {
 };
 
 /**
- * Adds map sources and layers for runestones with clustering support (web only).
- * This extracts the complex layer setup logic from the component.
+ * Adds map sources and layers for runestones with clustering support.
  */
 export const addMapSourcesAndLayers = (
   map: MapLibreMap,
@@ -195,7 +181,7 @@ export const addMapSourcesAndLayers = (
     layout: {
       'text-field': '{point_count}',
       'text-size': CLUSTER_COUNT_TEXT_SIZE,
-      'text-font': CLUSTER_COUNT_FONT_WEB,
+      'text-font': CLUSTER_COUNT_FONT,
     },
     paint: {
       'text-color': CLUSTER_COUNT_TEXT_COLOR,
@@ -210,8 +196,8 @@ export const addMapSourcesAndLayers = (
     filter: ['all', ['!', ['has', 'point_count']], ['==', ['get', 'visited'], false]],
     paint: {
       'circle-color': UNVISITED_MARKER_COLOR,
-      'circle-radius': MARKER_RADIUS_WEB,
-      'circle-stroke-width': MARKER_STROKE_WIDTH_WEB,
+      'circle-radius': MARKER_RADIUS,
+      'circle-stroke-width': MARKER_STROKE_WIDTH,
       'circle-stroke-color': MARKER_STROKE_COLOR,
     },
   });
@@ -224,8 +210,8 @@ export const addMapSourcesAndLayers = (
     filter: ['all', ['!', ['has', 'point_count']], ['==', ['get', 'visited'], true]],
     paint: {
       'circle-color': VISITED_MARKER_COLOR,
-      'circle-radius': MARKER_RADIUS_WEB,
-      'circle-stroke-width': MARKER_STROKE_WIDTH_WEB,
+      'circle-radius': MARKER_RADIUS,
+      'circle-stroke-width': MARKER_STROKE_WIDTH,
       'circle-stroke-color': MARKER_STROKE_COLOR,
     },
   });

@@ -1,37 +1,18 @@
 /// <reference types="vite/client" />
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-class SupabaseService {
-  private static instance: SupabaseService;
-  private client: SupabaseClient;
+import { createClient } from '@supabase/supabase-js';
 
-  private constructor() {
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-    if (!supabaseUrl || !supabaseAnonKey) {
-      console.warn('Missing Supabase environment variables');
-    }
-
-    this.client = createClient(supabaseUrl || '', supabaseAnonKey || '', {
-      auth: {
-        storage: typeof window !== 'undefined' ? window.localStorage : undefined,
-        autoRefreshToken: true,
-        persistSession: true,
-        detectSessionInUrl: typeof window !== 'undefined',
-      },
-    });
-  }
-
-  public static getInstance(): SupabaseService {
-    if (!SupabaseService.instance) {
-      SupabaseService.instance = new SupabaseService();
-    }
-    return SupabaseService.instance;
-  }
-
-  public getClient(): SupabaseClient {
-    return this.client;
-  }
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.warn('Missing Supabase environment variables');
 }
 
-export const supabase = SupabaseService.getInstance().getClient();
+export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '', {
+  auth: {
+    storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: typeof window !== 'undefined',
+  },
+});

@@ -46,6 +46,16 @@ describe('MapComponent', () => {
     expect(bearingSpy).toHaveBeenCalled();
   });
 
+  it('shows a location error and lets the user dismiss it', () => {
+    mapStore.setLocationError('Unable to get your current location');
+    render(React.createElement(MemoryRouter, null, React.createElement(MapComponent)));
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Unable to get your current location');
+    fireEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
+    expect(mapStore.locationError).toBeNull();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
   it('displays loading indicator when loading is true', () => {
     mapStore.setLoading(true);
 

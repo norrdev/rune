@@ -13,8 +13,6 @@ describe('authStore', () => {
     expect(authStore.isAuthenticated).toBe(false);
     expect(authStore.isEmailConfirmed).toBe(false);
     expect(authStore.isFullyAuthenticated).toBe(false);
-    expect(authStore.userId).toBeUndefined();
-    expect(authStore.userEmail).toBeUndefined();
 
     // User without email confirmation
     authStore.setUser({
@@ -25,8 +23,6 @@ describe('authStore', () => {
     expect(authStore.isAuthenticated).toBe(true);
     expect(authStore.isEmailConfirmed).toBe(false);
     expect(authStore.isFullyAuthenticated).toBe(false);
-    expect(authStore.userId).toBe('uid-1');
-    expect(authStore.userEmail).toBe('user@example.com');
 
     // Confirmed user
     authStore.setUser({

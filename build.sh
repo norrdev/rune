@@ -1,6 +1,7 @@
 #!/bin/bash
+set -e
 
-Build the Tauri app
+# Build the Tauri app
 echo "Building for desktop..."
 npm run tauri build
 

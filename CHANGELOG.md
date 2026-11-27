@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## 3.6.3 - 2026-11-27
+
+### Fixed
+- Marking a runestone as visited or not visited showed an error when it had already been changed on another device.
+- Location errors were not shown; they now appear on the map and can be dismissed.
+- Completion percentage stayed at 0% until about 34 visited runestones; it now shows one decimal.
+- Runestones removed from the database stayed in the offline cache.
+- The runestone list was downloaded twice on first start.
+- Visits of the previous account could appear after signing out.
+
+### Changed
+- The map popup and the runestone page now show the same details, with translations in the same order.
+
+### Removed
+- Unused dependencies and leftover code from the old mobile app.
+
 ## 3.6.2 - 2026-11-18
 
 ### Fixed
