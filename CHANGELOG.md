@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 3.6.3 - 2026-11-27
 
+### Security
+- Visited runestones can now only be read and changed by their owner.
+
 ### Fixed
 - Marking a runestone as visited or not visited showed an error when it had already been changed on another device.
 - Location errors were not shown; they now appear on the map and can be dismissed.
